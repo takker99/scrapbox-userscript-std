@@ -1,2 +1,3 @@
 # scrapbox-userscript-std
-standard module for Scrapbox UserScript
+
+UNOFFICIAL standard module for Scrapbox UserScript
