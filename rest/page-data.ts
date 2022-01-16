@@ -6,7 +6,12 @@ import type {
   NotLoggedInError,
   NotPrivilegeError,
 } from "../deps/scrapbox.ts";
-import { cookie, getCSRFToken } from "./utils.ts";
+import {
+  cookie,
+  getCSRFToken,
+  makeCustomError,
+  tryToErrorLike,
+} from "./utils.ts";
 import type { Result } from "./utils.ts";
 
 /** `importPages`の認証情報 */
@@ -49,8 +54,9 @@ export async function importPages(
     csrf = result.csrfToken;
   }
 
+  const path = `https://scrapbox.io/api/page-data/import/${project}.json`;
   const res = await fetch(
-    `https://scrapbox.io/api/page-data/import/${project}.json`,
+    path,
     {
       method: "POST",
       headers: {
@@ -64,12 +70,15 @@ export async function importPages(
 
   if (!res.ok) {
     if (res.status === 503) {
-      const error = new Error();
-      error.name = "ServerError";
-      error.message = "503 Service Unavailable";
-      throw error;
+      throw makeCustomError("ServerError", "503 Service Unavailable");
     }
-    const error = (await res.json()) as ErrorLike;
+    const error = tryToErrorLike(await res.text());
+    if (!error) {
+      throw makeCustomError(
+        "UnexpectedError",
+        `Unexpected error has occuerd when fetching "${path}"`,
+      );
+    }
     return { ok: false, ...error };
   }
   const result = (await res.json()) as { message: string };
@@ -94,8 +103,10 @@ export async function exportPages<withMetadata extends true | false>(
     NotFoundError | NotPrivilegeError | NotLoggedInError
   >
 > {
+  const path =
+    `https://scrapbox.io/api/page-data/export/${project}.json?metadata=${metadata}`;
   const res = await fetch(
-    `https://scrapbox.io/api/page-data/export/${project}.json?metadata=${metadata}`,
+    path,
     {
       headers: {
         Cookie: cookie(sid),
@@ -104,11 +115,21 @@ export async function exportPages<withMetadata extends true | false>(
   );
 
   if (!res.ok) {
-    const error = (await res.json()) as
-      | NotFoundError
-      | NotPrivilegeError
-      | NotLoggedInError;
+    const error = (await res.json());
     return { ok: false, ...error };
+  }
+  if (!res.ok) {
+    const error = tryToErrorLike(await res.text());
+    if (!error) {
+      throw makeCustomError(
+        "UnexpectedError",
+        `Unexpected error has occuerd when fetching "${path}"`,
+      );
+    }
+    return {
+      ok: false,
+      ...(error as NotFoundError | NotPrivilegeError | NotLoggedInError),
+    };
   }
   const result = (await res.json()) as ExportedData<withMetadata>;
   return { ok: true, ...result };
