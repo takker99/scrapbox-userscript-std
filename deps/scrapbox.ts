@@ -7,4 +7,4 @@ export type {
   NotMemberError,
   NotPrivilegeError,
   Page,
-} from "https://pax.deno.dev/scrapbox-jp/types@0.0.8";
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.8/mod.ts";
