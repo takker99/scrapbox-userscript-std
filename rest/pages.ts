@@ -49,8 +49,12 @@ export async function getPage(
   );
 
   if (!res.ok) {
-    const error = tryToErrorLike(await res.text());
-    if (!error) {
+    const value = tryToErrorLike(await res.text()) as
+      | false
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError;
+    if (!value) {
       throw makeCustomError(
         "UnexpectedError",
         `Unexpected error has occuerd when fetching "${path}"`,
@@ -58,9 +62,9 @@ export async function getPage(
     }
     return {
       ok: false,
-      ...(error as (NotFoundError | NotLoggedInError | NotMemberError)),
+      value,
     };
   }
-  const result = (await res.json()) as Page;
-  return { ok: true, ...result };
+  const value = (await res.json()) as Page;
+  return { ok: true, value };
 }
