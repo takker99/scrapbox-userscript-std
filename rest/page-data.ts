@@ -33,10 +33,10 @@ export async function importPages(
   data: ImportedData<boolean>,
   { sid, csrf }: ImportInit,
 ): Promise<
-  Result<{ message: string }, ErrorLike>
+  Result<string, ErrorLike>
 > {
   if (data.pages.length === 0) {
-    return { ok: true, message: "No pages to import." };
+    return { ok: true, value: "No pages to import." };
   }
 
   const formData = new FormData();
@@ -51,7 +51,7 @@ export async function importPages(
   if (!csrf) {
     const result = await getCSRFToken(sid);
     if (!result.ok) return result;
-    csrf = result.csrfToken;
+    csrf = result.value;
   }
 
   const path = `https://scrapbox.io/api/page-data/import/${project}.json`;
@@ -72,17 +72,17 @@ export async function importPages(
     if (res.status === 503) {
       throw makeCustomError("ServerError", "503 Service Unavailable");
     }
-    const error = tryToErrorLike(await res.text());
-    if (!error) {
+    const value = tryToErrorLike(await res.text());
+    if (!value) {
       throw makeCustomError(
         "UnexpectedError",
         `Unexpected error has occuerd when fetching "${path}"`,
       );
     }
-    return { ok: false, ...error };
+    return { ok: false, value };
   }
-  const result = (await res.json()) as { message: string };
-  return { ok: true, ...result };
+  const { message } = (await res.json()) as { message: string };
+  return { ok: true, value: message };
 }
 
 /** `exportPages`の認証情報 */
@@ -119,8 +119,12 @@ export async function exportPages<withMetadata extends true | false>(
     return { ok: false, ...error };
   }
   if (!res.ok) {
-    const error = tryToErrorLike(await res.text());
-    if (!error) {
+    const value = tryToErrorLike(await res.text()) as
+      | false
+      | NotFoundError
+      | NotPrivilegeError
+      | NotLoggedInError;
+    if (!value) {
       throw makeCustomError(
         "UnexpectedError",
         `Unexpected error has occuerd when fetching "${path}"`,
@@ -128,9 +132,9 @@ export async function exportPages<withMetadata extends true | false>(
     }
     return {
       ok: false,
-      ...(error as NotFoundError | NotPrivilegeError | NotLoggedInError),
+      value,
     };
   }
-  const result = (await res.json()) as ExportedData<withMetadata>;
-  return { ok: true, ...result };
+  const value = (await res.json()) as ExportedData<withMetadata>;
+  return { ok: true, value };
 }
