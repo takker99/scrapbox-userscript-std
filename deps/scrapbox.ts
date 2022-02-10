@@ -1,7 +1,9 @@
 export type {
   ErrorLike,
   ExportedData,
+  GuestUser,
   ImportedData,
+  MemberUser,
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
