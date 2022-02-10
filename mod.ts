@@ -9,3 +9,4 @@ export * from "./browser/statusBar.ts";
 export * from "./browser/caret.ts";
 export * from "./browser/dom.ts";
 export * from "./browser/openInTheSameTab.ts";
+export * from "./title.ts";
