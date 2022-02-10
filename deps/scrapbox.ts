@@ -13,3 +13,5 @@ export type {
   Page,
   Scrapbox,
 } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.8/mod.ts";
+import type { Page } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.8/mod.ts";
+export type Line = Page["lines"][0];
