@@ -86,7 +86,9 @@ function findLinksAndImage(text: string): [string[], string | null] {
       }
       case "image":
       case "strongImage": {
-        image ??= node.src;
+        image ??= node.src.endsWith("/thumb/1000")
+          ? node.src.replace(/\/thumb\/1000$/, "/raw")
+          : node.src;
         return;
       }
       case "strong":
