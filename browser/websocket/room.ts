@@ -1,10 +1,10 @@
 import { CommitNotification, socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { applyCommit } from "./applyCommit.ts";
-import { toTitleLc } from "../../title.ts";
 import { makeChanges } from "./makeChanges.ts";
+import { pull } from "./pull.ts";
 import type { Line } from "../../deps/scrapbox.ts";
-import { ensureEditablePage, pushCommit } from "./_fetch.ts";
+import { pushCommit } from "./_fetch.ts";
 export type { CommitNotification };
 
 export interface JoinPageRoomResult {
@@ -34,30 +34,23 @@ export async function joinPageRoom(
   title: string,
 ): Promise<JoinPageRoomResult> {
   const [
-    page,
+    head_,
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
 
   // 接続したページの情報
-  let head = {
-    persistent: page.persistent,
-    lines: page.lines,
-    image: page.image,
-    commitId: page.commitId,
-    linksLc: page.links.map((link) => toTitleLc(link)),
-  };
-  const pageId = page.id;
+  let head = head_;
 
   const io = await socketIO();
   const { request, response } = wrap(io);
   await request("socket.io-request", {
     method: "room:join",
-    data: { projectId, pageId, projectUpdatesStream: false },
+    data: { projectId, pageId: head.pageId, projectUpdatesStream: false },
   });
 
   // subscribe the latest commit
@@ -82,7 +75,7 @@ export async function joinPageRoom(
           const { commitId } = await pushCommit(request, changes, {
             parentId: head.commitId,
             projectId,
-            pageId,
+            pageId: head.pageId,
             userId,
           });
 
@@ -102,14 +95,7 @@ export async function joinPageRoom(
             "Faild to push a commit. Retry after pulling new commits",
           );
           try {
-            const page = await ensureEditablePage(project, title);
-            head = {
-              persistent: page.persistent,
-              lines: page.lines,
-              image: page.image,
-              commitId: page.commitId,
-              linksLc: page.links.map((link) => toTitleLc(link)),
-            };
+            head = await pull(project, title);
           } catch (e: unknown) {
             throw e;
           }

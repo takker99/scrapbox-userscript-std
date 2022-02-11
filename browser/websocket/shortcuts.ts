@@ -1,10 +1,10 @@
 import { socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { makeChanges } from "./makeChanges.ts";
+import { pull } from "./pull.ts";
 import { pinNumber } from "./pin.ts";
 import type { Line } from "../../deps/scrapbox.ts";
-import { toTitleLc } from "../../title.ts";
-import { ensureEditablePage, pushCommit, pushWithRetry } from "./_fetch.ts";
+import { pushCommit, pushWithRetry } from "./_fetch.ts";
 
 /** 指定したページを削除する
  *
@@ -16,15 +16,14 @@ export async function deletePage(
   title: string,
 ): Promise<void> {
   const [
-    { id: pageId, commitId: initialCommitId, persistent },
+    { pageId, commitId: parentId, persistent },
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
-  let parentId = initialCommitId;
 
   if (!persistent) return;
 
@@ -32,7 +31,7 @@ export async function deletePage(
   const { request } = wrap(io);
 
   try {
-    parentId = await pushWithRetry(request, [{ deleted: true }], {
+    await pushWithRetry(request, [{ deleted: true }], {
       projectId,
       pageId,
       parentId,
@@ -59,23 +58,16 @@ export async function patch(
   update: (lines: Line[]) => string[] | Promise<string[]>,
 ): Promise<void> {
   const [
-    page,
+    head_,
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
 
-  let head = {
-    persistent: page.persistent,
-    lines: page.lines,
-    image: page.image,
-    commitId: page.commitId,
-    linksLc: page.links.map((link) => toTitleLc(link)),
-  };
-  const pageId = page.id;
+  let head = head_;
 
   const io = await socketIO();
   try {
@@ -91,7 +83,7 @@ export async function patch(
         await pushCommit(request, changes, {
           parentId: head.commitId,
           projectId,
-          pageId,
+          pageId: head.pageId,
           userId,
         });
         break;
@@ -103,14 +95,7 @@ export async function patch(
           "Faild to push a commit. Retry after pulling new commits",
         );
         try {
-          const page = await ensureEditablePage(project, title);
-          head = {
-            persistent: page.persistent,
-            lines: page.lines,
-            image: page.image,
-            commitId: page.commitId,
-            linksLc: page.links.map((link) => toTitleLc(link)),
-          };
+          head = await pull(project, title);
         } catch (e: unknown) {
           throw e;
         }
@@ -142,36 +127,37 @@ export async function pin(
   option?: PinOption,
 ): Promise<void> {
   const [
-    { id: pageId, commitId: initialCommitId, persistent, pin },
+    head,
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
-  let parentId = initialCommitId;
 
   // 既にピン留めされている場合は何もしない
-  if (pin > 0 || (!persistent && !(option?.create ?? false))) return;
+  if (head.pin > 0 || (!head.persistent && !(option?.create ?? false))) return;
 
-  const init = { projectId, pageId, userId, project, title };
+  const init = {
+    parentId: head.commitId,
+    projectId,
+    pageId: head.pageId,
+    userId,
+    project,
+    title,
+  };
   const io = await socketIO();
   const { request } = wrap(io);
 
   // タイトルのみのページを作る
-  if (!persistent) {
-    parentId = await pushWithRetry(request, [{ title }], {
-      parentId,
-      ...init,
-    });
+  if (!head.persistent) {
+    const commitId = await pushWithRetry(request, [{ title }], init);
+    init.parentId = commitId;
   }
 
   try {
-    parentId = await pushWithRetry(request, [{ pin: pinNumber() }], {
-      parentId,
-      ...init,
-    });
+    await pushWithRetry(request, [{ pin: pinNumber() }], init);
   } finally {
     io.disconnect();
   }
@@ -186,28 +172,31 @@ export async function unpin(
   title: string,
 ): Promise<void> {
   const [
-    { id: pageId, commitId: initialCommitId, persistent, pin },
+    head,
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
-  let parentId = initialCommitId;
 
   // 既にピンが外れているか、そもそも存在しないページの場合は何もしない
-  if (pin == 0 || !persistent) return;
+  if (head.pin == 0 || !head.persistent) return;
 
-  const init = { projectId, pageId, userId, project, title };
+  const init = {
+    parentId: head.commitId,
+    projectId,
+    pageId: head.pageId,
+    userId,
+    project,
+    title,
+  };
   const io = await socketIO();
   const { request } = wrap(io);
 
   try {
-    parentId = await pushWithRetry(request, [{ pin: 0 }], {
-      parentId,
-      ...init,
-    });
+    await pushWithRetry(request, [{ pin: 0 }], init);
   } finally {
     io.disconnect();
   }
