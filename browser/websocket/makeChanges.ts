@@ -1,4 +1,4 @@
-import { diffToChanges } from "./patch.ts";
+import { diffToChanges } from "./diffToChanges.ts";
 import type { Line } from "../../deps/scrapbox.ts";
 import {
   Block,
