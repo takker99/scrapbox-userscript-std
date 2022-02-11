@@ -1,5 +1,5 @@
 /// <reference lib="deno.unstable" />
-import { diffToChanges } from "./patch.ts";
+import { diffToChanges } from "./diffToChanges.ts";
 import { assertEquals } from "../../deps/testing.ts";
 
 Deno.test("diffToChanges()", async ({ step }) => {

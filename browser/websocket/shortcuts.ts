@@ -1,9 +1,9 @@
-import { Change, socketIO, wrap } from "../../deps/socket.ts";
+import { socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
-import { diffToChanges } from "./patch.ts";
-import { applyCommit } from "./applyCommit.ts";
+import { makeChanges } from "./makeChanges.ts";
 import { pinNumber } from "./pin.ts";
 import type { Line } from "../../deps/scrapbox.ts";
+import { toTitleLc } from "../../title.ts";
 import { ensureEditablePage, pushCommit, pushWithRetry } from "./_fetch.ts";
 
 /** 指定したページを削除する
@@ -68,53 +68,32 @@ export async function patch(
     getUserId(),
   ]);
 
-  let persistent = page.persistent;
-  let lines = page.lines;
-  let parentId = page.commitId;
+  let head = {
+    persistent: page.persistent,
+    lines: page.lines,
+    image: page.image,
+    commitId: page.commitId,
+    linksLc: page.links.map((link) => toTitleLc(link)),
+  };
   const pageId = page.id;
 
   const io = await socketIO();
   try {
     const { request } = wrap(io);
 
-    const tryPush = async () => {
-      const pending = update(lines);
-      const newLines = pending instanceof Promise ? await pending : pending;
-      const changes: Change[] = [
-        ...diffToChanges(lines, newLines, { userId }),
-      ];
-
-      // 変更後のlinesを計算する
-      const changedLines = applyCommit(lines, changes, {
-        userId,
-      });
-      // タイトルの変更チェック
-      // 空ページの場合もタイトル変更commitを入れる
-      if (lines[0].text !== changedLines[0].text || !persistent) {
-        changes.push({ title: changedLines[0].text });
-      }
-      // サムネイルの変更チェック
-      const oldDescriptions = lines.slice(1, 6).map((line) => line.text);
-      const newDescriptions = changedLines.slice(1, 6).map((lines) =>
-        lines.text
-      );
-      if (oldDescriptions.join("\n") !== newDescriptions.join("\n")) {
-        changes.push({ descriptions: newDescriptions });
-      }
-
-      // pushする
-      await pushCommit(request, changes, {
-        parentId,
-        projectId,
-        pageId,
-        userId,
-      });
-    };
-
     // 3回retryする
     for (let i = 0; i < 3; i++) {
       try {
-        await tryPush();
+        const pending = update(head.lines);
+        const newLines = pending instanceof Promise ? await pending : pending;
+        const changes = makeChanges(head.lines, newLines, { userId, head });
+
+        await pushCommit(request, changes, {
+          parentId: head.commitId,
+          projectId,
+          pageId,
+          userId,
+        });
         break;
       } catch (_e: unknown) {
         if (i === 2) {
@@ -125,9 +104,13 @@ export async function patch(
         );
         try {
           const page = await ensureEditablePage(project, title);
-          parentId = page.commitId;
-          persistent = page.persistent;
-          lines = page.lines;
+          head = {
+            persistent: page.persistent,
+            lines: page.lines,
+            image: page.image,
+            commitId: page.commitId,
+            linksLc: page.links.map((link) => toTitleLc(link)),
+          };
         } catch (e: unknown) {
           throw e;
         }

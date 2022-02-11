@@ -11,7 +11,7 @@ type Options = {
   userId: string;
 };
 export function* diffToChanges(
-  left: Omit<Line, "userId" | "updated" | "created">[],
+  left: Pick<Line, "text" | "id">[],
   right: string[],
   { userId }: Options,
 ): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
