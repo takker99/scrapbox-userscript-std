@@ -4,7 +4,7 @@ import { makeChanges } from "./makeChanges.ts";
 import { pull } from "./pull.ts";
 import { pinNumber } from "./pin.ts";
 import type { Line } from "../../deps/scrapbox.ts";
-import { ensureEditablePage, pushCommit, pushWithRetry } from "./_fetch.ts";
+import { pushCommit, pushWithRetry } from "./_fetch.ts";
 
 /** 指定したページを削除する
  *
@@ -16,23 +16,22 @@ export async function deletePage(
   title: string,
 ): Promise<void> {
   const [
-    { id: pageId, commitId: initialCommitId, persistent },
+    { pageId, commitId: parentId, persistent },
     projectId,
     userId,
   ] = await Promise.all([
-    ensureEditablePage(project, title),
+    pull(project, title),
     getProjectId(project),
     getUserId(),
   ]);
-  let parentId = initialCommitId;
 
-  if (!persistent) return;
+  if (persistent) return;
 
   const io = await socketIO();
   const { request } = wrap(io);
 
   try {
-    parentId = await pushWithRetry(request, [{ deleted: true }], {
+    await pushWithRetry(request, [{ deleted: true }], {
       projectId,
       pageId,
       parentId,
