@@ -26,24 +26,26 @@ export function makeChanges(
   right: string[],
   { userId, head }: Init,
 ) {
+  // 改行文字が入るのを防ぐ
+  const right_ = right.flatMap((text) => text.split("\n"));
   // 本文の差分
-  const changes: Change[] = [...diffToChanges(left, right, { userId })];
+  const changes: Change[] = [...diffToChanges(left, right_, { userId })];
 
   // titleの差分を入れる
   // 空ページの場合もタイトル変更commitを入れる
-  if (left[0].text !== right[0] || !head.persistent) {
-    changes.push({ title: right[0] });
+  if (left[0].text !== right_[0] || !head.persistent) {
+    changes.push({ title: right_[0] });
   }
 
   // descriptionsの差分を入れる
   const leftDescriptions = left.slice(1, 6).map((line) => line.text);
-  const rightDescriptions = right.slice(1, 6);
+  const rightDescriptions = right_.slice(1, 6);
   if (leftDescriptions.join("") !== rightDescriptions.join("")) {
     changes.push({ descriptions: rightDescriptions });
   }
 
   // リンクと画像の差分を入れる
-  const [linksLc, image] = findLinksAndImage(right.join("\n"));
+  const [linksLc, image] = findLinksAndImage(right_.join("\n"));
   if (
     head.linksLc.length !== linksLc.length ||
     !head.linksLc.every((link) => linksLc.includes(link))
