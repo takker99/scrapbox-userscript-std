@@ -8,9 +8,15 @@ import {
   parseToRows,
 } from "../../deps/scrapbox.ts";
 import type { Change } from "../../deps/socket.ts";
-import { HeadData } from "./pull.ts";
 import { toTitleLc } from "../../title.ts";
 
+export interface HeadData {
+  commitId: string;
+  persistent: boolean;
+  image: string | null;
+  linksLc: string[];
+  lines: Line[];
+}
 export interface Init {
   userId: string;
   head: HeadData;
