@@ -1,9 +1,4 @@
-import {
-  Change,
-  CommitNotification,
-  socketIO,
-  wrap,
-} from "../../deps/socket.ts";
+import { CommitNotification, socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { applyCommit } from "./applyCommit.ts";
 import { toTitleLc } from "../../title.ts";
