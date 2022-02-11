@@ -7,7 +7,7 @@ import {
   ProjectUpdatesStreamEvent,
   wrap,
 } from "../../deps/socket.ts";
-import { getPage } from "../../rest/pages.ts";
+import { pull } from "./pull.ts";
 export type {
   CommitNotification,
   ProjectUpdatesStreamCommit,
@@ -61,7 +61,7 @@ export async function pushWithRetry(
   } catch (_e) {
     console.log("Faild to push a commit. Retry after pulling new commits");
     for (let i = 0; i < retry; i++) {
-      const { commitId } = await ensureEditablePage(project, title);
+      const { commitId } = await pull(project, title);
       parentId = commitId;
       try {
         const res = await pushCommit(request, changes, {
@@ -78,14 +78,4 @@ export async function pushWithRetry(
     throw Error("Faild to retry pushing.");
   }
   return parentId;
-}
-
-export async function ensureEditablePage(project: string, title: string) {
-  const result = await getPage(project, title);
-
-  // TODO: 編集不可なページはStream購読だけ提供する
-  if (!result.ok) {
-    throw new Error(`You have no privilege of editing "/${project}/${title}".`);
-  }
-  return result.value;
 }
