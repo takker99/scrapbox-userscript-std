@@ -4,12 +4,8 @@ import type {
   NotMemberError,
   Page,
 } from "../deps/scrapbox.ts";
-import {
-  cookie,
-  encodeTitle,
-  makeCustomError,
-  tryToErrorLike,
-} from "./utils.ts";
+import { cookie, makeCustomError, tryToErrorLike } from "./utils.ts";
+import { encodeTitleURI } from "../title.ts";
 import type { Result } from "./utils.ts";
 
 /** Options for `getPage()` */
@@ -34,7 +30,7 @@ export async function getPage(
   >
 > {
   const path = `https://scrapbox.io/api/pages/${project}/${
-    encodeTitle(title)
+    encodeTitleURI(title)
   }?followRename=${options?.followRename ?? true}`;
 
   const res = await fetch(

@@ -56,11 +56,3 @@ export function makeCustomError(name: string, message: string) {
   error.message = message;
   return error;
 }
-
-export const toTitleLc = (title: string) =>
-  title.toLowerCase().replaceAll(" ", "_");
-export const encodeTitle = (title: string) =>
-  title.replaceAll(" ", "_").replace(
-    /[/?#\{}^|<>]/g,
-    (char) => encodeURIComponent(char),
-  );
