@@ -25,7 +25,7 @@ export async function deletePage(
     getUserId(),
   ]);
 
-  if (persistent) return;
+  if (!persistent) return;
 
   const io = await socketIO();
   const { request } = wrap(io);
