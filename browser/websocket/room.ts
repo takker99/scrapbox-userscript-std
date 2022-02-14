@@ -16,7 +16,7 @@ export interface JoinPageRoomResult {
    * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される
    */
   patch: (
-    update: (before: Line[], metadata?: HeadData) => string[],
+    update: (before: Line[], metadata: HeadData) => string[],
   ) => Promise<void>;
   /** ページの更新情報を購読する */
   listenPageUpdate: () => AsyncGenerator<CommitNotification, void, unknown>;
@@ -67,7 +67,7 @@ export async function joinPageRoom(
     patch: async (
       update: (
         before: Line[],
-        metadata?: HeadData,
+        metadata: HeadData,
       ) => string[] | Promise<string[]>,
     ) => {
       for (let i = 0; i < 3; i++) {

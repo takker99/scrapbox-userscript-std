@@ -55,7 +55,7 @@ export async function deletePage(
 export async function patch(
   project: string,
   title: string,
-  update: (lines: Line[], metadata?: HeadData) => string[] | Promise<string[]>,
+  update: (lines: Line[], metadata: HeadData) => string[] | Promise<string[]>,
 ): Promise<void> {
   const [
     head_,
