@@ -1,7 +1,7 @@
 import { socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { makeChanges } from "./makeChanges.ts";
-import { pull } from "./pull.ts";
+import { HeadData, pull } from "./pull.ts";
 import { pinNumber } from "./pin.ts";
 import type { Line } from "../../deps/scrapbox.ts";
 import { pushCommit, pushWithRetry } from "./_fetch.ts";
@@ -55,7 +55,7 @@ export async function deletePage(
 export async function patch(
   project: string,
   title: string,
-  update: (lines: Line[]) => string[] | Promise<string[]>,
+  update: (lines: Line[], metadata?: HeadData) => string[] | Promise<string[]>,
 ): Promise<void> {
   const [
     head_,
@@ -76,7 +76,7 @@ export async function patch(
     // 3回retryする
     for (let i = 0; i < 3; i++) {
       try {
-        const pending = update(head.lines);
+        const pending = update(head.lines, head);
         const newLines = pending instanceof Promise ? await pending : pending;
         const changes = makeChanges(head.lines, newLines, { userId, head });
 

@@ -2,7 +2,7 @@ import { CommitNotification, socketIO, wrap } from "../../deps/socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { applyCommit } from "./applyCommit.ts";
 import { makeChanges } from "./makeChanges.ts";
-import { pull } from "./pull.ts";
+import { HeadData, pull } from "./pull.ts";
 import type { Line } from "../../deps/scrapbox.ts";
 import { pushCommit } from "./_fetch.ts";
 export type { CommitNotification };
@@ -15,7 +15,9 @@ export interface JoinPageRoomResult {
    *
    * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される
    */
-  patch: (update: (before: Line[]) => string[]) => Promise<void>;
+  patch: (
+    update: (before: Line[], metadata?: HeadData) => string[],
+  ) => Promise<void>;
   /** ページの更新情報を購読する */
   listenPageUpdate: () => AsyncGenerator<CommitNotification, void, unknown>;
   /** ページの操作を終了する。これを呼び出すと他のmethodsは使えなくなる
@@ -62,10 +64,15 @@ export async function joinPageRoom(
   })();
 
   return {
-    patch: async (update: (before: Line[]) => string[] | Promise<string[]>) => {
+    patch: async (
+      update: (
+        before: Line[],
+        metadata?: HeadData,
+      ) => string[] | Promise<string[]>,
+    ) => {
       for (let i = 0; i < 3; i++) {
         try {
-          const pending = update(head.lines);
+          const pending = update(head.lines, head);
           const newLines = pending instanceof Promise ? await pending : pending;
           const changes = makeChanges(head.lines, newLines, {
             userId,
