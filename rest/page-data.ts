@@ -48,11 +48,7 @@ export async function importPages(
   );
   formData.append("name", "undefined");
 
-  if (!csrf) {
-    const result = await getCSRFToken(sid);
-    if (!result.ok) return result;
-    csrf = result.value;
-  }
+  csrf ??= await getCSRFToken(sid);
 
   const path = `https://scrapbox.io/api/page-data/import/${project}.json`;
   const res = await fetch(
