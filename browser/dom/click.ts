@@ -2,7 +2,7 @@
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
 
-import { sleep } from "../sleep.ts";
+import { sleep } from "../../sleep.ts";
 
 /** the options for `click()` */
 export interface ClickOptions {

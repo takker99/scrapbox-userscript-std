@@ -16,7 +16,7 @@ import {
 } from "./node.ts";
 import { caret } from "./caret.ts";
 import { isHeightViewable } from "./isHeightViewable.ts";
-import { range } from "../range.ts";
+import { range } from "../../range.ts";
 
 /** カーソル行の行末を長押ししてfocusを得る
  *

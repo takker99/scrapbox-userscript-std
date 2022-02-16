@@ -1,10 +1,10 @@
 import { goHead, goLine } from "./motion.ts";
 import { press } from "./press.ts";
 import { getLineCount } from "./node.ts";
-import { range } from "../range.ts";
+import { range } from "../../range.ts";
 import { textInput } from "./dom.ts";
-import { isArray, isNumber, isString } from "../is.ts";
-import { sleep } from "../sleep.ts";
+import { isArray, isNumber, isString } from "../../is.ts";
+import { sleep } from "../../sleep.ts";
 
 export function undo(count = 1) {
   for (const _ of range(0, count)) {

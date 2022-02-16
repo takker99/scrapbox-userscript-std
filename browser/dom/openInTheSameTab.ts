@@ -1,7 +1,7 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
-import { encodeTitleURI } from "../title.ts";
+import { encodeTitleURI } from "../../title.ts";
 
 /** 同じタブでページを開く
  *
