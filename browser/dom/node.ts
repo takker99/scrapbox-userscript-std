@@ -1,11 +1,11 @@
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
-import { isNone, isNumber, isString } from "../is.ts";
-import { ensureArray } from "../ensure.ts";
-import type { Scrapbox } from "../deps/scrapbox.ts";
+import { isNone, isNumber, isString } from "../../is.ts";
+import { ensureArray } from "../../ensure.ts";
+import type { Scrapbox } from "../../deps/scrapbox.ts";
 import { lines } from "./dom.ts";
-import * as Text from "../text.ts";
+import * as Text from "../../text.ts";
 declare const scrapbox: Scrapbox;
 
 /** Get the line id from value
