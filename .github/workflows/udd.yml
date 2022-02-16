@@ -16,7 +16,7 @@ jobs:
       - name: Update dependencies
         run: >
           deno run --allow-net --allow-read=deps/ --allow-write=deps/
-          --allow-run=deno https://deno.land/x/udd@0.7.2/main.ts *.ts
+          --allow-run=deno https://deno.land/x/udd@0.7.2/main.ts deps/*.ts
           --test="deno test"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
