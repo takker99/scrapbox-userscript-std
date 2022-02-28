@@ -4,7 +4,7 @@ import { applyCommit } from "./applyCommit.ts";
 import { makeChanges } from "./makeChanges.ts";
 import { HeadData, pull } from "./pull.ts";
 import type { Line } from "../../deps/scrapbox.ts";
-import { pushCommit } from "./_fetch.ts";
+import { pushCommit, pushWithRetry } from "./_fetch.ts";
 export type { CommitNotification };
 
 export interface JoinPageRoomResult {
@@ -13,7 +13,7 @@ export interface JoinPageRoomResult {
    * `update()`で現在の本文から書き換え後の本文を作ってもらう。
    * serverには書き換え前後の差分だけを送信する
    *
-   * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される
+   * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される
    */
   patch: (
     update: (before: Line[], metadata: HeadData) => string[],
@@ -74,11 +74,22 @@ export async function joinPageRoom(
         try {
           const pending = update(head.lines, head);
           const newLines = pending instanceof Promise ? await pending : pending;
+
+          if (newLines.length === 0) {
+            await pushWithRetry(request, [{ deleted: true }], {
+              projectId,
+              pageId: head.pageId,
+              parentId: head.commitId,
+              userId,
+              project,
+              title,
+            });
+          }
+
           const changes = makeChanges(head.lines, newLines, {
             userId,
             head,
           });
-
           const { commitId } = await pushCommit(request, changes, {
             parentId: head.commitId,
             projectId,
