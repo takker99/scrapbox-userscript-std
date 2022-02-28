@@ -39,12 +39,12 @@ export function makeChanges(
   }
 
   // リンクと画像の差分を入れる
-  const [linksLc, image] = findLinksAndImage(right_.join("\n"));
+  const [links, image] = findLinksAndImage(right_.join("\n"));
   if (
-    head.linksLc.length !== linksLc.length ||
-    !head.linksLc.every((link) => linksLc.includes(link))
+    head.links.length !== links.length ||
+    !head.links.every((link) => links.includes(link))
   ) {
-    changes.push({ links: linksLc });
+    changes.push({ links });
   }
   if (head.image !== image) {
     changes.push({ image });
@@ -67,19 +67,30 @@ function findLinksAndImage(text: string): [string[], string | null] {
     }
   });
 
-  const linksLc = [] as string[];
+  /** 重複判定用map
+   *
+   * bracket link とhashtagを区別できるようにしている
+   * - bracket linkならtrue
+   *
+   * linkの形状はbracket linkを優先している
+   */
+  const linksLc = new Map<string, boolean>();
+  const links = [] as string[];
   let image: string | null = null;
 
   const lookup = (node: Node) => {
     switch (node.type) {
       case "hashTag":
-        linksLc.push(toTitleLc(node.href));
+        if (linksLc.has(toTitleLc(node.href))) return;
+        linksLc.set(toTitleLc(node.href), false);
+        links.push(node.href);
         return;
-      case "link": {
+      case "link":
         if (node.pathType !== "relative") return;
-        linksLc.push(toTitleLc(node.href));
+        if (linksLc.get(toTitleLc(node.href))) return;
+        linksLc.set(toTitleLc(node.href), true);
+        links.push(node.href);
         return;
-      }
       case "image":
       case "strongImage": {
         image ??= node.src.endsWith("/thumb/1000")
@@ -103,7 +114,7 @@ function findLinksAndImage(text: string): [string[], string | null] {
     lookup(node);
   }
 
-  return [linksLc, image];
+  return [links, image];
 }
 
 function* blocksToNodes(blocks: Iterable<Block>) {
