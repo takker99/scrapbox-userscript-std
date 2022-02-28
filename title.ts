@@ -48,5 +48,5 @@ const noTailChars = ':;",';
  */
 export const toReadableTitleURI = (title: string): string => {
   return title.replaceAll(" ", "_")
-    .replace(/[/?#\{}^|<>]/g, (char) => encodeURIComponent(char));
+    .replace(/[/?#\{}^|<>%]/g, (char) => encodeURIComponent(char));
 };
