@@ -1,5 +1,4 @@
 import type { Line } from "../../deps/scrapbox.ts";
-import { toTitleLc } from "../../title.ts";
 import { getPage } from "../../rest/pages.ts";
 
 export interface HeadData {
@@ -8,7 +7,7 @@ export interface HeadData {
   persistent: boolean;
   image: string | null;
   pin: number;
-  linksLc: string[];
+  links: string[];
   lines: Line[];
 }
 export async function pull(project: string, title: string): Promise<HeadData> {
@@ -25,7 +24,7 @@ export async function pull(project: string, title: string): Promise<HeadData> {
     pageId: id,
     persistent,
     image,
-    linksLc: links.map((link) => toTitleLc(link)),
+    links,
     pin,
     lines,
   };

@@ -41,8 +41,8 @@ export function makeChanges(
   // リンクと画像の差分を入れる
   const [links, image] = findLinksAndImage(right_.join("\n"));
   if (
-    head.linksLc.length !== links.length ||
-    !head.linksLc.every((link) => links.includes(link))
+    head.links.length !== links.length ||
+    !head.links.every((link) => links.includes(link))
   ) {
     changes.push({ links });
   }
