@@ -13,10 +13,13 @@ export interface JoinPageRoomResult {
    * `update()`で現在の本文から書き換え後の本文を作ってもらう。
    * serverには書き換え前後の差分だけを送信する
    *
-   * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される
+   * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される。undefinedを返すと書き換えを中断する
    */
   patch: (
-    update: (before: Line[], metadata: HeadData) => string[],
+    update: (
+      before: Line[],
+      metadata: HeadData,
+    ) => string[] | undefined | Promise<string[] | undefined>,
   ) => Promise<void>;
   /** ページの更新情報を購読する */
   listenPageUpdate: () => AsyncGenerator<CommitNotification, void, unknown>;
@@ -68,12 +71,14 @@ export async function joinPageRoom(
       update: (
         before: Line[],
         metadata: HeadData,
-      ) => string[] | Promise<string[]>,
+      ) => string[] | undefined | Promise<string[] | undefined>,
     ) => {
       for (let i = 0; i < 3; i++) {
         try {
           const pending = update(head.lines, head);
           const newLines = pending instanceof Promise ? await pending : pending;
+
+          if (!newLines) return;
 
           if (newLines.length === 0) {
             await pushWithRetry(request, [{ deleted: true }], {

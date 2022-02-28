@@ -50,12 +50,15 @@ export async function deletePage(
  *
  * @param project 書き換えたいページのproject
  * @param title 書き換えたいページのタイトル
- * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される
+ * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される。undefinedを返すと書き換えを中断する
  */
 export async function patch(
   project: string,
   title: string,
-  update: (lines: Line[], metadata: HeadData) => string[] | Promise<string[]>,
+  update: (
+    lines: Line[],
+    metadata: HeadData,
+  ) => string[] | undefined | Promise<string[] | undefined>,
 ): Promise<void> {
   const [
     head_,
@@ -78,6 +81,8 @@ export async function patch(
       try {
         const pending = update(head.lines, head);
         const newLines = pending instanceof Promise ? await pending : pending;
+
+        if (!newLines) return;
 
         if (newLines.length === 0) {
           await pushWithRetry(request, [{ deleted: true }], {
