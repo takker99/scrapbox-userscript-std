@@ -40,3 +40,13 @@ export const encodeTitleURI = (title: string): string => {
 
 const noEncodeChars = '@$&+=:;",';
 const noTailChars = ':;",';
+
+/** titleをできるだけpercent encodingせずにURIで使える形式にする
+ *
+ * @param title 変換するtitle
+ * @return 変換後の文字列
+ */
+export const toReadableTitleURI = (title: string): string => {
+  return title.replaceAll(" ", "_")
+    .replace(/[/?#\{}^|<>%]/g, (char) => encodeURIComponent(char));
+};

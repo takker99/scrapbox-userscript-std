@@ -1,4 +1,9 @@
-import { encodeTitleURI, revertTitleLc, toTitleLc } from "./title.ts";
+import {
+  encodeTitleURI,
+  revertTitleLc,
+  toReadableTitleURI,
+  toTitleLc,
+} from "./title.ts";
 import { assertStrictEquals } from "./deps/testing.ts";
 
 Deno.test("toTitleLc()", async (t) => {
@@ -35,5 +40,39 @@ Deno.test("revertTitleLc()", () => {
 Deno.test("encodeTitleURI()", async (t) => {
   await t.step("tail symbol", () => {
     assertStrictEquals<string>(encodeTitleURI(":title:"), ":title%3A");
+  });
+});
+
+Deno.test("toReadableTitleURI()", async (t) => {
+  await t.step("only \\w", () => {
+    assertStrictEquals<string>(
+      toReadableTitleURI("Normal_TitleAAA"),
+      "Normal_TitleAAA",
+    );
+  });
+
+  await t.step("with sparce", () => {
+    assertStrictEquals<string>(
+      toReadableTitleURI("Title with Spaces"),
+      "Title_with_Spaces",
+    );
+  });
+
+  await t.step("with multibyte characters", () => {
+    assertStrictEquals<string>(
+      toReadableTitleURI("日本語_(絵文字✨つき)　タイトル"),
+      "日本語_(絵文字✨つき)　タイトル",
+    );
+  });
+
+  await t.step("encoding //", () => {
+    assertStrictEquals<string>(
+      toReadableTitleURI("スラッシュ/は/percent encoding対象の/文字です"),
+      "スラッシュ%2Fは%2Fpercent_encoding対象の%2F文字です",
+    );
+    assertStrictEquals<string>(
+      toReadableTitleURI("%2Fなども/と同様percent encodingされる"),
+      "%252Fなども%2Fと同様percent_encodingされる",
+    );
   });
 });
