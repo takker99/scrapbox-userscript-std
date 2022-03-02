@@ -26,7 +26,7 @@ export interface CaretInfo {
   /** 選択範囲の位置 */ selectionRange: Range;
 }
 
-interface ReactInternalInstance {
+interface ReactFiber {
   return: {
     return: {
       stateNode: {
@@ -48,15 +48,15 @@ export function caret(): CaretInfo {
   }
 
   const reactKey = Object.keys(textarea)
-    .find((key) => key.startsWith("__reactInternalInstance"));
+    .find((key) => key.startsWith("__reactFiber"));
   if (!reactKey) {
     throw Error(
-      "div.cursor must has the property whose name starts with `__reactInternalInstance`",
+      'div.cursor must has the property whose name starts with "__reactFiber"',
     );
   }
 
   // @ts-ignore DOMを無理矢理objectとして扱っている
   return (textarea[
     reactKey
-  ] as ReactInternalInstance).return.return.stateNode.props;
+  ] as ReactFiber).return.return.stateNode.props;
 }
