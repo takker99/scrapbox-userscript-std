@@ -8,6 +8,7 @@ export type {
   Pin,
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
+  Socket,
   UpdateCommit,
 } from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.4/mod.ts";
 export {
