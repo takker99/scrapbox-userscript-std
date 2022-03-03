@@ -1,4 +1,5 @@
 export * from "./room.ts";
-export * from "./shortcuts.ts";
 export * from "./patch.ts";
+export * from "./deletePage.ts";
+export * from "./pin.ts";
 export * from "./stream.ts";
