@@ -38,12 +38,13 @@ export async function* listenStream(
   await connect(socket);
   const { request, response } = wrap(socket);
 
-  // 部屋に入って購読し始める
-  await request("socket.io-request", {
-    method: "room:join",
-    data: { projectId, pageId: null, projectUpdatesStream: true },
-  });
   try {
+    // 部屋に入って購読し始める
+    await request("socket.io-request", {
+      method: "room:join",
+      data: { projectId, pageId: null, projectUpdatesStream: true },
+    });
+
     yield* response(
       ...events.map((event) => `projectUpdatesStream:${event}` as const),
     );
