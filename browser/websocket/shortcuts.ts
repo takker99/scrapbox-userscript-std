@@ -4,44 +4,6 @@ import { pull } from "./pull.ts";
 import { pinNumber } from "./pin.ts";
 import { pushWithRetry } from "./_fetch.ts";
 
-/** 指定したページを削除する
- *
- * @param project 削除したいページのproject
- * @param title 削除したいページのタイトル
- */
-export async function deletePage(
-  project: string,
-  title: string,
-): Promise<void> {
-  const [
-    { pageId, commitId: parentId, persistent },
-    projectId,
-    userId,
-  ] = await Promise.all([
-    pull(project, title),
-    getProjectId(project),
-    getUserId(),
-  ]);
-
-  if (!persistent) return;
-
-  const io = await socketIO();
-  const { request } = wrap(io);
-
-  try {
-    await pushWithRetry(request, [{ deleted: true }], {
-      projectId,
-      pageId,
-      parentId,
-      userId,
-      project,
-      title,
-    });
-  } finally {
-    io.disconnect();
-  }
-}
-
 export interface PinOption {
   /** ピン留め対象のページが存在しないときの振る舞いを変えるoption
    *
