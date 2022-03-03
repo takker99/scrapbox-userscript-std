@@ -12,11 +12,12 @@ export function makeSocket() {
  */
 export async function connect(socket: Socket): Promise<void> {
   if (socket.connected) return;
-  socket.connect();
 
-  return await new Promise<void>((resolve) =>
+  const waiting = new Promise<void>((resolve) =>
     socket.once("connect", () => resolve())
   );
+  socket.connect();
+  await waiting;
 }
 
 /** websocketを切断する
@@ -25,9 +26,8 @@ export async function connect(socket: Socket): Promise<void> {
  */
 export async function disconnect(socket: Socket): Promise<void> {
   if (socket.disconnected) return;
-  socket.disconnect();
 
-  return await new Promise<void>((resolve) => {
+  const waiting = new Promise<void>((resolve) => {
     const onDisconnect = (reason: Socket.DisconnectReason) => {
       if (reason !== "io client disconnect") return;
       resolve();
@@ -35,4 +35,6 @@ export async function disconnect(socket: Socket): Promise<void> {
     };
     socket.on("disconnect", onDisconnect);
   });
+  socket.disconnect();
+  await waiting;
 }
