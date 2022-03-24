@@ -4,7 +4,7 @@ import { getProfile } from "./profile.ts";
 // scrapbox.io内なら`window._csrf`にCSRF tokenが入っている
 declare global {
   interface Window {
-    __csrf?: string;
+    _csrf?: string;
   }
 }
 
@@ -22,7 +22,7 @@ export type Result<T, E> = { ok: true; value: T } | { ok: false; value: E };
 export async function getCSRFToken(
   sid?: string,
 ): Promise<string> {
-  if (window.__csrf) return window.__csrf;
+  if (window._csrf) return window._csrf;
 
   const user = await getProfile(sid ? { sid } : undefined);
   return user.csrfToken;
