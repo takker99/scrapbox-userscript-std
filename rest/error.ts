@@ -19,6 +19,7 @@ export class UnexpectedResponseError extends Error {
 
     // @ts-ignore only available on V8
     if (Error.captureStackTrace) {
+      // @ts-ignore only available on V8
       Error.captureStackTrace(this, UnexpectedResponseError);
     }
   }
