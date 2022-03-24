@@ -1,33 +1,27 @@
 import type { GuestUser, MemberUser } from "../deps/scrapbox.ts";
-import { cookie, makeCustomError } from "./utils.ts";
+import { cookie } from "./auth.ts";
+import { BaseOptions, setDefaults } from "./util.ts";
+import { UnexpectedResponseError } from "./error.ts";
 
-export interface ProfileInit {
-  /** connect.sid */ sid: string;
-}
 /** get user profile
  *
  * @param init connect.sid etc.
  */
-export async function getProfile(
-  init?: ProfileInit,
-): Promise<MemberUser | GuestUser> {
-  const path = "https://scrapbox.io/api/users/me";
+export const getProfile = async (
+  init?: BaseOptions,
+): Promise<MemberUser | GuestUser> => {
+  const { sid, hostName, fetch } = setDefaults(init ?? {});
+  const path = `https://${hostName}/api/users/me`;
   const res = await fetch(
     path,
-    init?.sid
-      ? {
-        headers: {
-          Cookie: cookie(init.sid),
-        },
-      }
-      : undefined,
+    sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
-
   if (!res.ok) {
-    throw makeCustomError(
-      "UnexpectedError",
-      `Unexpected error has occuerd when fetching "${path}"`,
-    );
+    throw new UnexpectedResponseError({
+      path: new URL(path),
+      ...res,
+      body: await res.text(),
+    });
   }
   return (await res.json()) as MemberUser | GuestUser;
-}
+};

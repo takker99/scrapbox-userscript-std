@@ -3,23 +3,10 @@ import type {
   NotLoggedInError,
   NotMemberError,
 } from "../deps/scrapbox.ts";
-import {
-  cookie,
-  getCSRFToken,
-  makeCustomError,
-  tryToErrorLike,
-} from "./utils.ts";
-import type { Result } from "./utils.ts";
-
-/** `replaceLinks`の認証情報 */
-export interface ReplaceLinksInit {
-  /** connect.sid */ sid: string;
-  /** CSRF token
-   *
-   * If it isn't set, automatically get CSRF token from scrapbox.io server.
-   */
-  csrf?: string;
-}
+import { cookie, getCSRFToken } from "./auth.ts";
+import { UnexpectedResponseError } from "./error.ts";
+import { tryToErrorLike } from "../is.ts";
+import { ExtendedOptions, Result, setDefaults } from "./util.ts";
 
 /** 指定したproject内の全てのリンクを書き換える
  *
@@ -29,23 +16,22 @@ export interface ReplaceLinksInit {
  * @param project これで指定したproject内の全てのリンクが置換対象となる
  * @param from 置換前のリンク
  * @param to 置換後のリンク
- * @param options connect.sidなど
+ * @param init connect.sidなど
  * @return 置換されたリンクがあったページの数
  */
-export async function replaceLinks(
+export const replaceLinks = async (
   project: string,
   from: string,
   to: string,
-  init?: ReplaceLinksInit,
+  init?: ExtendedOptions,
 ): Promise<
   Result<
     number,
     NotFoundError | NotLoggedInError | NotMemberError
   >
-> {
-  const path = `https://scrapbox.io/api/pages/${project}/replace/links`;
-  const sid = init?.sid;
-  const csrf = init?.csrf ?? await getCSRFToken(sid);
+> => {
+  const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+  const path = `https://${hostName}/api/pages/${project}/replace/links`;
 
   const res = await fetch(
     path,
@@ -53,36 +39,30 @@ export async function replaceLinks(
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": csrf,
-        ...(sid
-          ? {
-            Cookie: cookie(sid),
-          }
-          : {}),
+        "X-CSRF-TOKEN": csrf ?? await getCSRFToken(init),
+        ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ from, to }),
     },
   );
 
   if (!res.ok) {
-    const value = tryToErrorLike(await res.text()) as
-      | false
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError;
+    const text = await res.json();
+    const value = tryToErrorLike(text);
     if (!value) {
-      throw makeCustomError(
-        "UnexpectedError",
-        `Unexpected error has occuerd when fetching "${path}"`,
-      );
+      throw new UnexpectedResponseError({
+        path: new URL(path),
+        ...res,
+        body: await res.text(),
+      });
     }
     return {
       ok: false,
-      value,
+      value: value as NotFoundError | NotMemberError | NotLoggedInError,
     };
   }
 
   // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
   const { message } = (await res.json()) as { message: string };
   return { ok: true, value: parseInt(message.match(/\d+/)?.[0] ?? "0") };
-}
+};
