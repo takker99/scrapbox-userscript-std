@@ -5,14 +5,15 @@ import type {
   Page,
   PageList,
 } from "../deps/scrapbox.ts";
-import { cookie, makeCustomError, tryToErrorLike } from "./utils.ts";
+import { cookie } from "./auth.ts";
+import { UnexpectedResponseError } from "./error.ts";
+import { tryToErrorLike } from "../is.ts";
 import { encodeTitleURI } from "../title.ts";
-import type { Result } from "./utils.ts";
+import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 /** Options for `getPage()` */
-export interface GetPageOption {
+export interface GetPageOption extends BaseOptions {
   /** use `followRename` */ followRename?: boolean;
-  /** connect.sid */ sid?: string;
 }
 /** 指定したページのJSONデータを取得する
  *
@@ -30,36 +31,30 @@ export async function getPage(
     NotFoundError | NotLoggedInError | NotMemberError
   >
 > {
-  const path = `https://scrapbox.io/api/pages/${project}/${
+  const { sid, hostName, fetch, followRename } = setDefaults(options ?? {});
+  const path = `https://${hostName}/api/pages/${project}/${
     encodeTitleURI(title)
-  }?followRename=${options?.followRename ?? true}`;
-
+  }?followRename=${followRename ?? true}`;
   const res = await fetch(
     path,
-    options?.sid
-      ? {
-        headers: {
-          Cookie: cookie(options.sid),
-        },
-      }
-      : undefined,
+    sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
-
   if (!res.ok) {
-    const value = tryToErrorLike(await res.text()) as
-      | false
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError;
+    const text = await res.text();
+    const value = tryToErrorLike(text);
     if (!value) {
-      throw makeCustomError(
-        "UnexpectedError",
-        `Unexpected error has occuerd when fetching "${path}"`,
-      );
+      throw new UnexpectedResponseError({
+        path: new URL(path),
+        ...res,
+        body: text,
+      });
     }
     return {
       ok: false,
-      value,
+      value: value as
+        | NotFoundError
+        | NotLoggedInError
+        | NotMemberError,
     };
   }
   const value = (await res.json()) as Page;
@@ -67,7 +62,7 @@ export async function getPage(
 }
 
 /** Options for `listPages()` */
-export interface ListPagesOption {
+export interface ListPagesOption extends BaseOptions {
   /** the sort of page list to return
    *
    * @default "updated"
@@ -91,8 +86,6 @@ export interface ListPagesOption {
    * @default 100
    */
   limit?: number;
-  /** connect.sid */
-  sid?: string;
 }
 /** 指定したprojectのページを一覧する
  *
@@ -108,39 +101,35 @@ export async function listPages(
     NotFoundError | NotLoggedInError | NotMemberError
   >
 > {
-  const { sort, limit, skip } = options ?? {};
+  const { sid, hostName, fetch, sort, limit, skip } = setDefaults(
+    options ?? {},
+  );
   const params = new URLSearchParams();
   if (sort !== undefined) params.append("sort", sort);
   if (limit !== undefined) params.append("limit", `${limit}`);
   if (skip !== undefined) params.append("skip", `${skip}`);
-  const path = `https://scrapbox.io/api/pages/${project}?${params.toString()}`;
+  const path = `https://${hostName}/api/pages/${project}?${params.toString()}`;
 
   const res = await fetch(
     path,
-    options?.sid
-      ? {
-        headers: {
-          Cookie: cookie(options.sid),
-        },
-      }
-      : undefined,
+    sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
-
   if (!res.ok) {
-    const value = tryToErrorLike(await res.text()) as
-      | false
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError;
+    const text = await res.text();
+    const value = tryToErrorLike(text);
     if (!value) {
-      throw makeCustomError(
-        "UnexpectedError",
-        `Unexpected error has occuerd when fetching "${path}"`,
-      );
+      throw new UnexpectedResponseError({
+        path: new URL(path),
+        ...res,
+        body: text,
+      });
     }
     return {
       ok: false,
-      value,
+      value: value as
+        | NotFoundError
+        | NotLoggedInError
+        | NotMemberError,
     };
   }
   const value = (await res.json()) as PageList;
