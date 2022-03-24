@@ -7,9 +7,9 @@ import { UnexpectedResponseError } from "./error.ts";
  *
  * @param init connect.sid etc.
  */
-export async function getProfile(
+export const getProfile = async (
   init?: BaseOptions,
-): Promise<MemberUser | GuestUser> {
+): Promise<MemberUser | GuestUser> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
   const path = `https://${hostName}/api/users/me`;
   const res = await fetch(
@@ -24,4 +24,4 @@ export async function getProfile(
     });
   }
   return (await res.json()) as MemberUser | GuestUser;
-}
+};

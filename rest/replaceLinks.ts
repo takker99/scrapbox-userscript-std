@@ -19,7 +19,7 @@ import { ExtendedOptions, Result, setDefaults } from "./util.ts";
  * @param init connect.sidなど
  * @return 置換されたリンクがあったページの数
  */
-export async function replaceLinks(
+export const replaceLinks = async (
   project: string,
   from: string,
   to: string,
@@ -29,7 +29,7 @@ export async function replaceLinks(
     number,
     NotFoundError | NotLoggedInError | NotMemberError
   >
-> {
+> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const path = `https://${hostName}/api/pages/${project}/replace/links`;
 
@@ -65,4 +65,4 @@ export async function replaceLinks(
   // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
   const { message } = (await res.json()) as { message: string };
   return { ok: true, value: parseInt(message.match(/\d+/)?.[0] ?? "0") };
-}
+};

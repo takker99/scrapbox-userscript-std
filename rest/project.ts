@@ -15,7 +15,7 @@ import { BaseOptions, Result, setDefaults } from "./util.ts";
  * @param project project name to get
  * @param init connect.sid etc.
  */
-export async function getProject(
+export const getProject = async (
   project: string,
   init?: BaseOptions,
 ): Promise<
@@ -23,7 +23,7 @@ export async function getProject(
     MemberProject | NotMemberProject,
     NotFoundError | NotMemberError | NotLoggedInError
   >
-> {
+> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
   const path = `https://${hostName}/api/projects/${project}`;
   const res = await fetch(
@@ -49,4 +49,4 @@ export async function getProject(
 
   const value = (await res.json()) as MemberProject | NotMemberProject;
   return { ok: true, value };
-}
+};

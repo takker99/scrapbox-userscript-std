@@ -21,7 +21,7 @@ export interface GetPageOption extends BaseOptions {
  * @param title 取得したいページのtitle 大文字小文字は問わない
  * @param options オプション
  */
-export async function getPage(
+export const getPage = async (
   project: string,
   title: string,
   options?: GetPageOption,
@@ -30,7 +30,7 @@ export async function getPage(
     Page,
     NotFoundError | NotLoggedInError | NotMemberError
   >
-> {
+> => {
   const { sid, hostName, fetch, followRename } = setDefaults(options ?? {});
   const path = `https://${hostName}/api/pages/${project}/${
     encodeTitleURI(title)
@@ -59,7 +59,7 @@ export async function getPage(
   }
   const value = (await res.json()) as Page;
   return { ok: true, value };
-}
+};
 
 /** Options for `listPages()` */
 export interface ListPagesOption extends BaseOptions {
@@ -92,7 +92,7 @@ export interface ListPagesOption extends BaseOptions {
  * @param project 一覧したいproject
  * @param options オプション 取得範囲や並び順を決める
  */
-export async function listPages(
+export const listPages = async (
   project: string,
   options?: ListPagesOption,
 ): Promise<
@@ -100,7 +100,7 @@ export async function listPages(
     PageList,
     NotFoundError | NotLoggedInError | NotMemberError
   >
-> {
+> => {
   const { sid, hostName, fetch, sort, limit, skip } = setDefaults(
     options ?? {},
   );
@@ -134,4 +134,4 @@ export async function listPages(
   }
   const value = (await res.json()) as PageList;
   return { ok: true, value };
-}
+};

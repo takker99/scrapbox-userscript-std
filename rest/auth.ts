@@ -12,7 +12,7 @@ declare global {
  *
  * @param sid connect.sidに入っている文字列
  */
-export const cookie = (sid: string) => `connect.sid=${sid}`;
+export const cookie = (sid: string): string => `connect.sid=${sid}`;
 
 /** CSRF tokenを取得する
  *

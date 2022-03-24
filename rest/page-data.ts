@@ -15,13 +15,13 @@ import { BaseOptions, ExtendedOptions, Result, setDefaults } from "./util.ts";
  * @param project - インポート先のprojectの名前
  * @param data - インポートするページデータ
  */
-export async function importPages(
+export const importPages = async (
   project: string,
   data: ImportedData<boolean>,
   init: ExtendedOptions,
 ): Promise<
   Result<string, ErrorLike>
-> {
+> => {
   if (data.pages.length === 0) {
     return { ok: true, value: "No pages to import." };
   }
@@ -65,7 +65,7 @@ export async function importPages(
 
   const { message } = (await res.json()) as { message: string };
   return { ok: true, value: message };
-}
+};
 
 /** `exportPages`の認証情報 */
 export interface ExportInit<withMetadata extends true | false>
@@ -76,7 +76,7 @@ export interface ExportInit<withMetadata extends true | false>
  *
  * @param project exportしたいproject
  */
-export async function exportPages<withMetadata extends true | false>(
+export const exportPages = async <withMetadata extends true | false>(
   project: string,
   init: ExportInit<withMetadata>,
 ): Promise<
@@ -84,7 +84,7 @@ export async function exportPages<withMetadata extends true | false>(
     ExportedData<withMetadata>,
     NotFoundError | NotPrivilegeError | NotLoggedInError
   >
-> {
+> => {
   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
   const path =
     `https://${hostName}/api/page-data/export/${project}.json?metadata=${metadata}`;
@@ -111,4 +111,4 @@ export async function exportPages<withMetadata extends true | false>(
 
   const value = (await res.json()) as ExportedData<withMetadata>;
   return { ok: true, value };
-}
+};
