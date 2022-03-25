@@ -2,4 +2,4 @@
 
 UNOFFICIAL standard module for Scrapbox UserScript
 
-[document](https://doc.deno.land/https://raw.githubusercontent.com/takker99/scrapbox-userscript-std/0.10.4/mod.ts)
+[document](https://doc.deno.land/https://raw.githubusercontent.com/takker99/scrapbox-userscript-std/0.10.5/mod.ts)
