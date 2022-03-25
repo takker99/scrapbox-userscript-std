@@ -1,8 +1,18 @@
-import type { ErrorLike, SearchedTitle } from "../deps/scrapbox.ts";
+import type {
+  ErrorLike,
+  NotFoundError,
+  NotLoggedInError,
+  SearchedTitle,
+} from "../deps/scrapbox.ts";
 import { cookie } from "./auth.ts";
 import { UnexpectedResponseError } from "./error.ts";
 import { tryToErrorLike } from "../is.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
+
+/** 不正なfollowingIdを渡されたときに発生するエラー */
+export interface InvalidFollowingIdError extends ErrorLike {
+  name: "InvalidFollowingIdError";
+}
 
 export interface GetLinksOptions extends BaseOptions {
   /** 次のリンクリストを示すID */
@@ -20,7 +30,7 @@ export const getLinks = async (
   Result<{
     pages: SearchedTitle[];
     followingId: string;
-  }, ErrorLike>
+  }, NotFoundError | NotLoggedInError | InvalidFollowingIdError>
 > => {
   const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
   const path = `https://${hostName}/api/pages/${project}/search/titles${
@@ -33,6 +43,15 @@ export const getLinks = async (
   );
 
   if (!res.ok) {
+    if (res.status === 422) {
+      return {
+        ok: false,
+        value: {
+          name: "InvalidFollowingIdError",
+          message: await res.text(),
+        },
+      };
+    }
     const text = await res.text();
     const value = tryToErrorLike(text);
     if (!value) {
@@ -42,7 +61,7 @@ export const getLinks = async (
         body: text,
       });
     }
-    return { ok: false, value };
+    return { ok: false, value: value as NotFoundError | NotLoggedInError };
   }
   const pages = (await res.json()) as SearchedTitle[];
   return {
@@ -61,7 +80,12 @@ export const getLinks = async (
 export const readLinksBulk = async (
   project: string,
   options?: BaseOptions,
-): Promise<ErrorLike | AsyncGenerator<SearchedTitle[], void, unknown>> => {
+): Promise<
+  | NotFoundError
+  | NotLoggedInError
+  | InvalidFollowingIdError
+  | AsyncGenerator<SearchedTitle[], void, unknown>
+> => {
   const first = await getLinks(project, options);
   if (!first.ok) return first.value;
 
@@ -90,7 +114,12 @@ export const readLinksBulk = async (
 export const readLinks = async (
   project: string,
   options?: BaseOptions,
-): Promise<ErrorLike | AsyncGenerator<SearchedTitle, void, unknown>> => {
+): Promise<
+  | NotFoundError
+  | NotLoggedInError
+  | InvalidFollowingIdError
+  | AsyncGenerator<SearchedTitle, void, unknown>
+> => {
   const reader = await readLinksBulk(project, options);
   if ("name" in reader) return reader;
 
