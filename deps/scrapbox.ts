@@ -1,8 +1,10 @@
 export type {
+  BadRequestError,
   ErrorLike,
   ExportedData,
   GuestUser,
   ImportedData,
+  InvalidURLError,
   MemberProject,
   MemberUser,
   NotFoundError,
@@ -14,7 +16,9 @@ export type {
   PageList,
   Scrapbox,
   SearchedTitle,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.8/mod.ts";
-import type { Page } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.0.8/mod.ts";
+  SessionError,
+  TweetInfo,
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.1.2/mod.ts";
+import type { Page } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.1.2/mod.ts";
 export * from "https://esm.sh/@progfay/scrapbox-parser@7.2.0";
 export type Line = Page["lines"][0];
