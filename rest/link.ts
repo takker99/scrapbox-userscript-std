@@ -93,7 +93,7 @@ export const readLinksBulk = async (
     yield first.value.pages;
     let followingId = first.value.followingId;
 
-    while (!followingId) {
+    while (followingId) {
       const result = await getLinks(project, { followingId, ...options });
 
       // すでに認証は通っているので、ここでエラーになるはずがない
