@@ -7,6 +7,7 @@ export * from "./link.ts";
 export * from "./search.ts";
 export * from "./getWebPageTitle.ts";
 export * from "./getTweetInfo.ts";
+export * from "./getGyazoToken.ts";
 export * from "./auth.ts";
 export * from "./util.ts";
 export * from "./error.ts";
