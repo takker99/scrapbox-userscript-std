@@ -54,13 +54,13 @@ export const getTweetInfo = async (
         },
       };
     }
-    const text = await res.json();
+    const text = await res.text();
     const value = tryToErrorLike(text);
     if (!value) {
       throw new UnexpectedResponseError({
         path: new URL(path),
         ...res,
-        body: await res.text(),
+        body: text,
       });
     }
     return {

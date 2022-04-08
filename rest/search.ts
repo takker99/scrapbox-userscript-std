@@ -47,13 +47,13 @@ export const searchForPages = async (
         },
       };
     }
-    const text = await res.json();
+    const text = await res.text();
     const value = tryToErrorLike(text);
     if (!value) {
       throw new UnexpectedResponseError({
         path: new URL(path),
         ...res,
-        body: await res.text(),
+        body: text,
       });
     }
     return {
@@ -100,13 +100,13 @@ export const searchForJoinedProjects = async (
         },
       };
     }
-    const text = await res.json();
+    const text = await res.text();
     const value = tryToErrorLike(text);
     if (!value) {
       throw new UnexpectedResponseError({
         path: new URL(path),
         ...res,
-        body: await res.text(),
+        body: text,
       });
     }
     return { ok: false, value: value as NotLoggedInError };
@@ -162,13 +162,13 @@ export const searchForWatchList = async (
         },
       };
     }
-    const text = await res.json();
+    const text = await res.text();
     const value = tryToErrorLike(text);
     if (!value) {
       throw new UnexpectedResponseError({
         path: new URL(path),
         ...res,
-        body: await res.text(),
+        body: text,
       });
     }
     return { ok: false, value: value as NotLoggedInError };
