@@ -6,5 +6,5 @@ export * from "./click.ts";
 export * from "./statusBar.ts";
 export * from "./caret.ts";
 export * from "./dom.ts";
-export * from "./openInTheSameTab.ts";
+export * from "./open.ts";
 export * from "./cache.ts";
