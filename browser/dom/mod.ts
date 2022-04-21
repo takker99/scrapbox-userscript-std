@@ -7,3 +7,4 @@ export * from "./statusBar.ts";
 export * from "./caret.ts";
 export * from "./dom.ts";
 export * from "./openInTheSameTab.ts";
+export * from "./cache.ts";
