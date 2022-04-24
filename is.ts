@@ -1,4 +1,4 @@
-import type { ErrorLike } from "./deps/scrapbox.ts";
+import type { ErrorLike } from "./deps/scrapbox-rest.ts";
 // These code are based on https://deno.land/x/unknownutil@v1.1.0/is.ts
 
 export const isNone = (value: unknown): value is undefined | null =>

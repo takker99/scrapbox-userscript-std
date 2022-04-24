@@ -3,7 +3,7 @@ import { connect, disconnect } from "./socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { makeChanges } from "./makeChanges.ts";
 import { HeadData, pull } from "./pull.ts";
-import type { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "../../deps/scrapbox-rest.ts";
 import { pushCommit, pushWithRetry } from "./_fetch.ts";
 
 export interface PatchOptions {
