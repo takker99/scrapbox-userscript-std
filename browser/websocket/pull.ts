@@ -1,4 +1,4 @@
-import type { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "../../deps/scrapbox-rest.ts";
 import { getPage } from "../../rest/pages.ts";
 
 export interface HeadData {

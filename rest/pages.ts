@@ -4,7 +4,7 @@ import type {
   NotMemberError,
   Page,
   PageList,
-} from "../deps/scrapbox.ts";
+} from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
 import { UnexpectedResponseError } from "./error.ts";
 import { tryToErrorLike } from "../is.ts";

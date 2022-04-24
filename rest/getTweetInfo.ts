@@ -3,7 +3,7 @@ import type {
   InvalidURLError,
   SessionError,
   TweetInfo,
-} from "../deps/scrapbox.ts";
+} from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { UnexpectedResponseError } from "./error.ts";
 import { tryToErrorLike } from "../is.ts";
