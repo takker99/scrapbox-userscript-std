@@ -8,3 +8,5 @@ export * from "./caret.ts";
 export * from "./dom.ts";
 export * from "./open.ts";
 export * from "./cache.ts";
+export * from "./cursor.ts";
+export * from "./selection.ts";
