@@ -79,7 +79,7 @@ export function indentLines(count = 1) {
     press("ArrowRight", { ctrlKey: true });
   }
 }
-export function deindentLines(count = 1) {
+export function outdentLines(count = 1) {
   for (const _ of range(0, count)) {
     press("ArrowLeft", { ctrlKey: true });
   }
@@ -116,7 +116,7 @@ export function indentBlocks(count = 1) {
     press("ArrowRight", { altKey: true });
   }
 }
-export function deindentBlocks(count = 1) {
+export function outdentBlocks(count = 1) {
   for (const _ of range(0, count)) {
     press("ArrowLeft", { altKey: true });
   }
