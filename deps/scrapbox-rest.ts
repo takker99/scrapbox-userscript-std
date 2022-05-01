@@ -16,9 +16,11 @@ export type {
   NotPrivilegeError,
   Page,
   PageList,
+  ProjectId,
+  ProjectResponse,
   ProjectSearchResult,
   SearchedTitle,
   SearchResult,
   SessionError,
   TweetInfo,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.3/rest.ts";
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.4/rest.ts";
