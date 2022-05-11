@@ -19,7 +19,7 @@ export function redo(count = 1) {
 
 export function insertIcon(count = 1) {
   for (const _ of range(0, count)) {
-    press("i", { ctrlKey: true});
+    press("i", { ctrlKey: true });
   }
 }
 
