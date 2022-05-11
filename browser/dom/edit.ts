@@ -17,6 +17,12 @@ export function redo(count = 1) {
   }
 }
 
+export function insertIcon(count = 1) {
+  for (const _ of range(0, count)) {
+    press("i", { ctrlKey: true });
+  }
+}
+
 export function insertTimestamp(index = 1) {
   for (const _ of range(0, index)) {
     press("t", { altKey: true });
