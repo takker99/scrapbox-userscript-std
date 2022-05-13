@@ -5,9 +5,4 @@
 import { takeStores } from "./stores.ts";
 import { Cursor } from "./cursor.d.ts";
 
-export const takeCursor = (): Cursor => {
-  for (const store of takeStores()) {
-    if ("goByAction" in store) return store;
-  }
-  throw Error('#text-input must has a "Cursor" store.');
-};
+export const takeCursor = (): Cursor => takeStores().cursor;
