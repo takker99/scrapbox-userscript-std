@@ -4,5 +4,6 @@
 
 import { takeStores } from "./stores.ts";
 import { Cursor } from "./cursor.d.ts";
+export type { Cursor };
 
 export const takeCursor = (): Cursor => takeStores().cursor;
