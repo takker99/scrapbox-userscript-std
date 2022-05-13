@@ -5,6 +5,7 @@
 import { textInput } from "./dom.ts";
 import { Cursor } from "./cursor.d.ts";
 import { Selection } from "./selection.d.ts";
+export type { Cursor, Selection };
 
 export const takeStores = (): { cursor: Cursor; selection: Selection } => {
   const textarea = textInput();
