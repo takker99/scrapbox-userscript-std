@@ -10,3 +10,4 @@ export * from "./open.ts";
 export * from "./cache.ts";
 export * from "./cursor.ts";
 export * from "./selection.ts";
+export * from "./stores.ts";
