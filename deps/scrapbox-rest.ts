@@ -23,4 +23,4 @@ export type {
   SearchResult,
   SessionError,
   TweetInfo,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.4/rest.ts";
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.5/rest.ts";
