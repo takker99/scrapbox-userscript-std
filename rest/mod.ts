@@ -3,6 +3,7 @@ export * from "./project.ts";
 export * from "./profile.ts";
 export * from "./replaceLinks.ts";
 export * from "./page-data.ts";
+export * from "./getSnapshots.ts";
 export * from "./link.ts";
 export * from "./search.ts";
 export * from "./getWebPageTitle.ts";
