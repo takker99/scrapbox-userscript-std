@@ -65,7 +65,9 @@ export const patch = async (
           });
         }
 
-        const changes = makeChanges(head.lines, newLines, { userId, head });
+        const changes = [
+          ...makeChanges(head.lines, newLines, { userId, head }),
+        ];
         await pushCommit(request, changes, {
           parentId: head.commitId,
           projectId,
