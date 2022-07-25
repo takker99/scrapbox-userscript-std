@@ -6,38 +6,45 @@ import { textInput } from "./dom.ts";
 import { isArray, isNumber, isString } from "../../is.ts";
 import { sleep } from "../../sleep.ts";
 
-export function undo(count = 1) {
+export const undo = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("z", { ctrlKey: true });
   }
-}
-export function redo(count = 1) {
+};
+export const redo = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("z", { shiftKey: true, ctrlKey: true });
   }
-}
+};
 
-export function insertIcon(count = 1) {
+export const insertIcon = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("i", { ctrlKey: true });
   }
-}
+};
 
-export function insertTimestamp(index = 1) {
+export const insertTimestamp = (index = 1): void => {
   for (const _ of range(0, index)) {
     press("t", { altKey: true });
   }
-}
+};
 
-export async function insertLine(lineNo: number, text: string) {
+export const insertLine = async (
+  lineNo: number,
+  text: string,
+): Promise<void> => {
   await goLine(lineNo);
   goHead();
   press("Enter");
   press("ArrowUp");
   await insertText(text);
-}
+};
 
-export async function replaceLines(start: number, end: number, text: string) {
+export const replaceLines = async (
+  start: number,
+  end: number,
+  text: string,
+): Promise<void> => {
   await goLine(start);
   goHead();
   for (const _ of range(start, end)) {
@@ -45,9 +52,12 @@ export async function replaceLines(start: number, end: number, text: string) {
   }
   press("End", { shiftKey: true });
   await insertText(text);
-}
+};
 
-export async function deleteLines(from: number | string | string[], count = 1) {
+export const deleteLines = async (
+  from: number | string | string[],
+  count = 1,
+): Promise<void> => {
   if (isNumber(from)) {
     if (getLineCount() === from + count) {
       await goLine(from - 1);
@@ -78,74 +88,74 @@ export async function deleteLines(from: number | string | string[], count = 1) {
   throw new TypeError(
     `The type of value must be number | string | string[] but actual is "${typeof from}"`,
   );
-}
+};
 
-export function indentLines(count = 1) {
+export const indentLines = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowRight", { ctrlKey: true });
   }
-}
-export function outdentLines(count = 1) {
+};
+export const outdentLines = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowLeft", { ctrlKey: true });
   }
-}
-export function moveLines(count: number) {
+};
+export const moveLines = (count: number): void => {
   if (count > 0) {
     downLines(count);
   } else {
     upLines(-count);
   }
-}
+};
 // to行目の後ろに移動させる
-export function moveLinesBefore(from: number, to: number) {
+export const moveLinesBefore = (from: number, to: number): void => {
   const count = to - from;
   if (count >= 0) {
     downLines(count);
   } else {
     upLines(-count - 1);
   }
-}
-export function upLines(count = 1) {
+};
+export const upLines = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowUp", { ctrlKey: true });
   }
-}
-export function downLines(count = 1) {
+};
+export const downLines = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowDown", { ctrlKey: true });
   }
-}
+};
 
-export function indentBlocks(count = 1) {
+export const indentBlocks = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowRight", { altKey: true });
   }
-}
-export function outdentBlocks(count = 1) {
+};
+export const outdentBlocks = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowLeft", { altKey: true });
   }
-}
-export function moveBlocks(count: number) {
+};
+export const moveBlocks = (count: number): void => {
   if (count > 0) {
     downBlocks(count);
   } else {
     upBlocks(-count);
   }
-}
-export function upBlocks(count = 1) {
+};
+export const upBlocks = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowUp", { altKey: true });
   }
-}
-export function downBlocks(count = 1) {
+};
+export const downBlocks = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowDown", { altKey: true });
   }
-}
+};
 
-export async function insertText(text: string) {
+export const insertText = async (text: string): Promise<void> => {
   const cursor = textInput();
   if (!cursor) {
     throw Error("#text-input is not ditected.");
@@ -156,4 +166,4 @@ export async function insertText(text: string) {
   const event = new InputEvent("input", { bubbles: true });
   cursor.dispatchEvent(event);
   await sleep(1); // 待ち時間は感覚で決めた
-}
+};
