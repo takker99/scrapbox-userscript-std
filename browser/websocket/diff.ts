@@ -36,10 +36,10 @@ export interface DiffResult<T> {
   buildSES(): Generator<Change<T>, void, unknown>;
 }
 
-export function diff<T>(
+export const diff = <T>(
   left: ArrayLike<T>,
   right: ArrayLike<T>,
-): DiffResult<T> {
+): DiffResult<T> => {
   const reversed = left.length > right.length;
   const a = reversed ? right : left;
   const b = reversed ? left : right;
@@ -114,7 +114,7 @@ export function diff<T>(
       }
     },
   };
-}
+};
 
 export function* toExtendedChanges<T>(
   changes: Iterable<Change<T>>,
@@ -165,16 +165,14 @@ export function* toExtendedChanges<T>(
   yield* flush();
 }
 
-function makeReplaced<T>(
+const makeReplaced = <T>(
   left: Added<T>,
   right: Deleted<T>,
-): Replaced<T> {
-  return {
-    value: left.value,
-    oldValue: right.value,
-    type: "replaced",
-  };
-}
+): Replaced<T> => ({
+  value: left.value,
+  oldValue: right.value,
+  type: "replaced",
+});
 
 function* reverse<T>(list: ArrayLike<T>) {
   for (let i = list.length - 1; i >= 0; i--) {

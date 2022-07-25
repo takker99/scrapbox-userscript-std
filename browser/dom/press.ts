@@ -21,10 +21,10 @@ export interface PressOptions {
  * @param key 押したいキーの名前
  * @param pressOptions options
  */
-export function press(
+export const press = (
   key: KeyName,
   pressOptions?: PressOptions,
-): void {
+): void => {
   const { noModifiedKeys = false, ...rest } = pressOptions ?? {};
   const options = {
     bubbles: true,
@@ -36,7 +36,7 @@ export function press(
   if (!textarea) throw Error("#text-input must exist.");
   textarea.dispatchEvent(new KeyboardEvent("keydown", options));
   textarea.dispatchEvent(new KeyboardEvent("keyup", options));
-}
+};
 
 export type KeyName = keyof typeof KEYCODE_MAP;
 const KEYCODE_MAP = {

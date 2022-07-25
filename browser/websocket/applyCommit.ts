@@ -1,5 +1,5 @@
 import type { CommitNotification } from "../../deps/socket.ts";
-import type { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "../../deps/scrapbox-rest.ts";
 import { getUnixTimeFromId } from "./id.ts";
 
 export interface ApplyCommitProp {
@@ -17,11 +17,11 @@ export interface ApplyCommitProp {
  * @param lines commitsを適用する行
  * @param changes 適用するcommits
  */
-export function applyCommit(
+export const applyCommit = (
   lines: readonly Line[],
   changes: CommitNotification["changes"],
   { updated, userId }: ApplyCommitProp,
-) {
+): Line[] => {
   const newLines = [...lines];
   const getPos = (lineId: string) => {
     const position = newLines.findIndex(({ id }) => id === lineId);
@@ -57,4 +57,4 @@ export function applyCommit(
     }
   }
   return newLines;
-}
+};

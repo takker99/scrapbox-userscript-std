@@ -41,7 +41,7 @@ interface ReactFiber {
  * @return カーソルと選択範囲の情報
  * @throws {Error} #text-inputとReact Componentの隠しpropertyが見つからなかった
  */
-export function caret(): CaretInfo {
+export const caret = (): CaretInfo => {
   const textarea = textInput();
   if (!textarea) {
     throw Error(`#text-input is not found.`);
@@ -59,4 +59,4 @@ export function caret(): CaretInfo {
   return (textarea[
     reactKey
   ] as ReactFiber).return.return.stateNode.props;
-}
+};

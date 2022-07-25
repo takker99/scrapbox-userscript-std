@@ -2,7 +2,7 @@
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
 
-export function isHeightViewable(element: HTMLElement) {
+export const isHeightViewable = (element: HTMLElement): boolean => {
   const { top, bottom } = element.getBoundingClientRect();
   return top >= 0 && bottom <= window.innerHeight;
-}
+};

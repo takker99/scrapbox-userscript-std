@@ -15,10 +15,10 @@ export interface ClickOptions {
 }
 
 /** Emulate click event sequences */
-export async function click(
+export const click = async (
   element: HTMLElement,
   options: ClickOptions,
-): Promise<void> {
+): Promise<void> => {
   const mouseOptions: MouseEventInit = {
     button: options.button ?? 0,
     clientX: options.X,
@@ -37,17 +37,17 @@ export async function click(
   // ScrapboxのReactの処理が終わるまで少し待つ
   // 待ち時間は感覚で決めた
   await sleep(10);
-}
+};
 
 export interface HoldDownOptions extends ClickOptions {
   holding?: number;
 }
 
 /** Emulate long tap event sequence */
-export async function holdDown(
+export const holdDown = async (
   element: HTMLElement,
   options: HoldDownOptions,
-): Promise<void> {
+): Promise<void> => {
   const touch = new Touch({
     identifier: 0,
     target: element,
@@ -79,4 +79,4 @@ export async function holdDown(
   // ScrapboxのReactの処理が終わるまで少し待つ
   // 待ち時間は感覚で決めた
   await sleep(10);
-}
+};
