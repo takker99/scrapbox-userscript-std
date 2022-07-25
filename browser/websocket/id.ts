@@ -3,7 +3,7 @@ import { getProfile } from "../../rest/profile.ts";
 
 /** cached user ID */
 let userId: string | undefined;
-export async function getUserId() {
+export const getUserId = async (): Promise<string> => {
   if (userId !== undefined) return userId;
 
   const user = await getProfile();
@@ -12,11 +12,11 @@ export async function getUserId() {
   }
   userId = user.id;
   return userId;
-}
+};
 
 /** cached pairs of project name and project id */
 const projectMap = new Map<string, string>();
-export async function getProjectId(project: string) {
+export const getProjectId = async (project: string): Promise<string> => {
   const cachedId = projectMap.get(project);
   if (cachedId !== undefined) return cachedId;
 
@@ -28,22 +28,18 @@ export async function getProjectId(project: string) {
   const { id } = result.value;
   projectMap.set(project, id);
   return id;
-}
+};
 
-function zero(n: string) {
-  return n.padStart(8, "0");
-}
+const zero = (n: string) => n.padStart(8, "0");
 
-export function createNewLineId(userId: string) {
+export const createNewLineId = (userId: string): string => {
   const time = Math.floor(new Date().getTime() / 1000).toString(16);
   const rand = Math.floor(0xFFFFFE * Math.random()).toString(16);
   return `${zero(time).slice(-8)}${userId.slice(-6)}0000${zero(rand)}`;
-}
-export function getUnixTimeFromId(id: string) {
+};
+export const getUnixTimeFromId = (id: string): number => {
   if (!isId(id)) throw SyntaxError(`"${id}" is an invalid id.`);
 
   return parseInt(`0x${id.slice(0, 8)}`, 16);
-}
-export function isId(id: string) {
-  return /^[a-f\d]{24,32}$/.test(id);
-}
+};
+export const isId = (id: string): boolean => /^[a-f\d]{24,32}$/.test(id);

@@ -15,11 +15,11 @@ export interface Init {
   userId: string;
   head: HeadData;
 }
-export function makeChanges(
+export const makeChanges = (
   left: Pick<Line, "text" | "id">[],
   right: string[],
   { userId, head }: Init,
-) {
+): Change[] => {
   // 改行文字が入るのを防ぐ
   const right_ = right.flatMap((text) => text.split("\n"));
   // 本文の差分
@@ -51,10 +51,10 @@ export function makeChanges(
   }
 
   return changes;
-}
+};
 
 /** テキストに含まれる全てのリンクと最初の画像を探す */
-function findLinksAndImage(text: string): [string[], string | null] {
+const findLinksAndImage = (text: string): [string[], string | null] => {
   const rows = parseToRows(text);
   const blocks = packRows(rows, { hasTitle: true }).flatMap((pack) => {
     switch (pack.type) {
@@ -115,7 +115,7 @@ function findLinksAndImage(text: string): [string[], string | null] {
   }
 
   return [links, image];
-}
+};
 
 function* blocksToNodes(blocks: Iterable<Block>) {
   for (const block of blocks) {

@@ -21,11 +21,11 @@ export interface PinOptions {
  * @param title ピン留めしたいページのタイトル
  * @param options 使用したいSocketがあれば指定する
  */
-export async function pin(
+export const pin = async (
   project: string,
   title: string,
   options?: PinOptions,
-): Promise<void> {
+): Promise<void> => {
   const [
     head,
     projectId,
@@ -63,7 +63,7 @@ export async function pin(
   } finally {
     if (!injectedSocket) await disconnect(socket);
   }
-}
+};
 
 export interface UnPinOptions {
   socket?: Socket;
@@ -73,11 +73,11 @@ export interface UnPinOptions {
  * @param project ピン留めを外したいページのproject
  * @param title ピン留めを外したいページのタイトル
  */
-export async function unpin(
+export const unpin = async (
   project: string,
   title: string,
   options: UnPinOptions,
-): Promise<void> {
+): Promise<void> => {
   const [
     head,
     projectId,
@@ -109,7 +109,7 @@ export async function unpin(
   } finally {
     if (!injectedSocket) await disconnect(socket);
   }
-}
+};
 
 export const pinNumber = (): number =>
   Number.MAX_SAFE_INTEGER - Math.floor(Date.now() / 1000);

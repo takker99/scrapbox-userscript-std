@@ -22,11 +22,11 @@ export type PushCommitInit = {
   userId: string;
 };
 
-export async function pushCommit(
+export const pushCommit = async (
   request: RequestFunc,
   changes: Change[] | [Delete] | [Pin],
   commitInit: PushCommitInit,
-) {
+) => {
   if (changes.length === 0) return { commitId: commitInit.parentId };
   const res = await request("socket.io-request", {
     method: "commit",
@@ -39,9 +39,9 @@ export async function pushCommit(
     },
   });
   return res as { commitId: string };
-}
+};
 
-export async function pushWithRetry(
+export const pushWithRetry = async (
   request: RequestFunc,
   changes: Change[] | [Delete] | [Pin],
   { project, title, retry = 3, parentId, ...commitInit }:
@@ -51,7 +51,7 @@ export async function pushWithRetry(
       title: string;
       retry?: number;
     },
-) {
+) => {
   try {
     const res = await pushCommit(request, changes, {
       parentId,
@@ -78,4 +78,4 @@ export async function pushWithRetry(
     throw Error("Faild to retry pushing.");
   }
   return parentId;
-}
+};

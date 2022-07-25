@@ -2,15 +2,13 @@ import { Socket, socketIO } from "../../deps/socket.ts";
 export type { Socket } from "../../deps/socket.ts";
 
 /** 新しいsocketを作る */
-export function makeSocket() {
-  return socketIO();
-}
+export const makeSocket = (): Promise<Socket> => socketIO();
 
 /** websocketに(再)接続する
  *
  * @param socket 接続したいsocket
  */
-export async function connect(socket: Socket): Promise<void> {
+export const connect = async (socket: Socket): Promise<void> => {
   if (socket.connected) return;
 
   const waiting = new Promise<void>((resolve) =>
@@ -18,13 +16,13 @@ export async function connect(socket: Socket): Promise<void> {
   );
   socket.connect();
   await waiting;
-}
+};
 
 /** websocketを切断する
  *
  * @param socket 切断したいsocket
  */
-export async function disconnect(socket: Socket): Promise<void> {
+export const disconnect = async (socket: Socket): Promise<void> => {
   if (socket.disconnected) return;
 
   const waiting = new Promise<void>((resolve) => {
@@ -37,4 +35,4 @@ export async function disconnect(socket: Socket): Promise<void> {
   });
   socket.disconnect();
   await waiting;
-}
+};

@@ -14,11 +14,11 @@ export interface DeletePageOptions {
  * @param title 削除したいページのタイトル
  * @param options 使用したいSocketがあれば指定する
  */
-export async function deletePage(
+export const deletePage = async (
   project: string,
   title: string,
   options?: DeletePageOptions,
-): Promise<void> {
+): Promise<void> => {
   const [
     { pageId, commitId: parentId, persistent },
     projectId,
@@ -47,4 +47,4 @@ export async function deletePage(
   } finally {
     if (!injectedSocket) await disconnect(socket);
   }
-}
+};

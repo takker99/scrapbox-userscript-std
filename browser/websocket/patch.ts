@@ -19,7 +19,7 @@ export interface PatchOptions {
  * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される。undefinedを返すと書き換えを中断する
  * @param options 使用したいSocketがあれば指定する
  */
-export async function patch(
+export const patch = async (
   project: string,
   title: string,
   update: (
@@ -27,7 +27,7 @@ export async function patch(
     metadata: HeadData,
   ) => string[] | undefined | Promise<string[] | undefined>,
   options?: PatchOptions,
-): Promise<void> {
+): Promise<void> => {
   const [
     head_,
     projectId,
@@ -90,4 +90,4 @@ export async function patch(
   } finally {
     if (!injectedSocket) await disconnect(socket);
   }
-}
+};

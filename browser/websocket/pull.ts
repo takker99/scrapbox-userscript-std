@@ -10,7 +10,10 @@ export interface HeadData {
   links: string[];
   lines: Line[];
 }
-export async function pull(project: string, title: string): Promise<HeadData> {
+export const pull = async (
+  project: string,
+  title: string,
+): Promise<HeadData> => {
   const result = await getPage(project, title);
 
   // TODO: 編集不可なページはStream購読だけ提供する
@@ -28,4 +31,4 @@ export async function pull(project: string, title: string): Promise<HeadData> {
     pin,
     lines,
   };
-}
+};
