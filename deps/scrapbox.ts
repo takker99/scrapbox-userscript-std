@@ -5,4 +5,4 @@ export type {
 export type {
   BaseStore,
 } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.5/baseStore.ts";
-export * from "https://esm.sh/@progfay/scrapbox-parser@8.0.0";
+export * from "https://esm.sh/@progfay/scrapbox-parser@8.1.0";
