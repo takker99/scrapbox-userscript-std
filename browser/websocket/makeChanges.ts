@@ -96,7 +96,8 @@ const findLinksAndImage = (text: string): [string[], string | null] => {
           case "absolute": {
             const props = parseYoutube(node.href);
             if (!props) return;
-            return `https://i.ytimg.com/vi/${props.videoId}/mqdefault.jpg`;
+            image ??= `https://i.ytimg.com/vi/${props.videoId}/mqdefault.jpg`;
+            return;
           }
           default:
             return;
