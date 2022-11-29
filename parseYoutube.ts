@@ -7,8 +7,10 @@ export interface YoutubeProps {
 
 const youtubeRegExp =
   /https?:\/\/(?:www\.|)youtube\.com\/watch\?((?:[^\s]+&|)v=([a-zA-Z\d_-]+)(?:&[^\s]+|))/;
-const youtubeShortRegExp =
+const youtubeDotBeRegExp =
   /https?:\/\/youtu\.be\/([a-zA-Z\d_-]+)(?:\?([^\s]{0,100})|)/;
+const youtubeShortRegExp =
+  /https?:\/\/(?:www\.|)youtube\.com\/shorts\/([a-zA-Z\d_-]+)(?:\?([^\s]+)|)/;
 const youtubeListRegExp =
   /https?:\/\/(?:www\.|)youtube\.com\/playlist\?((?:[^\s]+&|)list=([a-zA-Z\d_-]+)(?:&[^\s]+|))/;
 
@@ -28,6 +30,16 @@ export const parseYoutube = (url: string): YoutubeProps | undefined => {
       return {
         videoId,
         params: _params,
+      };
+    }
+  }
+  {
+    const matches = url.match(youtubeDotBeRegExp);
+    if (matches) {
+      const [, videoId] = matches;
+      return {
+        videoId,
+        params: new URLSearchParams("autoplay=0"),
       };
     }
   }
