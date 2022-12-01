@@ -1,4 +1,4 @@
-import { diff, toExtendedChanges } from "./diff.ts";
+import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import type { Line } from "../../deps/scrapbox.ts";
 import type {
   DeleteCommit,
