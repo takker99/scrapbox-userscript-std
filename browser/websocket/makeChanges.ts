@@ -10,7 +10,7 @@ import {
 import type { Change } from "../../deps/socket.ts";
 import type { HeadData } from "./pull.ts";
 import { toTitleLc } from "../../title.ts";
-import { parseYoutube } from "../../parseYoutube.ts";
+import { parseYoutube } from "../../parser/youtube.ts";
 
 export interface Init {
   userId: string;
@@ -95,7 +95,7 @@ const findLinksAndImage = (text: string): [string[], string | null] => {
             return;
           case "absolute": {
             const props = parseYoutube(node.href);
-            if (!props) return;
+            if (!props || props.pathType === "list") return;
             image ??= `https://i.ytimg.com/vi/${props.videoId}/mqdefault.jpg`;
             return;
           }
