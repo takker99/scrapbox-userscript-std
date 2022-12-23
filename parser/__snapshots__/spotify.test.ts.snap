@@ -1,0 +1,37 @@
+export const snapshot = {};
+
+snapshot[`spotify links > is 1`] = `
+{
+  pathType: "track",
+  videoId: "0rlYL6IQIwLZwYIguyy3l0",
+}
+`;
+
+snapshot[`spotify links > is 2`] = `
+{
+  pathType: "album",
+  videoId: "1bgUOjg3V0a7tvEfF1N6Kk",
+}
+`;
+
+snapshot[`spotify links > is 3`] = `
+{
+  pathType: "episode",
+  videoId: "0JtPGoprZK2WlYMjhFF2xD",
+}
+`;
+
+snapshot[`spotify links > is 4`] = `
+{
+  pathType: "playlist",
+  videoId: "2uOyQytSjDq9GF5z1RJj5w",
+}
+`;
+
+snapshot[`spotify links > is not 1`] = `undefined`;
+
+snapshot[`spotify links > is not 2`] = `undefined`;
+
+snapshot[`spotify links > is not 3`] = `undefined`;
+
+snapshot[`spotify links > is not 4`] = `undefined`;

@@ -1,0 +1,11 @@
+export const snapshot = {};
+
+snapshot[`spotify links > is 1`] = `"1-FM-e1gh6a7/a-a7m2veg"`;
+
+snapshot[`spotify links > is not 1`] = `undefined`;
+
+snapshot[`spotify links > is not 2`] = `undefined`;
+
+snapshot[`spotify links > is not 3`] = `undefined`;
+
+snapshot[`spotify links > is not 4`] = `undefined`;

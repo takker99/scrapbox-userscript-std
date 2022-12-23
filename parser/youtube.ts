@@ -1,18 +1,22 @@
 // ported from https://github.com/takker99/ScrapBubble/blob/0.4.0/Page.tsx#L662
 
-export interface YoutubeProps {
-  params: URLSearchParams;
-  videoId: string;
-}
-
-const youtubeRegExp =
-  /https?:\/\/(?:www\.|)youtube\.com\/watch\?((?:[^\s]+&|)v=([a-zA-Z\d_-]+)(?:&[^\s]+|))/;
+const youtubeRegExp = /https?:\/\/(?:www\.|music\.|)youtube\.com\/watch/;
 const youtubeDotBeRegExp =
   /https?:\/\/youtu\.be\/([a-zA-Z\d_-]+)(?:\?([^\s]{0,100})|)/;
 const youtubeShortRegExp =
   /https?:\/\/(?:www\.|)youtube\.com\/shorts\/([a-zA-Z\d_-]+)(?:\?([^\s]+)|)/;
 const youtubeListRegExp =
-  /https?:\/\/(?:www\.|)youtube\.com\/playlist\?((?:[^\s]+&|)list=([a-zA-Z\d_-]+)(?:&[^\s]+|))/;
+  /https?:\/\/(?:www\.|music\.|)youtube\.com\/playlist\?((?:[^\s]+&|)list=([a-zA-Z\d_-]+)(?:&[^\s]+|))/;
+
+export type YoutubeProps = {
+  params: URLSearchParams;
+  videoId: string;
+  pathType: "com" | "dotbe" | "short";
+} | {
+  params: URLSearchParams;
+  listId: string;
+  pathType: "list";
+};
 
 /** YoutubeのURLを解析してVideo IDなどを取り出す
  *
@@ -20,55 +24,50 @@ const youtubeListRegExp =
  * @return 解析結果 YoutubeのURLでなかったときは`undefined`を返す
  */
 export const parseYoutube = (url: string): YoutubeProps | undefined => {
-  {
-    const matches = url.match(youtubeRegExp);
-    if (matches) {
-      const [, params, videoId] = matches;
-      const _params = new URLSearchParams(params);
-      _params.delete("v");
-      _params.append("autoplay", "0");
+  if (youtubeRegExp.test(url)) {
+    const params = new URL(url).searchParams;
+    const videoId = params.get("v");
+    if (videoId) {
       return {
+        pathType: "com",
         videoId,
-        params: _params,
+        params,
       };
     }
   }
+
   {
     const matches = url.match(youtubeDotBeRegExp);
     if (matches) {
-      const [, videoId] = matches;
+      const [, videoId, params] = matches;
       return {
         videoId,
-        params: new URLSearchParams("autoplay=0"),
+        params: new URLSearchParams(params),
+        pathType: "dotbe",
       };
     }
   }
+
   {
     const matches = url.match(youtubeShortRegExp);
     if (matches) {
-      const [, videoId] = matches;
+      const [, videoId, params] = matches;
       return {
         videoId,
-        params: new URLSearchParams("autoplay=0"),
+        params: new URLSearchParams(params),
+        pathType: "short",
       };
     }
   }
+
   {
     const matches = url.match(youtubeListRegExp);
     if (matches) {
       const [, params, listId] = matches;
 
-      const _params = new URLSearchParams(params);
-      const videoId = _params.get("v");
-      if (!videoId) return;
-      _params.delete("v");
-      _params.append("autoplay", "0");
-      _params.append("list", listId);
-      return {
-        videoId,
-        params: _params,
-      };
+      return { listId, params: new URLSearchParams(params), pathType: "list" };
     }
   }
+
   return undefined;
 };
