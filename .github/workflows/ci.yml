@@ -17,4 +17,4 @@ jobs:
       - name: Run type check
         run: deno check --remote ./**/*.ts
       - name: Run test
-        run: deno test
+        run: deno test --allow-read --allow-write
