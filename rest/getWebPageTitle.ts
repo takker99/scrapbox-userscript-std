@@ -53,7 +53,7 @@ export const getWebPageTitle = async (
         },
       };
     }
-    return makeError<SessionError | BadRequestError>(req, res);
+    return makeError<SessionError | BadRequestError>(res);
   }
 
   const { title } = (await res.json()) as { title: string };

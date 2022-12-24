@@ -47,10 +47,7 @@ export const searchForPages = async (
         },
       };
     }
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
 
   const value = (await res.json()) as SearchResult;
@@ -92,7 +89,7 @@ export const searchForJoinedProjects = async (
         },
       };
     }
-    return makeError<NotLoggedInError>(req, res);
+    return makeError<NotLoggedInError>(res);
   }
 
   const value = (await res.json()) as ProjectSearchResult;
@@ -145,7 +142,7 @@ export const searchForWatchList = async (
         },
       };
     }
-    return makeError<NotLoggedInError>(req, res);
+    return makeError<NotLoggedInError>(res);
   }
 
   const value = (await res.json()) as ProjectSearchResult;

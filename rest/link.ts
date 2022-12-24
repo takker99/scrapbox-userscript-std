@@ -53,7 +53,7 @@ export const getLinks = async (
       };
     }
 
-    return makeError<NotFoundError | NotLoggedInError>(req, res);
+    return makeError<NotFoundError | NotLoggedInError>(res);
   }
 
   const pages = (await res.json()) as SearchedTitle[];
