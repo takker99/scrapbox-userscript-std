@@ -8,8 +8,7 @@ import type {
   ProjectResponse,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 /** get the project information
@@ -27,26 +26,19 @@ export const getProject = async (
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
-  const path = `https://${hostName}/api/projects/${project}`;
-  const res = await fetch(
-    path,
+
+  const req = new Request(
+    `https://${hostName}/api/projects/${project}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 
+  const res = await fetch(req);
+
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as NotFoundError | NotMemberError | NotLoggedInError,
-    };
+    return makeError<NotFoundError | NotMemberError | NotLoggedInError>(
+      req,
+      res,
+    );
   }
 
   const value = (await res.json()) as MemberProject | NotMemberProject;
@@ -67,26 +59,16 @@ export const listProjects = async (
   for (const id of projectIds) {
     param.append("ids", id);
   }
-  const path = `https://${hostName}/api/projects?${param.toString()}`;
-  const res = await fetch(
-    path,
+
+  const req = new Request(
+    `https://${hostName}/api/projects?${param.toString()}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 
+  const res = await fetch(req);
+
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as NotLoggedInError,
-    };
+    return makeError<NotLoggedInError>(req, res);
   }
 
   const value = (await res.json()) as ProjectResponse;

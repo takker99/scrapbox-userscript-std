@@ -11,17 +11,13 @@ export const getProfile = async (
   init?: BaseOptions,
 ): Promise<MemberUser | GuestUser> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
-  const path = `https://${hostName}/api/users/me`;
-  const res = await fetch(
-    path,
+  const request = new Request(
+    `https://${hostName}/api/users/me`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
-  if (!res.ok) {
-    throw new UnexpectedResponseError({
-      path: new URL(path),
-      ...res,
-      body: await res.text(),
-    });
+  const response = await fetch(request);
+  if (!response.ok) {
+    throw new UnexpectedResponseError({ request, response });
   }
-  return (await res.json()) as MemberUser | GuestUser;
+  return (await response.json()) as MemberUser | GuestUser;
 };

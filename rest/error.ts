@@ -1,21 +1,21 @@
+import type { ErrorLike } from "../deps/scrapbox-rest.ts";
+import { tryToErrorLike } from "../is.ts";
+
+/** 想定されない応答が帰ってきたときに投げる例外 */
 export class UnexpectedResponseError extends Error {
   name = "UnexpectedResponseError";
-  status: number;
-  statusText: string;
-  body: string;
-  path: URL;
+  request: Request;
+  response: Response;
 
   constructor(
-    init: { status: number; statusText: string; body: string; path: URL },
+    init: { request: Request; response: Response },
   ) {
     super(
-      `${init.status} ${init.statusText} when fetching ${init.path.toString()}`,
+      `${init.response.status} ${init.response.statusText} when fetching ${init.request.url}`,
     );
 
-    this.status = init.status;
-    this.statusText = init.statusText;
-    this.body = init.body;
-    this.path = init.path;
+    this.request = init.request.clone();
+    this.response = init.response.clone();
 
     // @ts-ignore only available on V8
     if (Error.captureStackTrace) {
@@ -24,3 +24,20 @@ export class UnexpectedResponseError extends Error {
     }
   }
 }
+
+/** 失敗した要求からエラー情報を取り出す */
+export const makeError = async <T extends ErrorLike>(
+  req: Request,
+  res: Response,
+): Promise<{ ok: false; value: T }> => {
+  const response = res.clone();
+  const text = await response.text();
+  const value = tryToErrorLike(text);
+  if (!value) {
+    throw new UnexpectedResponseError({ request: req, response });
+  }
+  return {
+    ok: false,
+    value: value as T,
+  };
+};

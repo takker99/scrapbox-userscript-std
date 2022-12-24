@@ -5,8 +5,7 @@ import type {
   TweetInfo,
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { ExtendedOptions, Result, setDefaults } from "./util.ts";
 
 /** 指定したTweetの情報を取得する
@@ -27,12 +26,10 @@ export const getTweetInfo = async (
   >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
-  const path = `https://${hostName}/api/embed-text/twitter?url=${
-    encodeURIComponent(url.toString())
-  }`;
-
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/embed-text/twitter?url=${
+      encodeURIComponent(url.toString())
+    }`,
     {
       method: "POST",
       headers: {
@@ -44,6 +41,8 @@ export const getTweetInfo = async (
     },
   );
 
+  const res = await fetch(req);
+
   if (!res.ok) {
     if (res.status === 422) {
       return {
@@ -54,21 +53,7 @@ export const getTweetInfo = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as
-        | SessionError
-        | BadRequestError,
-    };
+    return makeError<SessionError | BadRequestError>(req, res);
   }
 
   const tweet = (await res.json()) as TweetInfo;

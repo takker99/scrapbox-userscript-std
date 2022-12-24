@@ -5,8 +5,7 @@ import type {
   SearchedTitle,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 /** 不正なfollowingIdを渡されたときに発生するエラー */
@@ -33,14 +32,15 @@ export const getLinks = async (
   }, NotFoundError | NotLoggedInError | InvalidFollowingIdError>
 > => {
   const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
-  const path = `https://${hostName}/api/pages/${project}/search/titles${
-    followingId ? `?followingId=${followingId}` : ""
-  }`;
 
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/pages/${project}/search/titles${
+      followingId ? `?followingId=${followingId}` : ""
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
 
   if (!res.ok) {
     if (res.status === 422) {
@@ -52,17 +52,10 @@ export const getLinks = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return { ok: false, value: value as NotFoundError | NotLoggedInError };
+
+    return makeError<NotFoundError | NotLoggedInError>(req, res);
   }
+
   const pages = (await res.json()) as SearchedTitle[];
   return {
     ok: true,

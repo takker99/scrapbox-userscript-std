@@ -6,8 +6,7 @@ import type {
   PageList,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { encodeTitleURI } from "../title.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
 
@@ -32,30 +31,18 @@ export const getPage = async (
   >
 > => {
   const { sid, hostName, fetch, followRename } = setDefaults(options ?? {});
-  const path = `https://${hostName}/api/pages/${project}/${
-    encodeTitleURI(title)
-  }?followRename=${followRename ?? true}`;
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/pages/${project}/${
+      encodeTitleURI(title)
+    }?followRename=${followRename ?? true}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+  const res = await fetch(req);
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as
-        | NotFoundError
-        | NotLoggedInError
-        | NotMemberError,
-    };
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
+      req,
+      res,
+    );
   }
   const value = (await res.json()) as Page;
   return { ok: true, value };
@@ -108,29 +95,17 @@ export const listPages = async (
   if (sort !== undefined) params.append("sort", sort);
   if (limit !== undefined) params.append("limit", `${limit}`);
   if (skip !== undefined) params.append("skip", `${skip}`);
-  const path = `https://${hostName}/api/pages/${project}?${params.toString()}`;
-
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/pages/${project}?${params.toString()}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as
-        | NotFoundError
-        | NotLoggedInError
-        | NotMemberError,
-    };
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
+      req,
+      res,
+    );
   }
   const value = (await res.json()) as PageList;
   return { ok: true, value };

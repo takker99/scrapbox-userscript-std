@@ -1,7 +1,6 @@
 import type { NotLoggedInError } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
@@ -26,26 +25,19 @@ export const getGyazoToken = async (
   >
 > => {
   const { sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
-  const path = `https://${hostName}/api/login/gyazo/oauth-upload/token${
-    gyazoTeamsName ? `?gyazoTeamsName=${gyazoTeamsName}` : ""
-  }`;
-
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/login/gyazo/oauth-upload/token${
+      gyazoTeamsName ? `?gyazoTeamsName=${gyazoTeamsName}` : ""
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 
+  const res = await fetch(req);
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: await res.text(),
-      });
-    }
-    return { ok: false, value: value as NotLoggedInError };
+    return makeError<NotLoggedInError>(
+      req,
+      res,
+    );
   }
 
   const { token } = (await res.json()) as { token?: string };

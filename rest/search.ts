@@ -7,8 +7,7 @@ import type {
   SearchResult,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 /** search a project for pages
@@ -29,13 +28,14 @@ export const searchForPages = async (
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const path = `https://${hostName}/api/pages/${project}/search/query?q=${
-    encodeURIComponent(query)
-  }`;
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/pages/${project}/search/query?q=${
+      encodeURIComponent(query)
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
 
   if (!res.ok) {
     if (res.status === 422) {
@@ -47,19 +47,10 @@ export const searchForPages = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as NotFoundError | NotMemberError | NotLoggedInError,
-    };
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
+      req,
+      res,
+    );
   }
 
   const value = (await res.json()) as SearchResult;
@@ -82,13 +73,14 @@ export const searchForJoinedProjects = async (
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const path = `https://${hostName}/api/projects/search/query?q=${
-    encodeURIComponent(query)
-  }`;
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/projects/search/query?q=${
+      encodeURIComponent(query)
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
 
   if (!res.ok) {
     if (res.status === 422) {
@@ -100,16 +92,7 @@ export const searchForJoinedProjects = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return { ok: false, value: value as NotLoggedInError };
+    return makeError<NotLoggedInError>(req, res);
   }
 
   const value = (await res.json()) as ProjectSearchResult;
@@ -144,12 +127,12 @@ export const searchForWatchList = async (
     params.append("ids", projectId);
   }
 
-  const path =
-    `https://${hostName}/api/projects/search/watch-list?${params.toString()}`;
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/projects/search/watch-list?${params.toString()}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
 
   if (!res.ok) {
     if (res.status === 422) {
@@ -162,16 +145,7 @@ export const searchForWatchList = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return { ok: false, value: value as NotLoggedInError };
+    return makeError<NotLoggedInError>(req, res);
   }
 
   const value = (await res.json()) as ProjectSearchResult;
