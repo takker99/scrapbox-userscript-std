@@ -14,36 +14,83 @@ import { BaseOptions, Result, setDefaults } from "./util.ts";
 export interface GetPageOption extends BaseOptions {
   /** use `followRename` */ followRename?: boolean;
 }
-/** 指定したページのJSONデータを取得する
- *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param options オプション
- */
-export const getPage = async (
-  project: string,
-  title: string,
-  options?: GetPageOption,
-): Promise<
-  Result<
-    Page,
-    NotFoundError | NotLoggedInError | NotMemberError
-  >
-> => {
-  const { sid, hostName, fetch, followRename } = setDefaults(options ?? {});
-  const req = new Request(
-    `https://${hostName}/api/pages/${project}/${
-      encodeTitleURI(title)
-    }?followRename=${followRename ?? true}`,
+
+const getPage_toRequest: GetPage["toRequest"] = (
+  project,
+  title,
+  options,
+) => {
+  const { sid, hostName, followRename } = setDefaults(options ?? {});
+  const path = `https://${hostName}/api/pages/${project}/${
+    encodeTitleURI(title)
+  }?followRename=${followRename ?? true}`;
+  return new Request(
+    path,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
-  const res = await fetch(req);
+};
+
+const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
   if (!res.ok) {
     return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   const value = (await res.json()) as Page;
   return { ok: true, value };
 };
+
+export interface GetPage {
+  /** /api/pages/:project/:title の要求を組み立てる
+   *
+   * @param project 取得したいページのproject名
+   * @param title 取得したいページのtitle 大文字小文字は問わない
+   * @param options オプション
+   * @return request
+   */
+  toRequest: (
+    project: string,
+    title: string,
+    options?: GetPageOption,
+  ) => Request;
+
+  /** 帰ってきた応答からページのJSONデータを取得する
+   *
+   * @param res 応答
+   * @return ページのJSONデータ
+   */
+  fromResponse: (res: Response) => Promise<
+    Result<
+      Page,
+      NotFoundError | NotLoggedInError | NotMemberError
+    >
+  >;
+
+  (project: string, title: string, options?: GetPageOption): Promise<
+    Result<
+      Page,
+      NotFoundError | NotLoggedInError | NotMemberError
+    >
+  >;
+}
+
+/** 指定したページのJSONデータを取得する
+ *
+ * @param project 取得したいページのproject名
+ * @param title 取得したいページのtitle 大文字小文字は問わない
+ * @param options オプション
+ */
+export const getPage: GetPage = async (
+  project,
+  title,
+  options,
+) => {
+  const { fetch } = setDefaults(options ?? {});
+  const req = getPage_toRequest(project, title, options);
+  const res = await fetch(req);
+  return await getPage_fromResponse(res);
+};
+
+getPage.toRequest = getPage_toRequest;
+getPage.fromResponse = getPage_fromResponse;
 
 /** Options for `listPages()` */
 export interface ListPagesOption extends BaseOptions {
@@ -71,36 +118,76 @@ export interface ListPagesOption extends BaseOptions {
    */
   limit?: number;
 }
-/** 指定したprojectのページを一覧する
- *
- * @param project 一覧したいproject
- * @param options オプション 取得範囲や並び順を決める
- */
-export const listPages = async (
-  project: string,
-  options?: ListPagesOption,
-): Promise<
-  Result<
-    PageList,
-    NotFoundError | NotLoggedInError | NotMemberError
-  >
-> => {
-  const { sid, hostName, fetch, sort, limit, skip } = setDefaults(
+
+export interface ListPages {
+  /** /api/pages/:project の要求を組み立てる
+   *
+   * @param project 取得したいページのproject名
+   * @param options オプション
+   * @return request
+   */
+  toRequest: (
+    project: string,
+    options?: ListPagesOption,
+  ) => Request;
+
+  /** 帰ってきた応答からページのJSONデータを取得する
+   *
+   * @param res 応答
+   * @return ページのJSONデータ
+   */
+  fromResponse: (res: Response) => Promise<
+    Result<
+      PageList,
+      NotFoundError | NotLoggedInError | NotMemberError
+    >
+  >;
+
+  (project: string, options?: ListPagesOption): Promise<
+    Result<
+      PageList,
+      NotFoundError | NotLoggedInError | NotMemberError
+    >
+  >;
+}
+
+const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
+  const { sid, hostName, sort, limit, skip } = setDefaults(
     options ?? {},
   );
   const params = new URLSearchParams();
   if (sort !== undefined) params.append("sort", sort);
   if (limit !== undefined) params.append("limit", `${limit}`);
   if (skip !== undefined) params.append("skip", `${skip}`);
-  const req = new Request(
-    `https://${hostName}/api/pages/${project}?${params.toString()}`,
+  const path = `https://${hostName}/api/pages/${project}?${params.toString()}`;
+
+  return new Request(
+    path,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+};
 
-  const res = await fetch(req);
+const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
   if (!res.ok) {
     return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   const value = (await res.json()) as PageList;
   return { ok: true, value };
 };
+
+/** 指定したprojectのページを一覧する
+ *
+ * @param project 一覧したいproject
+ * @param options オプション 取得範囲や並び順を決める
+ */
+export const listPages: ListPages = async (
+  project,
+  options?,
+) => {
+  const { fetch } = setDefaults(options ?? {});
+  const res = await fetch(listPages_toRequest(project, options));
+  return await listPages_fromResponse(res);
+};
+
+listPages.toRequest = listPages_toRequest;
+listPages.fromResponse = listPages_fromResponse;
