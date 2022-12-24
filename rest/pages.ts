@@ -1,4 +1,5 @@
 import type {
+  ErrorLike,
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
@@ -12,7 +13,15 @@ import { BaseOptions, Result, setDefaults } from "./util.ts";
 
 /** Options for `getPage()` */
 export interface GetPageOption extends BaseOptions {
-  /** use `followRename` */ followRename?: boolean;
+  /** use `followRename` */
+  followRename?: boolean;
+
+  /** project ids to get External links */
+  projects?: string[];
+}
+
+export interface TooLongURIError extends ErrorLike {
+  name: "TooLongURIError";
 }
 
 const getPage_toRequest: GetPage["toRequest"] = (
@@ -20,10 +29,16 @@ const getPage_toRequest: GetPage["toRequest"] = (
   title,
   options,
 ) => {
-  const { sid, hostName, followRename } = setDefaults(options ?? {});
+  const { sid, hostName, followRename, projects } = setDefaults(options ?? {});
+  const params = new URLSearchParams();
+  params.append("followRename", `${followRename ?? true}`);
+  for (const id of projects ?? []) {
+    params.append("projects", id);
+  }
   const path = `https://${hostName}/api/pages/${project}/${
     encodeTitleURI(title)
-  }?followRename=${followRename ?? true}`;
+  }?${params.toString()}`;
+
   return new Request(
     path,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
@@ -32,6 +47,15 @@ const getPage_toRequest: GetPage["toRequest"] = (
 
 const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
   if (!res.ok) {
+    if (res.status === 414) {
+      return {
+        ok: false,
+        value: {
+          name: "TooLongURIError",
+          message: "project ids may be too much.",
+        },
+      };
+    }
     return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   const value = (await res.json()) as Page;
@@ -60,14 +84,14 @@ export interface GetPage {
   fromResponse: (res: Response) => Promise<
     Result<
       Page,
-      NotFoundError | NotLoggedInError | NotMemberError
+      NotFoundError | NotLoggedInError | NotMemberError | TooLongURIError
     >
   >;
 
   (project: string, title: string, options?: GetPageOption): Promise<
     Result<
       Page,
-      NotFoundError | NotLoggedInError | NotMemberError
+      NotFoundError | NotLoggedInError | NotMemberError | TooLongURIError
     >
   >;
 }
