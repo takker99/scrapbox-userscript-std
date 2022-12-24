@@ -39,10 +39,7 @@ export const getPage = async (
   );
   const res = await fetch(req);
   if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   const value = (await res.json()) as Page;
   return { ok: true, value };
@@ -102,10 +99,7 @@ export const listPages = async (
 
   const res = await fetch(req);
   if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   const value = (await res.json()) as PageList;
   return { ok: true, value };

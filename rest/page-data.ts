@@ -49,7 +49,7 @@ export const importPages = async (
 
   const res = await fetch(req);
   if (!res.ok) {
-    return makeError(req, res);
+    return makeError(res);
   }
 
   const { message } = (await res.json()) as { message: string };
@@ -83,9 +83,7 @@ export const exportPages = async <withMetadata extends true | false>(
   const res = await fetch(req);
 
   if (!res.ok) {
-    return makeError<
-      NotFoundError | NotPrivilegeError | NotLoggedInError
-    >(req, res);
+    return makeError<NotFoundError | NotPrivilegeError | NotLoggedInError>(res);
   }
 
   const value = (await res.json()) as ExportedData<withMetadata>;

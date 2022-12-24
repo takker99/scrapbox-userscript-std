@@ -35,10 +35,7 @@ export const getProject = async (
   const res = await fetch(req);
 
   if (!res.ok) {
-    return makeError<NotFoundError | NotMemberError | NotLoggedInError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotMemberError | NotLoggedInError>(res);
   }
 
   const value = (await res.json()) as MemberProject | NotMemberProject;
@@ -68,7 +65,7 @@ export const listProjects = async (
   const res = await fetch(req);
 
   if (!res.ok) {
-    return makeError<NotLoggedInError>(req, res);
+    return makeError<NotLoggedInError>(res);
   }
 
   const value = (await res.json()) as ProjectResponse;

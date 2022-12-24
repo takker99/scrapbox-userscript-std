@@ -34,10 +34,7 @@ export const getGyazoToken = async (
 
   const res = await fetch(req);
   if (!res.ok) {
-    return makeError<NotLoggedInError>(
-      req,
-      res,
-    );
+    return makeError<NotLoggedInError>(res);
   }
 
   const { token } = (await res.json()) as { token?: string };

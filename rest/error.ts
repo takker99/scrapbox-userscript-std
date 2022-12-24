@@ -4,18 +4,13 @@ import { tryToErrorLike } from "../is.ts";
 /** 想定されない応答が帰ってきたときに投げる例外 */
 export class UnexpectedResponseError extends Error {
   name = "UnexpectedResponseError";
-  request: Request;
-  response: Response;
 
   constructor(
-    init: { request: Request; response: Response },
+    public response: Response,
   ) {
     super(
-      `${init.response.status} ${init.response.statusText} when fetching ${init.request.url}`,
+      `${response.status} ${response.statusText} when fetching ${response.url}`,
     );
-
-    this.request = init.request.clone();
-    this.response = init.response.clone();
 
     // @ts-ignore only available on V8
     if (Error.captureStackTrace) {
@@ -27,14 +22,13 @@ export class UnexpectedResponseError extends Error {
 
 /** 失敗した要求からエラー情報を取り出す */
 export const makeError = async <T extends ErrorLike>(
-  req: Request,
   res: Response,
 ): Promise<{ ok: false; value: T }> => {
   const response = res.clone();
   const text = await response.text();
   const value = tryToErrorLike(text);
   if (!value) {
-    throw new UnexpectedResponseError({ request: req, response });
+    throw new UnexpectedResponseError(response);
   }
   return {
     ok: false,

@@ -58,10 +58,7 @@ export const getSnapshots = async (
         },
       };
     }
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
 
   const data = (await res.json()) as PageSnapshot;

@@ -17,7 +17,7 @@ export const getProfile = async (
   );
   const response = await fetch(request);
   if (!response.ok) {
-    throw new UnexpectedResponseError({ request, response });
+    throw new UnexpectedResponseError(response);
   }
   return (await response.json()) as MemberUser | GuestUser;
 };

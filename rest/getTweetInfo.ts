@@ -53,7 +53,7 @@ export const getTweetInfo = async (
         },
       };
     }
-    return makeError<SessionError | BadRequestError>(req, res);
+    return makeError<SessionError | BadRequestError>(res);
   }
 
   const tweet = (await res.json()) as TweetInfo;

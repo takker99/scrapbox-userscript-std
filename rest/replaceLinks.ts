@@ -47,10 +47,7 @@ export const replaceLinks = async (
   const res = await fetch(req);
 
   if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
-      req,
-      res,
-    );
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
 
   // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
