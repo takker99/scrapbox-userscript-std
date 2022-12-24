@@ -7,8 +7,7 @@ import type {
   NotPrivilegeError,
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { BaseOptions, ExtendedOptions, Result, setDefaults } from "./util.ts";
 /** projectにページをインポートする
  *
@@ -35,10 +34,8 @@ export const importPages = async (
     }),
   );
   formData.append("name", "undefined");
-  const path = `https://${hostName}/api/page-data/import/${project}.json`;
-
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/page-data/import/${project}.json`,
     {
       method: "POST",
       headers: {
@@ -50,17 +47,9 @@ export const importPages = async (
     },
   );
 
+  const res = await fetch(req);
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return { ok: false, value };
+    return makeError(req, res);
   }
 
   const { message } = (await res.json()) as { message: string };
@@ -86,27 +75,17 @@ export const exportPages = async <withMetadata extends true | false>(
   >
 > => {
   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
-  const path =
-    `https://${hostName}/api/page-data/export/${project}.json?metadata=${metadata}`;
-  const res = await fetch(
-    path,
+
+  const req = new Request(
+    `https://${hostName}/api/page-data/export/${project}.json?metadata=${metadata}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+  const res = await fetch(req);
 
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as NotFoundError | NotPrivilegeError | NotLoggedInError,
-    };
+    return makeError<
+      NotFoundError | NotPrivilegeError | NotLoggedInError
+    >(req, res);
   }
 
   const value = (await res.json()) as ExportedData<withMetadata>;

@@ -6,10 +6,9 @@ import type {
   PageSnapshot,
   Snapshot,
 } from "../deps/scrapbox-rest.ts";
-import { tryToErrorLike } from "../is.ts";
 import { cookie } from "./auth.ts";
 import { BaseOptions, Result, setDefaults } from "./util.ts";
-import { UnexpectedResponseError } from "./error.ts";
+import { makeError } from "./error.ts";
 
 /** 不正なfollowingIdを渡されたときに発生するエラー */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
@@ -39,14 +38,15 @@ export const getSnapshots = async (
   >
 > => {
   const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
-  const path = `https://${hostName}/api/page-snapshots/${project}/${pageId}/${
-    followingId ? `?followingId=${followingId}` : ""
-  }`;
 
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/page-snapshots/${project}/${pageId}/${
+      followingId ? `?followingId=${followingId}` : ""
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+
+  const res = await fetch(req);
 
   if (!res.ok) {
     if (res.status === 422) {
@@ -58,19 +58,10 @@ export const getSnapshots = async (
         },
       };
     }
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as (NotFoundError | NotLoggedInError | NotMemberError),
-    };
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
+      req,
+      res,
+    );
   }
 
   const data = (await res.json()) as PageSnapshot;

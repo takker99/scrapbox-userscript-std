@@ -4,8 +4,7 @@ import type {
   NotMemberError,
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { UnexpectedResponseError } from "./error.ts";
-import { tryToErrorLike } from "../is.ts";
+import { makeError } from "./error.ts";
 import { ExtendedOptions, Result, setDefaults } from "./util.ts";
 
 /** 指定したproject内の全てのリンクを書き換える
@@ -31,10 +30,9 @@ export const replaceLinks = async (
   >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
-  const path = `https://${hostName}/api/pages/${project}/replace/links`;
 
-  const res = await fetch(
-    path,
+  const req = new Request(
+    `https://${hostName}/api/pages/${project}/replace/links`,
     {
       method: "POST",
       headers: {
@@ -46,20 +44,13 @@ export const replaceLinks = async (
     },
   );
 
+  const res = await fetch(req);
+
   if (!res.ok) {
-    const text = await res.text();
-    const value = tryToErrorLike(text);
-    if (!value) {
-      throw new UnexpectedResponseError({
-        path: new URL(path),
-        ...res,
-        body: text,
-      });
-    }
-    return {
-      ok: false,
-      value: value as NotFoundError | NotMemberError | NotLoggedInError,
-    };
+    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(
+      req,
+      res,
+    );
   }
 
   // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
