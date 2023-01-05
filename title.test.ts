@@ -8,7 +8,10 @@ import { assertStrictEquals } from "./deps/testing.ts";
 
 Deno.test("toTitleLc()", async (t) => {
   await t.step("` ` -> `_`", () => {
-    assertStrictEquals<string>(toTitleLc("空白入り タイトル"), "空白入り_タイトル");
+    assertStrictEquals<string>(
+      toTitleLc("空白入り タイトル"),
+      "空白入り_タイトル",
+    );
     assertStrictEquals<string>(
       toTitleLc(" 前後にも 空白入り _タイトル "),
       "_前後にも_空白入り__タイトル_",

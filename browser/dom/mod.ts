@@ -11,3 +11,4 @@ export * from "./cache.ts";
 export * from "./cursor.ts";
 export * from "./selection.ts";
 export * from "./stores.ts";
+export * from "./pushPageTransition.ts";
