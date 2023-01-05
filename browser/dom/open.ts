@@ -3,6 +3,10 @@
 /// <reference lib="dom" />
 
 import { encodeTitleURI } from "../../title.ts";
+import {
+  PageTransitionContext,
+  pushPageTransition,
+} from "./pushPageTransition.ts";
 import type { Scrapbox } from "../../deps/scrapbox.ts";
 declare const scrapbox: Scrapbox;
 
@@ -24,6 +28,9 @@ export interface OpenOptions {
    * @default 同じprojectの場合は再読み込みせず、違うprojectの場合は再読込する
    */
   reload?: boolean;
+
+  /** リンク先へスクロールする機能を使うために必要な情報 */
+  context?: Omit<PageTransitionContext, "to">;
 }
 
 /** ページを開く
@@ -40,6 +47,12 @@ export const open = (
   const url = new URL(`/${project}/${encodeTitleURI(title)}`, location.href);
   if (options?.body) url.search = `?body=${encodeURIComponent(options.body)}`;
   if (options?.id) url.hash = `#${options.id}`;
+
+  if (options?.context) {
+    pushPageTransition(
+      { ...options?.context, to: { project, title } } as PageTransitionContext,
+    );
+  }
 
   if (
     options?.newTab !== false &&
