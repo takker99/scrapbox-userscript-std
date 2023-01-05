@@ -53,7 +53,7 @@ export const pushPageTransition = (context: PageTransitionContext): void => {
           linkFrom: context.from.title,
         }
       : {
-        linkFrom: `/${context.from.project}/${context.to.title}`,
+        linkFrom: `/${context.from.project}/${context.from.title}`,
       }
     : {
       searchQuery: context.query,
