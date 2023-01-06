@@ -1,0 +1,95 @@
+export const snapshot = {};
+
+snapshot[`extractCodeFiles 1`] = `
+Map {
+  "main.cpp" => {
+      blocks: [
+        {
+          endId: "63b7b1261280f00000c9bc36",
+          indent: 2,
+          lines: [
+            "#include <iostream>",
+            "",
+          ],
+          startId: "63b7b1261280f00000c9bc34",
+          updated: 1672982822,
+        },
+        {
+          endId: "63b7b1261280f00000c9bc3c",
+          indent: 2,
+          lines: [
+            "int main() {",
+            '  std::cout << "Hello, C++" << "from scrapbox.io" << std::endl;',
+            "}",
+            "",
+          ],
+          startId: "63b7b1261280f00000c9bc38",
+          updated: 1672982822,
+        },
+      ],
+      filename: "main.cpp",
+      lang: "cpp",
+    },
+  "py" => {
+      blocks: [
+        {
+          endId: "63b7b1261280f00000c9bc2a",
+          indent: 0,
+          lines: [
+            'print("Hello World!")',
+          ],
+          startId: "63b7b1261280f00000c9bc29",
+          updated: 1672982822,
+        },
+      ],
+      filename: "py",
+      lang: "py",
+    },
+  "python" => {
+      blocks: [
+        {
+          endId: "63b7b1261280f00000c9bc31",
+          indent: 1,
+          lines: [
+            \`console.log("I'm JavaScript");\`,
+          ],
+          startId: "63b7b1261280f00000c9bc30",
+          updated: 1672982822,
+        },
+      ],
+      filename: "python",
+      lang: "js",
+    },
+  "インデント.md" => {
+      blocks: [
+        {
+          endId: "63b7b1261280f00000c9bc2e",
+          indent: 1,
+          lines: [
+            "- インデント",
+            "  - インデント",
+          ],
+          startId: "63b7b1261280f00000c9bc2c",
+          updated: 1672982822,
+        },
+      ],
+      filename: "インデント.md",
+      lang: "md",
+    },
+  "コードブロック.py" => {
+      blocks: [
+        {
+          endId: "63b7b1261280f00000c9bc27",
+          indent: 0,
+          lines: [
+            'print("Hello World!")',
+          ],
+          startId: "63b7b1261280f00000c9bc26",
+          updated: 1672982822,
+        },
+      ],
+      filename: "コードブロック.py",
+      lang: "py",
+    },
+}
+`;
