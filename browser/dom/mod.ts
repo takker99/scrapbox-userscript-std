@@ -12,3 +12,4 @@ export * from "./cursor.ts";
 export * from "./selection.ts";
 export * from "./stores.ts";
 export * from "./pushPageTransition.ts";
+export * from "./extractCodeFiles.ts";
