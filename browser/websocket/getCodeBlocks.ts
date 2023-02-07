@@ -14,6 +14,9 @@ export interface TinyCodeBlock {
 
   /** コードブロックの中身（タイトル行を含まない） */
   bodyLines: Line[];
+
+  /** コードブロックの真下の行（無ければ`"_end"`） */
+  nextLine: Line | "_end";
 }
 
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
@@ -47,6 +50,7 @@ export const getCodeBlocks = async (
     if (currentCode.isCodeBlock) {
       const body = extractFromCodeBody(line.text, currentCode.indent);
       if (body === null) {
+        codeBlocks[codeBlocks.length - 1].nextLine = line;
         currentCode.isCodeBlock = false;
         continue;
       }
@@ -63,6 +67,7 @@ export const getCodeBlocks = async (
         lang: currentCode.lang,
         titleLine: line,
         bodyLines: [],
+        nextLine: "_end",
       });
     }
   }
