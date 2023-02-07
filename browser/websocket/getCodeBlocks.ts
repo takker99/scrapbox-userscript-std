@@ -50,7 +50,7 @@ export const getCodeBlocks = async (
         currentCode.isCodeBlock = false;
         continue;
       }
-      codeBlocks[codeBlocks.length].bodyLines.push(line);
+      codeBlocks[codeBlocks.length - 1].bodyLines.push(line);
     } else {
       const matched = extractFromCodeTitle(line.text);
       if (matched === null) {
@@ -58,7 +58,6 @@ export const getCodeBlocks = async (
         continue;
       }
       currentCode = { isCodeBlock: true, ...matched };
-      // codeBlocksへ追記する処理を書くのを忘れないように
       codeBlocks.push({
         filename: currentCode.fileName,
         lang: currentCode.lang,
