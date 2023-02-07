@@ -93,10 +93,10 @@ async function getLines(
  */
 function extractFromCodeTitle(lineText: string): CodeTitle | null {
   const matched = lineText.match(/^(\s*)code:(.+?)(\(.+\)){0,1}\s*$/);
-  if (matched === null || matched.length < 2) return null;
+  if (matched === null) return null;
   const fileName = matched[2].trim();
   let lang = "";
-  if (matched.length < 3) {
+  if (matched[3] === undefined) {
     const ext = fileName.match(/.+\.(.*)$/);
     if (ext === null) {
       // `code:ext`
@@ -106,7 +106,7 @@ function extractFromCodeTitle(lineText: string): CodeTitle | null {
       return null;
     } else {
       // `code:foo.ext`
-      lang = fileName[1];
+      lang = ext[1];
     }
   } else {
     lang = matched[3];
