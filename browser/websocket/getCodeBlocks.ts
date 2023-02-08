@@ -15,8 +15,8 @@ export interface TinyCodeBlock {
   /** コードブロックの中身（タイトル行を含まない） */
   bodyLines: Line[];
 
-  /** コードブロックの真下の行（無ければ`"_end"`） */
-  nextLine: Line | "_end";
+  /** コードブロックの真下の行（無ければ`null`） */
+  nextLine: Line | null;
 }
 
 /** `getCodeBlocks()`に渡すfilter */
@@ -86,7 +86,7 @@ export const getCodeBlocks = async (
         lang: currentCode.lang,
         titleLine: line,
         bodyLines: [],
-        nextLine: "_end",
+        nextLine: null,
       });
     }
   }
