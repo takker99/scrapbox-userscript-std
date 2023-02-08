@@ -22,9 +22,9 @@ export interface TinyCodeBlock {
 /** `getCodeBlocks()`に渡すfilter */
 export interface GetCodeBlocksFilter {
   /** ファイル名 */
-  filename: string;
+  filename?: string;
   /** syntax highlightに使用されている言語名 */
-  lang: string;
+  lang?: string;
 }
 
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
