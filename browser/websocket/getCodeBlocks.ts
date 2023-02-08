@@ -31,7 +31,7 @@ interface CodeTitle {
  * ファイル単位ではなく、コードブロック単位で返り値を生成する \
  * そのため、同じページ内に同名のコードブロックが複数あったとしても、分けた状態で返す
  *
- * @param target ページタイトルを指定するか、取得済みの行データを渡す
+ * @param target ページタイトル、または取得済みの行データ
  * @return コードブロックの配列
  */
 export const getCodeBlocks = async (
