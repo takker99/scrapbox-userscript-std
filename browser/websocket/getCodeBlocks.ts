@@ -19,6 +19,14 @@ export interface TinyCodeBlock {
   nextLine: Line | "_end";
 }
 
+/** `getCodeBlocks()`に渡すfilter */
+export interface GetCodeBlocksFilter {
+  /** ファイル名 */
+  filename: string;
+  /** syntax highlightに使用されている言語名 */
+  lang: string;
+}
+
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
 interface CodeTitle {
   fileName: string;
@@ -32,16 +40,24 @@ interface CodeTitle {
  * そのため、同じページ内に同名のコードブロックが複数あったとしても、分けた状態で返す
  *
  * @param target ページタイトル、または取得済みの行データ
+ * @param filter 取得するコードブロックを絞り込むfilter
  * @return コードブロックの配列
  */
 export const getCodeBlocks = async (
   target: { project: string; title: string } | { lines: Line[] },
+  filter?: GetCodeBlocksFilter,
 ): Promise<TinyCodeBlock[]> => {
   const lines = await getLines(target);
   const codeBlocks: TinyCodeBlock[] = [];
 
-  let currentCode: CodeTitle & { isCodeBlock: boolean } = {
+  let currentCode: CodeTitle & {
+    /** 読み取り中の行がコードブロックかどうか */
+    isCodeBlock: boolean;
+    /** 読み取り中のコードブロックを保存するかどうか */
+    isCollect: boolean;
+  } = {
     isCodeBlock: false,
+    isCollect: false,
     fileName: "",
     lang: "",
     indent: 0,
@@ -54,6 +70,7 @@ export const getCodeBlocks = async (
         currentCode.isCodeBlock = false;
         continue;
       }
+      if (!currentCode.isCollect) continue;
       codeBlocks[codeBlocks.length - 1].bodyLines.push(line);
     } else {
       const matched = extractFromCodeTitle(line.text);
@@ -61,7 +78,9 @@ export const getCodeBlocks = async (
         currentCode.isCodeBlock = false;
         continue;
       }
-      currentCode = { isCodeBlock: true, ...matched };
+      const isCollect = isMatchFilter(matched, filter);
+      currentCode = { isCodeBlock: true, isCollect: isCollect, ...matched };
+      if (!currentCode.isCollect) continue;
       codeBlocks.push({
         filename: currentCode.fileName,
         lang: currentCode.lang,
@@ -116,6 +135,16 @@ function extractFromCodeTitle(lineText: string): CodeTitle | null {
     lang: lang,
     indent: matched[1].length,
   };
+}
+
+/** コードタイトルのフィルターを検証する */
+function isMatchFilter(
+  codeTitle: CodeTitle,
+  filter?: GetCodeBlocksFilter,
+): boolean {
+  if (filter?.filename && filter.filename !== codeTitle.fileName) return false;
+  if (filter?.lang && filter.lang !== codeTitle.lang) return false;
+  return true;
 }
 
 /** 行テキストがコードブロックの一部であればそのテキストを、そうでなければnullを返す
