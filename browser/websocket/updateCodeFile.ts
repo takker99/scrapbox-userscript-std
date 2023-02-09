@@ -221,7 +221,6 @@ function fixCommits(
   const idReplacePatterns: {
     from: string;
     to: string;
-    // indent: number;
   }[] = (() => {
     const patterns = [];
     for (let i = 0; i < codeBlocks.length; i++) {
@@ -254,8 +253,6 @@ function fixCommits(
       if (targetId === block.nextLine?.id) return true;
       return false;
     });
-    console.log("vvv belong vvv");
-    console.log(belongBlock);
     if (belongBlock === undefined) continue;
     const titleText = belongBlock.titleLine.text;
     const indent = titleText.length - titleText.trimStart().length + 1;
