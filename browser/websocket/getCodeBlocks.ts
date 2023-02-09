@@ -66,7 +66,9 @@ export const getCodeBlocks = async (
     if (currentCode.isCodeBlock) {
       const body = extractFromCodeBody(line.text, currentCode.indent);
       if (body === null) {
-        codeBlocks[codeBlocks.length - 1].nextLine = line;
+        if (currentCode.isCollect) {
+          codeBlocks[codeBlocks.length - 1].nextLine = line;
+        }
         currentCode.isCodeBlock = false;
         continue;
       }
