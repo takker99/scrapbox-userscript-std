@@ -12,7 +12,7 @@ import { HeadData, pull } from "./pull.ts";
 import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { createNewLineId, getProjectId, getUserId } from "./id.ts";
-import { pushCommit } from "./_fetch.ts";
+import { pushWithRetry } from "./_fetch.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface CodeFile {
@@ -93,7 +93,7 @@ export const updateCodeFile = async (
       insertLineId,
     );
     if (codeBodies.length <= 0) {
-      await applyCommit(commits, head, project, opt.socket);
+      await applyCommit(commits, head, project, title, opt.socket);
     }
     return;
   } else if (codeBodies.length <= 0) {
@@ -106,7 +106,7 @@ export const updateCodeFile = async (
       insertLineId,
     );
     if (codeBodies.length <= 0) {
-      await applyCommit(commits.splice(1), head, project, opt.socket);
+      await applyCommit(commits.splice(1), head, project, title, opt.socket);
     }
     return;
   }
@@ -132,7 +132,7 @@ export const updateCodeFile = async (
   }
 
   // 差分を送信
-  await applyCommit(commits, head, project, opt.socket);
+  await applyCommit(commits, head, project, title, opt.socket);
 
   if (!options?.socket) opt.socket.disconnect();
 };
@@ -155,33 +155,23 @@ async function applyCommit(
   commits: Change[],
   head: HeadData,
   projectName: string,
+  pageTitle: string,
   socket: Socket,
-): ReturnType<typeof pushCommit> {
+): ReturnType<typeof pushWithRetry> {
   const [projectId, userId] = await Promise.all([
     getProjectId(projectName),
     getUserId(),
   ]);
-
-  // 3回retryする
-  for (let i = 0; i < 3; i++) {
-    try {
-      // 差分を送信
-      const { request } = wrap(socket);
-      const res = await pushCommit(request, commits, {
-        parentId: head.commitId,
-        projectId: projectId,
-        pageId: head.pageId,
-        userId: userId,
-      });
-      return res;
-    } catch (_e: unknown) {
-      console.log(
-        "Faild to push a commit.",
-      );
-      if (i === 2) break;
-    }
-  }
-  throw Error("Faild to retry pushing.");
+  const { request } = wrap(socket);
+  return await pushWithRetry(request, commits, {
+    parentId: head.commitId,
+    projectId: projectId,
+    pageId: head.pageId,
+    userId: userId,
+    project: projectName,
+    title: pageTitle,
+    retry: 3,
+  });
 }
 
 /** 新規コードブロックのコミットを作成する */
