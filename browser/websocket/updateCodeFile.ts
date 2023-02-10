@@ -1,18 +1,16 @@
 import type { Line } from "../../deps/scrapbox-rest.ts";
 import {
-  Change,
   DeleteCommit,
   InsertCommit,
   Socket,
   socketIO,
   UpdateCommit,
-  wrap,
 } from "../../deps/socket.ts";
-import { HeadData, pull } from "./pull.ts";
+import { pull } from "./pull.ts";
 import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
-import { createNewLineId, getProjectId, getUserId } from "./id.ts";
-import { pushWithRetry } from "./_fetch.ts";
+import { getUserId } from "./id.ts";
+import { applyCommit, makeCommitsNewCodeBlock } from "./_codeBlock.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface CodeFile {
@@ -148,59 +146,6 @@ function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
       return { ...body, text: body.text.slice(indent) };
     });
   }).flat();
-}
-
-/** コミットを送信する一連の処理 */
-async function applyCommit(
-  commits: Change[],
-  head: HeadData,
-  projectName: string,
-  pageTitle: string,
-  socket: Socket,
-): ReturnType<typeof pushWithRetry> {
-  const [projectId, userId] = await Promise.all([
-    getProjectId(projectName),
-    getUserId(),
-  ]);
-  const { request } = wrap(socket);
-  return await pushWithRetry(request, commits, {
-    parentId: head.commitId,
-    projectId: projectId,
-    pageId: head.pageId,
-    userId: userId,
-    project: projectName,
-    title: pageTitle,
-    retry: 3,
-  });
-}
-
-/** 新規コードブロックのコミットを作成する */
-async function makeCommitsNewCodeBlock(
-  code: CodeFile,
-  insertLineId: string,
-): Promise<InsertCommit[]> {
-  const userId = await getUserId();
-  const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
-  const codeBody = Array.isArray(code.content)
-    ? code.content
-    : code.content.split("\n");
-  const commits: InsertCommit[] = [{
-    _insert: insertLineId,
-    lines: {
-      id: createNewLineId(userId),
-      text: `code:${codeName}`,
-    },
-  }];
-  for (const bodyLine of codeBody) {
-    commits.push({
-      _insert: insertLineId,
-      lines: {
-        id: createNewLineId(userId),
-        text: " " + bodyLine,
-      },
-    });
-  }
-  return commits;
 }
 
 /** insert行のIDと各行のインデントを修正する */
