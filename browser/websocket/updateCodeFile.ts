@@ -10,7 +10,7 @@ import { pull } from "./pull.ts";
 import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
 import { createNewLineId, getUserId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
-import { applyCommit, makeCommitsNewCodeBlock } from "./_codeBlock.ts";
+import { applyCommit } from "./_codeBlock.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface CodeFile {
@@ -117,7 +117,7 @@ function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
 
 /** コードブロックの差分からコミットデータを作成する */
 function* makeCommits(
-  codeBlocks: TinyCodeBlock[],
+  _codeBlocks: readonly TinyCodeBlock[],
   codeFile: CodeFile,
   lines: Line[],
   { userId, insertPositionIfNotExist, isInsertEmptyLineInTail }: {
@@ -130,40 +130,38 @@ function* makeCommits(
     >;
   },
 ): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
-  function makeIndent(codeBlock: TinyCodeBlock): string {
+  function makeIndent(codeBlock: Pick<TinyCodeBlock, "titleLine">): string {
     const title = codeBlock.titleLine.text;
     const count = title.length - title.trimStart().length + 1;
     return " ".repeat(count);
   }
 
-  const codeBodies = flatCodeBodies(codeBlocks);
-  if (codeBodies.length <= 0) {
-    // ページ内にコードブロックが無かった場合は新しく作成して終了する
+  const codeBlocks: Pick<
+    TinyCodeBlock,
+    "titleLine" | "bodyLines" | "nextLine"
+  >[] = [..._codeBlocks];
+  const codeBodies = flatCodeBodies(_codeBlocks);
+  if (codeBlocks.length <= 0) {
+    // ページ内にコードブロックが無かった場合は新しく作成
     if (insertPositionIfNotExist === "notInsert") return;
-    const insertLineId = insertPositionIfNotExist === "top" && lines.length > 1
-      ? lines[1].id
-      : "_end";
-    const commits = makeCommitsNewCodeBlock(
-      codeFile,
-      insertLineId,
-      { userId },
-    );
-    let isInsertBottom = false;
-    for (const commit of commits) {
-      if (commit._insert == "_end") isInsertBottom = true;
-      yield commit;
-    }
-    if (isInsertBottom && isInsertEmptyLineInTail) {
-      // 空行承り太郎
-      yield {
-        _insert: "_end",
-        lines: {
-          id: createNewLineId(userId),
-          text: "",
-        },
-      };
-    }
-    return;
+    const nextLine = insertPositionIfNotExist === "top" && lines.length > 1
+      ? lines[1]
+      : null;
+    const title = {
+      // コードブロックのタイトル行
+      _insert: nextLine?.id ?? "_end",
+      lines: {
+        id: createNewLineId(userId),
+        text: makeCodeBlockTitle(codeFile),
+      },
+    };
+    yield title;
+    // 新しく作成したコードブロックの情報を追記
+    codeBlocks.push({
+      titleLine: { ...title.lines, userId, created: -1, updated: -1 },
+      bodyLines: [],
+      nextLine: nextLine,
+    });
   }
 
   // 差分を求める
@@ -174,6 +172,7 @@ function* makeCommits(
       : codeFile.content.split("\n"),
   );
   let lineNo = 0;
+  let isInsertBottom = false;
   for (const change of toExtendedChanges(buildSES())) {
     // 差分からcommitを作成
     const { lineId, codeIndex } =
@@ -194,17 +193,19 @@ function* makeCommits(
       })();
     const codeBlock = codeBlocks[codeIndex];
     if (change.type == "added") {
-      const codeBlockInsert =
-        lineId == codeBlock.bodyLines[0].id && codeIndex >= 1
+      const insertCodeBlock =
+        lineId == codeBlock.bodyLines[0]?.id && codeIndex >= 1
           ? codeBlocks[codeIndex - 1]
           : codeBlocks[codeIndex];
+      const id = insertCodeBlock?.nextLine?.id ?? "_end";
       yield {
-        _insert: codeBlockInsert.nextLine?.id ?? "_end",
+        _insert: id,
         lines: {
           id: createNewLineId(userId),
-          text: makeIndent(codeBlockInsert) + change.value,
+          text: makeIndent(insertCodeBlock) + change.value,
         },
       };
+      if (id == "_end") isInsertBottom = true;
       continue;
     } else if (change.type == "deleted") {
       yield {
@@ -221,4 +222,19 @@ function* makeCommits(
     }
     lineNo++;
   }
+  if (isInsertBottom && isInsertEmptyLineInTail) {
+    // 空行承り太郎
+    yield {
+      _insert: "_end",
+      lines: {
+        id: createNewLineId(userId),
+        text: "",
+      },
+    };
+  }
+}
+
+function makeCodeBlockTitle(code: CodeFile) {
+  const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
+  return `code:${codeName}`;
 }
