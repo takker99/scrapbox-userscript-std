@@ -8,8 +8,8 @@ import {
 } from "../../deps/socket.ts";
 import { pull } from "./pull.ts";
 import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
-import { diffToChanges } from "./diffToChanges.ts";
-import { getUserId } from "./id.ts";
+import { createNewLineId, getUserId } from "./id.ts";
+import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { applyCommit, makeCommitsNewCodeBlock } from "./_codeBlock.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
@@ -35,10 +35,13 @@ export interface UpdateCodeFileOptions {
    */
   insertPositionIfNotExist?: "top" | "bottom" | "notInsert";
 
+  /** `true`の場合、コードブロック作成時に空行承り太郎（ページ末尾に必ず空行を設ける機能）を有効する（既定は`true`） */
+  isInsertEmptyLineInTail?: boolean;
+
   /** WebSocketの通信に使うsocket */
   socket?: Socket;
 
-  /** trueでデバッグ出力ON */
+  /** `true`でデバッグ出力ON */
   debug?: boolean;
 }
 
@@ -63,6 +66,7 @@ export const updateCodeFile = async (
   /** optionsの既定値はこの中に入れる */
   const defaultOptions: Required<UpdateCodeFileOptions> = {
     insertPositionIfNotExist: "notInsert",
+    isInsertEmptyLineInTail: true,
     socket: options?.socket ?? await socketIO(),
     debug: false,
   };
@@ -77,59 +81,22 @@ export const updateCodeFile = async (
   }, {
     filename: codeFile.filename,
   });
-  const codeBodies = flatCodeBodies(codeBlocks);
-
-  if (codeBlocks.length <= 0) {
-    // 更新対象のコードブロックが存在していなかった場合は、新しいコードブロックを作成して終了する
-    if (opt.insertPositionIfNotExist === "notInsert") return;
-    const insertLineId =
-      opt.insertPositionIfNotExist === "top" && lines.length >= 1
-        ? lines[1].id
-        : "_end";
-    const commits = await makeCommitsNewCodeBlock(
-      codeFile,
-      insertLineId,
-    );
-    if (codeBodies.length <= 0) {
-      await applyCommit(commits, head, project, title, opt.socket);
-    }
-    return;
-  } else if (codeBodies.length <= 0) {
-    // codeBodiesが無かった場合はdiffToChangesが例外を引き起こすので、その対策
-    const insertLineId = codeBlocks[0].nextLine
-      ? codeBlocks[0].nextLine.id
-      : "_end";
-    const commits = await makeCommitsNewCodeBlock(
-      codeFile,
-      insertLineId,
-    );
-    if (codeBodies.length <= 0) {
-      await applyCommit(commits.splice(1), head, project, title, opt.socket);
-    }
-    return;
-  }
-
-  const changes = [...diffToChanges(
-    codeBodies,
-    newCode,
-    { userId: await getUserId() },
-  )];
-
-  // insert行のIDと各行のインデントを修正する
-  const commits = fixCommits(changes, codeBlocks);
+  const commits = [
+    ...makeCommits(codeBlocks, codeFile, lines, {
+      ...opt,
+      userId: await getUserId(),
+    }),
+  ];
 
   if (opt.debug) {
     console.log("vvv original code Blocks vvv");
     console.log(codeBlocks);
-    console.log("vvv original code lines vvv");
-    console.log(codeBodies);
     console.log("vvv new codes vvv");
     console.log(newCode);
     console.log("vvv commits vvv");
     console.log(commits);
   }
 
-  // 差分を送信
   await applyCommit(commits, head, project, title, opt.socket);
 
   if (!options?.socket) opt.socket.disconnect();
@@ -148,50 +115,110 @@ function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
   }).flat();
 }
 
-/** insert行のIDと各行のインデントを修正する */
-function fixCommits(
-  commits: (InsertCommit | UpdateCommit | DeleteCommit)[],
+/** コードブロックの差分からコミットデータを作成する */
+function* makeCommits(
   codeBlocks: TinyCodeBlock[],
-) {
-  const idReplacePatterns: {
-    from: string;
-    to: string;
-  }[] = (() => {
-    const patterns = [];
-    for (let i = 0; i < codeBlocks.length; i++) {
-      // コード本体の先頭ID -> 1つ前のコードブロックの真下の行のID
-      const currentCode = codeBlocks[i];
-      const nextCode = codeBlocks[i + 1];
-      if (!currentCode.nextLine) continue;
-      patterns.push({
-        from: nextCode?.bodyLines[0].id ?? "_end",
-        to: currentCode.nextLine.id,
-      });
-    }
-    return patterns;
-  })();
-  for (const commit of commits) {
-    if ("_delete" in commit) continue;
-    else if ("_insert" in commit) {
-      // ID修正
-      for (const pattern of idReplacePatterns) {
-        if (commit._insert !== pattern.from) continue;
-        commit._insert = pattern.to;
-        break;
-      }
-    }
-    // インデント挿入
-    const belongBlock = codeBlocks.find((block) => {
-      const targetId = "_update" in commit ? commit._update : commit._insert;
-      if (block.bodyLines.some((e) => e.id === targetId)) return true;
-      if ("_update" in commit) return false;
-      if (targetId === block.nextLine?.id) return true;
-      return false;
-    });
-    if (belongBlock === undefined) continue;
-    const titleText = belongBlock.titleLine.text;
-    const indent = titleText.length - titleText.trimStart().length + 1;
-    commit.lines.text = " ".repeat(indent) + commit.lines.text;
+  codeFile: CodeFile,
+  lines: Line[],
+  { userId, insertPositionIfNotExist, isInsertEmptyLineInTail }: {
+    userId: string;
+    insertPositionIfNotExist: Required<
+      UpdateCodeFileOptions["insertPositionIfNotExist"]
+    >;
+    isInsertEmptyLineInTail: Required<
+      UpdateCodeFileOptions["isInsertEmptyLineInTail"]
+    >;
+  },
+): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
+  function makeIndent(codeBlock: TinyCodeBlock): string {
+    const title = codeBlock.titleLine.text;
+    const count = title.length - title.trimStart().length + 1;
+    return " ".repeat(count);
   }
-  return commits;
+
+  const codeBodies = flatCodeBodies(codeBlocks);
+  if (codeBodies.length <= 0) {
+    // ページ内にコードブロックが無かった場合は新しく作成して終了する
+    if (insertPositionIfNotExist === "notInsert") return;
+    const insertLineId = insertPositionIfNotExist === "top" && lines.length > 1
+      ? lines[1].id
+      : "_end";
+    const commits = makeCommitsNewCodeBlock(
+      codeFile,
+      insertLineId,
+      { userId },
+    );
+    let isInsertBottom = false;
+    for (const commit of commits) {
+      if (commit._insert == "_end") isInsertBottom = true;
+      yield commit;
+    }
+    if (isInsertBottom && isInsertEmptyLineInTail) {
+      // 空行承り太郎
+      yield {
+        _insert: "_end",
+        lines: {
+          id: createNewLineId(userId),
+          text: "",
+        },
+      };
+    }
+    return;
+  }
+
+  // 差分を求める
+  const { buildSES } = diff(
+    codeBodies.map((e) => e.text),
+    Array.isArray(codeFile.content)
+      ? codeFile.content
+      : codeFile.content.split("\n"),
+  );
+  let lineNo = 0;
+  for (const change of toExtendedChanges(buildSES())) {
+    // 差分からcommitを作成
+    const { lineId, codeIndex } =
+      ((): { lineId: string; codeIndex: number } => {
+        if (lineNo >= codeBodies.length) {
+          const index = codeBlocks.length - 1;
+          return {
+            lineId: codeBlocks[index].nextLine?.id ?? "_end",
+            codeIndex: index,
+          };
+        }
+        return {
+          lineId: codeBodies[lineNo].id,
+          codeIndex: codeBlocks.findIndex((e0) =>
+            e0.bodyLines.some((e1) => e1.id == codeBodies[lineNo].id)
+          ),
+        };
+      })();
+    const codeBlock = codeBlocks[codeIndex];
+    if (change.type == "added") {
+      const codeBlockInsert =
+        lineId == codeBlock.bodyLines[0].id && codeIndex >= 1
+          ? codeBlocks[codeIndex - 1]
+          : codeBlocks[codeIndex];
+      yield {
+        _insert: codeBlockInsert.nextLine?.id ?? "_end",
+        lines: {
+          id: createNewLineId(userId),
+          text: makeIndent(codeBlockInsert) + change.value,
+        },
+      };
+      continue;
+    } else if (change.type == "deleted") {
+      yield {
+        _delete: lineId,
+        lines: -1,
+      };
+    } else if (change.type == "replaced") {
+      yield {
+        _update: lineId,
+        lines: {
+          text: makeIndent(codeBlock) + change.value,
+        },
+      };
+    }
+    lineNo++;
+  }
 }

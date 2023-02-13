@@ -29,30 +29,29 @@ export async function applyCommit(
 }
 
 /** 新規コードブロックのコミットを作成する */
-export async function makeCommitsNewCodeBlock(
+export function* makeCommitsNewCodeBlock(
   code: CodeFile,
   insertLineId: string,
-): Promise<InsertCommit[]> {
-  const userId = await getUserId();
+  { userId }: { userId: string },
+): Generator<InsertCommit, void, unknown> {
   const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
   const codeBody = Array.isArray(code.content)
     ? code.content
     : code.content.split("\n");
-  const commits: InsertCommit[] = [{
+  yield {
     _insert: insertLineId,
     lines: {
       id: createNewLineId(userId),
       text: `code:${codeName}`,
     },
-  }];
+  };
   for (const bodyLine of codeBody) {
-    commits.push({
+    yield {
       _insert: insertLineId,
       lines: {
         id: createNewLineId(userId),
         text: " " + bodyLine,
       },
-    });
+    };
   }
-  return commits;
 }
