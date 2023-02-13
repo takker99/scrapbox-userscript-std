@@ -55,7 +55,7 @@ export interface UpdateCodeFileOptions {
  * @param codeFile 書き換え後のコードファイルの中身
  * @param project 書き換えたいページのプロジェクト名（Project urlの設定で使われている方）
  * @param title 書き換えたいページのタイトル
- * @param options [UpdateCodeFileOptions] その他の設定
+ * @param options その他の設定
  */
 export const updateCodeFile = async (
   codeFile: CodeFile,
