@@ -1,5 +1,6 @@
 import type { Line } from "../../deps/scrapbox-rest.ts";
 import { pull } from "./pull.ts";
+import { CodeTitle, extractFromCodeTitle } from "./_codeBlock.ts";
 
 /** pull()から取れる情報で構成したコードブロックの最低限の情報 */
 export interface TinyCodeBlock {
@@ -30,13 +31,6 @@ export interface GetCodeBlocksFilter {
   lang?: string;
 }
 
-/** コードブロックのタイトル行の情報を保持しておくためのinterface */
-interface CodeTitle {
-  fileName: string;
-  lang: string;
-  indent: number;
-}
-
 /** 他のページ（または取得済みの行データ）のコードブロックを全て取得する
  *
  * ファイル単位ではなく、コードブロック単位で返り値を生成する \
@@ -61,7 +55,7 @@ export const getCodeBlocks = async (
   } = {
     isCodeBlock: false,
     isCollect: false,
-    fileName: "",
+    filename: "",
     lang: "",
     indent: 0,
   };
@@ -87,7 +81,7 @@ export const getCodeBlocks = async (
       currentCode = { isCodeBlock: true, isCollect: isCollect, ...matched };
       if (!currentCode.isCollect) continue;
       codeBlocks.push({
-        filename: currentCode.fileName,
+        filename: currentCode.filename,
         lang: currentCode.lang,
         titleLine: line,
         bodyLines: [],
@@ -114,44 +108,12 @@ async function getLines(
   }
 }
 
-/** コードブロックのタイトル行から各種プロパティを抽出する
- *
- * @param lineText {string} 行テキスト
- * @return `lineText`がコードタイトル行であれば`CodeTitle`を、そうでなければ`null`を返す
- */
-function extractFromCodeTitle(lineText: string): CodeTitle | null {
-  const matched = lineText.match(/^(\s*)code:(.+?)(\(.+\)){0,1}\s*$/);
-  if (matched === null) return null;
-  const fileName = matched[2].trim();
-  let lang = "";
-  if (matched[3] === undefined) {
-    const ext = fileName.match(/.+\.(.*)$/);
-    if (ext === null) {
-      // `code:ext`
-      lang = fileName;
-    } else if (ext[1] === "") {
-      // `code:foo.`の形式はコードブロックとして成り立たないので排除する
-      return null;
-    } else {
-      // `code:foo.ext`
-      lang = ext[1].slice(1, -1).trim();
-    }
-  } else {
-    lang = matched[3];
-  }
-  return {
-    fileName: fileName,
-    lang: lang,
-    indent: matched[1].length,
-  };
-}
-
 /** コードタイトルのフィルターを検証する */
 function isMatchFilter(
   codeTitle: CodeTitle,
   filter?: GetCodeBlocksFilter,
 ): boolean {
-  if (filter?.filename && filter.filename !== codeTitle.fileName) return false;
+  if (filter?.filename && filter.filename !== codeTitle.filename) return false;
   if (filter?.lang && filter.lang !== codeTitle.lang) return false;
   return true;
 }

@@ -45,6 +45,20 @@ export interface UpdateCodeFileOptions {
   debug?: boolean;
 }
 
+/** objectがCodeFile型かどうかを判別する */
+export function isCodeFile(obj: unknown): obj is CodeFile {
+  if (Array.isArray(obj) || !(obj instanceof Object)) return false;
+  const code = obj as CodeFile;
+  const { filename, content, lang } = code;
+  return (
+    typeof filename == "string" &&
+    (typeof content == "string" ||
+      (Array.isArray(content) &&
+        (content.length == 0 || typeof content[0] == "string"))) &&
+    (typeof lang == "string" || lang === undefined)
+  );
+}
+
 /** REST API経由で取得できるようなコードファイルの中身をまるごと書き換える
  *
  * ファイルが存在していなかった場合、既定では何も書き換えない \
