@@ -27,6 +27,9 @@ export interface UpdateCodeBlockOptions {
 
 /** コードブロックの中身を更新する
  *
+ * newCodeにCodeFileオブジェクトを渡すと、そのオブジェクトに添ってコードブロックのファイル名も書き換えます
+ * （文字列や文字列配列を渡した場合は書き換えません）。
+ *
  * @param newCode 更新後のコードブロック
  * @param target 更新対象のコードブロック
  * @param project 更新対象のコードブロックが存在するプロジェクト名
