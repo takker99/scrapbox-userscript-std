@@ -77,6 +77,8 @@ export const updateCodeFile = async (
   const head = await pull(project, title);
   const lines: Line[] = head.lines;
   const codeBlocks = await getCodeBlocks({
+    project,
+    title,
     lines: lines,
   }, {
     filename: codeFile.filename,

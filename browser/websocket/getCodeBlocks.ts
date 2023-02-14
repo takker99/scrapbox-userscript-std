@@ -17,6 +17,9 @@ export interface TinyCodeBlock {
 
   /** コードブロックの真下の行（無ければ`null`） */
   nextLine: Line | null;
+
+  /** コードブロックが存在するページの情報 */
+  pageInfo: { projectName: string; pageTitle: string };
 }
 
 /** `getCodeBlocks()`に渡すfilter */
@@ -39,12 +42,12 @@ interface CodeTitle {
  * ファイル単位ではなく、コードブロック単位で返り値を生成する \
  * そのため、同じページ内に同名のコードブロックが複数あったとしても、分けた状態で返す
  *
- * @param target ページタイトル、または取得済みの行データ
+ * @param target 取得するページの情報（linesを渡せば内部のページ取得処理を省略する）
  * @param filter 取得するコードブロックを絞り込むfilter
  * @return コードブロックの配列
  */
 export const getCodeBlocks = async (
-  target: { project: string; title: string } | { lines: Line[] },
+  target: { project: string; title: string; lines?: Line[] },
   filter?: GetCodeBlocksFilter,
 ): Promise<TinyCodeBlock[]> => {
   const lines = await getLines(target);
@@ -89,6 +92,10 @@ export const getCodeBlocks = async (
         titleLine: line,
         bodyLines: [],
         nextLine: null,
+        pageInfo: {
+          projectName: target.project,
+          pageTitle: target.title,
+        },
       });
     }
   }
@@ -97,9 +104,9 @@ export const getCodeBlocks = async (
 
 /** targetを`Line[]`に変換する */
 async function getLines(
-  target: { project: string; title: string } | { lines: Line[] },
+  target: { project: string; title: string; lines?: Line[] },
 ): Promise<Line[]> {
-  if ("lines" in target) {
+  if (target.lines !== undefined) {
     return target.lines;
   } else {
     const head = await pull(target.project, target.title);
@@ -127,7 +134,7 @@ function extractFromCodeTitle(lineText: string): CodeTitle | null {
       return null;
     } else {
       // `code:foo.ext`
-      lang = ext[1];
+      lang = ext[1].slice(1, -1).trim();
     }
   } else {
     lang = matched[3];
