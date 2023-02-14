@@ -10,7 +10,7 @@ import { pull } from "./pull.ts";
 import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
 import { createNewLineId, getUserId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
-import { applyCommit } from "./_codeBlock.ts";
+import { applyCommit, countBodyIndent } from "./_codeBlock.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface CodeFile {
@@ -107,8 +107,7 @@ export const updateCodeFile = async (
  */
 function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
   return codeBlocks.map((block) => {
-    const title = block.titleLine.text;
-    const indent = title.length - title.trimStart().length + 1;
+    const indent = countBodyIndent(block);
     return block.bodyLines.map((body) => {
       return { ...body, text: body.text.slice(indent) };
     });
@@ -131,9 +130,7 @@ function* makeCommits(
   },
 ): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
   function makeIndent(codeBlock: Pick<TinyCodeBlock, "titleLine">): string {
-    const title = codeBlock.titleLine.text;
-    const count = title.length - title.trimStart().length + 1;
-    return " ".repeat(count);
+    return " ".repeat(countBodyIndent(codeBlock));
   }
 
   const codeBlocks: Pick<

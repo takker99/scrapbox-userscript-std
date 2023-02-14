@@ -1,8 +1,8 @@
-import { Change, InsertCommit, Socket, wrap } from "../../deps/socket.ts";
+import { Change, Socket, wrap } from "../../deps/socket.ts";
 import { HeadData } from "./pull.ts";
-import { createNewLineId, getProjectId, getUserId } from "./id.ts";
-import { CodeFile } from "./updateCodeFile.ts";
+import { getProjectId, getUserId } from "./id.ts";
 import { pushWithRetry } from "./_fetch.ts";
+import { TinyCodeBlock } from "./getCodeBlocks.ts";
 
 /** コミットを送信する一連の処理 */
 export async function applyCommit(
@@ -28,30 +28,10 @@ export async function applyCommit(
   });
 }
 
-/** 新規コードブロックのコミットを作成する */
-export function* makeCommitsNewCodeBlock(
-  code: CodeFile,
-  insertLineId: string,
-  { userId }: { userId: string },
-): Generator<InsertCommit, void, unknown> {
-  const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
-  const codeBody = Array.isArray(code.content)
-    ? code.content
-    : code.content.split("\n");
-  yield {
-    _insert: insertLineId,
-    lines: {
-      id: createNewLineId(userId),
-      text: `code:${codeName}`,
-    },
-  };
-  for (const bodyLine of codeBody) {
-    yield {
-      _insert: insertLineId,
-      lines: {
-        id: createNewLineId(userId),
-        text: " " + bodyLine,
-      },
-    };
-  }
+/** コードブロック本文のインデント数を計算する */
+export function countBodyIndent(
+  codeBlock: Pick<TinyCodeBlock, "titleLine">,
+): number {
+  return codeBlock.titleLine.text.length -
+    codeBlock.titleLine.text.trimStart().length + 1;
 }
