@@ -78,6 +78,7 @@ export const updateCodeBlock = async (
   if (!options?.socket) opt.socket.disconnect();
 };
 
+/** コード本文のテキストを取得する */
 function getCodeBody(code: string | string[] | CodeFile): string[] {
   const content = isCodeFile(code) ? code.content : code;
   if (Array.isArray(content)) return content;
