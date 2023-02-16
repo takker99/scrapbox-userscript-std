@@ -6,8 +6,8 @@ import {
   socketIO,
   UpdateCommit,
 } from "../../deps/socket.ts";
+import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
-import { TinyCodeBlock } from "./getCodeBlocks.ts";
 import { getUserId } from "./id.ts";
 import { pull } from "./pull.ts";
 import { CodeFile, isCodeFile } from "./updateCodeFile.ts";

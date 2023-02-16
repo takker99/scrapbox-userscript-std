@@ -1,6 +1,9 @@
-import type { Line } from "../../deps/scrapbox-rest.ts";
-import { pull } from "./pull.ts";
-import { CodeTitle, extractFromCodeTitle } from "./_codeBlock.ts";
+import type { Line } from "../deps/scrapbox-rest.ts";
+import { pull } from "../browser/websocket/pull.ts";
+import {
+  CodeTitle,
+  extractFromCodeTitle,
+} from "../browser/websocket/_codeBlock.ts";
 
 /** pull()から取れる情報で構成したコードブロックの最低限の情報 */
 export interface TinyCodeBlock {

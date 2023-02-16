@@ -6,8 +6,8 @@ import {
   socketIO,
   UpdateCommit,
 } from "../../deps/socket.ts";
+import { getCodeBlocks, TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { pull } from "./pull.ts";
-import { getCodeBlocks, TinyCodeBlock } from "./getCodeBlocks.ts";
 import { createNewLineId, getUserId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { applyCommit, countBodyIndent } from "./_codeBlock.ts";
