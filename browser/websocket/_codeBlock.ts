@@ -1,8 +1,8 @@
 import { Change, Socket, wrap } from "../../deps/socket.ts";
+import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { HeadData } from "./pull.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { pushWithRetry } from "./_fetch.ts";
-import { TinyCodeBlock } from "./getCodeBlocks.ts";
 
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
 export interface CodeTitle {
