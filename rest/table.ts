@@ -17,7 +17,7 @@ const getTable_toRequest: GetTable["toRequest"] = (
   const { sid, hostName } = setDefaults(options ?? {});
   const path = `https://${hostName}/api/pages/${project}/${
     encodeTitleURI(title)
-  }/${encodeTitleURI(filename)}.csv`;
+  }/${encodeURIComponent(filename)}.csv`;
 
   return new Request(
     path,
