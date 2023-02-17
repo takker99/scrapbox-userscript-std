@@ -1,29 +1,29 @@
 /// <reference lib="deno.ns" />
 
 import { assert, assertFalse } from "../../deps/testing.ts";
-import { CodeFile, isCodeFile } from "./updateCodeFile.ts";
+import { SimpleCodeFile, isSimpleCodeFile } from "./updateCodeFile.ts";
 
-const codeFile: CodeFile = {
+const codeFile: SimpleCodeFile = {
   filename: "filename",
   content: ["line 0", "line 1"],
   lang: "language",
 };
 
-Deno.test("isCodeFile()", async (t) => {
-  await t.step("CodeFile object", () => {
-    assert(isCodeFile(codeFile));
-    assert(isCodeFile({ ...codeFile, content: "line 0" }));
-    assert(isCodeFile({ ...codeFile, lang: undefined }));
+Deno.test("isSimpleCodeFile()", async (t) => {
+  await t.step("SimpleCodeFile object", () => {
+    assert(isSimpleCodeFile(codeFile));
+    assert(isSimpleCodeFile({ ...codeFile, content: "line 0" }));
+    assert(isSimpleCodeFile({ ...codeFile, lang: undefined }));
   });
   await t.step("similer objects", () => {
-    assertFalse(isCodeFile({ ...codeFile, filename: 10 }));
-    assertFalse(isCodeFile({ ...codeFile, content: 10 }));
-    assertFalse(isCodeFile({ ...codeFile, content: [0, 1] }));
-    assertFalse(isCodeFile({ ...codeFile, lang: 10 }));
+    assertFalse(isSimpleCodeFile({ ...codeFile, filename: 10 }));
+    assertFalse(isSimpleCodeFile({ ...codeFile, content: 10 }));
+    assertFalse(isSimpleCodeFile({ ...codeFile, content: [0, 1] }));
+    assertFalse(isSimpleCodeFile({ ...codeFile, lang: 10 }));
   });
   await t.step("other type values", () => {
-    assertFalse(isCodeFile(10));
-    assertFalse(isCodeFile(undefined));
-    assertFalse(isCodeFile(["0", "1", "2"]));
+    assertFalse(isSimpleCodeFile(10));
+    assertFalse(isSimpleCodeFile(undefined));
+    assertFalse(isSimpleCodeFile(["0", "1", "2"]));
   });
 });

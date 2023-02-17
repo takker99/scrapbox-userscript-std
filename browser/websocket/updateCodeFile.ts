@@ -13,7 +13,7 @@ import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { applyCommit, countBodyIndent } from "./_codeBlock.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
-export interface CodeFile {
+export interface SimpleCodeFile {
   /** ファイル名 */
   filename: string;
 
@@ -45,10 +45,10 @@ export interface UpdateCodeFileOptions {
   debug?: boolean;
 }
 
-/** objectがCodeFile型かどうかを判別する */
-export function isCodeFile(obj: unknown): obj is CodeFile {
+/** objectがSimpleCodeFile型かどうかを判別する */
+export function isSimpleCodeFile(obj: unknown): obj is SimpleCodeFile {
   if (Array.isArray(obj) || !(obj instanceof Object)) return false;
-  const code = obj as CodeFile;
+  const code = obj as SimpleCodeFile;
   const { filename, content, lang } = code;
   return (
     typeof filename == "string" &&
@@ -72,7 +72,7 @@ export function isCodeFile(obj: unknown): obj is CodeFile {
  * @param options その他の設定
  */
 export const updateCodeFile = async (
-  codeFile: CodeFile,
+  codeFile: SimpleCodeFile,
   project: string,
   title: string,
   options?: UpdateCodeFileOptions,
@@ -133,7 +133,7 @@ function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
 /** コードブロックの差分からコミットデータを作成する */
 function* makeCommits(
   _codeBlocks: readonly TinyCodeBlock[],
-  codeFile: CodeFile,
+  codeFile: SimpleCodeFile,
   lines: Line[],
   { userId, insertPositionIfNotExist, isInsertEmptyLineInTail }: {
     userId: string;
@@ -247,7 +247,7 @@ function* makeCommits(
   }
 }
 
-function makeCodeBlockTitle(code: CodeFile) {
+function makeCodeBlockTitle(code: SimpleCodeFile) {
   const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
   return `code:${codeName}`;
 }

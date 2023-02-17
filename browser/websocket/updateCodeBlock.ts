@@ -10,7 +10,7 @@ import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { getUserId } from "./id.ts";
 import { pull } from "./pull.ts";
-import { CodeFile, isCodeFile } from "./updateCodeFile.ts";
+import { SimpleCodeFile, isSimpleCodeFile } from "./updateCodeFile.ts";
 import {
   applyCommit,
   countBodyIndent,
@@ -27,7 +27,7 @@ export interface UpdateCodeBlockOptions {
 
 /** コードブロックの中身を更新する
  *
- * newCodeにCodeFileオブジェクトを渡すと、そのオブジェクトに添ってコードブロックのファイル名も書き換えます
+ * newCodeにSimpleCodeFileオブジェクトを渡すと、そのオブジェクトに添ってコードブロックのファイル名も書き換えます
  * （文字列や文字列配列を渡した場合は書き換えません）。
  *
  * @param newCode 更新後のコードブロック
@@ -35,7 +35,7 @@ export interface UpdateCodeBlockOptions {
  * @param project 更新対象のコードブロックが存在するプロジェクト名
  */
 export const updateCodeBlock = async (
-  newCode: string | string[] | CodeFile,
+  newCode: string | string[] | SimpleCodeFile,
   target: TinyCodeBlock,
   options?: UpdateCodeBlockOptions,
 ) => {
@@ -63,7 +63,7 @@ export const updateCodeBlock = async (
     userId,
   });
   const commits = [...fixCommits([...diffGenerator], target)];
-  if (isCodeFile(newCode)) {
+  if (isSimpleCodeFile(newCode)) {
     const titleCommit = makeTitleChangeCommit(newCode, target);
     if (titleCommit) commits.push(titleCommit);
   }
@@ -82,8 +82,8 @@ export const updateCodeBlock = async (
 };
 
 /** コード本文のテキストを取得する */
-function getCodeBody(code: string | string[] | CodeFile): string[] {
-  const content = isCodeFile(code) ? code.content : code;
+function getCodeBody(code: string | string[] | SimpleCodeFile): string[] {
+  const content = isSimpleCodeFile(code) ? code.content : code;
   if (Array.isArray(content)) return content;
   return content.split("\n");
 }
@@ -133,7 +133,7 @@ function* fixCommits(
 
 /** コードタイトルが違う場合は書き換える */
 function makeTitleChangeCommit(
-  code: CodeFile,
+  code: SimpleCodeFile,
   target: Pick<TinyCodeBlock, "titleLine">,
 ): UpdateCommit | null {
   const lineId = target.titleLine.id;
