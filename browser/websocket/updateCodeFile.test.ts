@@ -1,7 +1,7 @@
 /// <reference lib="deno.ns" />
 
 import { assert, assertFalse } from "../../deps/testing.ts";
-import { SimpleCodeFile, isSimpleCodeFile } from "./updateCodeFile.ts";
+import { isSimpleCodeFile, SimpleCodeFile } from "./updateCodeFile.ts";
 
 const codeFile: SimpleCodeFile = {
   filename: "filename",

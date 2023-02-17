@@ -10,7 +10,7 @@ import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { getUserId } from "./id.ts";
 import { pull } from "./pull.ts";
-import { SimpleCodeFile, isSimpleCodeFile } from "./updateCodeFile.ts";
+import { isSimpleCodeFile, SimpleCodeFile } from "./updateCodeFile.ts";
 import {
   applyCommit,
   countBodyIndent,
