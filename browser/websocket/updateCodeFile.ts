@@ -91,11 +91,11 @@ export const updateCodeFile = async (
   ];
 
   if (opt.debug) {
-    console.log("vvv original code Blocks vvv");
+    console.log("%cvvv original code Blocks vvv", "color: limegreen;");
     console.log(codeBlocks);
-    console.log("vvv new codes vvv");
+    console.log("%cvvv new codes vvv", "color: limegreen;");
     console.log(newCode);
-    console.log("vvv commits vvv");
+    console.log("%cvvv commits vvv", "color: limegreen;");
     console.log(commits);
   }
 

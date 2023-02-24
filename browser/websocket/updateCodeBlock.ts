@@ -70,11 +70,11 @@ export const updateCodeBlock = async (
   }
 
   if (opt.debug) {
-    console.log("vvv original code block vvv");
+    console.log("%cvvv original code block vvv", "color: limegreen;");
     console.log(target);
-    console.log("vvv new codes vvv");
+    console.log("%cvvv new codes vvv", "color: limegreen;");
     console.log(newCode);
-    console.log("vvv commits vvv");
+    console.log("%cvvv commits vvv", "color: limegreen;");
     console.log(commits);
   }
 
