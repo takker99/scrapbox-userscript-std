@@ -32,6 +32,8 @@ export interface GetCodeBlocksFilter {
   filename?: string;
   /** syntax highlightに使用されている言語名 */
   lang?: string;
+  /** タイトル行の行ID */
+  titleLineId?: string;
 }
 
 /** 他のページ（または取得済みの行データ）のコードブロックを全て取得する
@@ -111,7 +113,8 @@ function isMatchFilter(
   const equals = (a: unknown, b: unknown) => !a || a === b;
   return (
     equals(filter?.filename, codeBlock.filename) &&
-    equals(filter?.lang, codeBlock.lang)
+    equals(filter?.lang, codeBlock.lang) &&
+    equals(filter?.titleLineId, codeBlock.titleLine.id)
   );
 }
 

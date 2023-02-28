@@ -257,4 +257,16 @@ Deno.test("getCodeBlocks()", async (t) => {
     await Promise.all(yet);
     await assertSnapshot(st, codeBlocks);
   });
+  await t.step("title line ID filter", async (st) => {
+    const titleLineId = "63b7b1261280f00000c9bc34";
+    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+      titleLineId,
+    });
+    const yet = [];
+    for (const codeBlock of codeBlocks) {
+      yet.push(assertEquals(codeBlock.titleLine.id, titleLineId));
+    }
+    await Promise.all(yet);
+    await assertSnapshot(st, codeBlocks);
+  });
 });
