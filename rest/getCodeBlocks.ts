@@ -108,9 +108,11 @@ function isMatchFilter(
   codeBlock: TinyCodeBlock,
   filter?: GetCodeBlocksFilter,
 ): boolean {
-  if (filter?.filename && filter.filename !== codeBlock.filename) return false;
-  if (filter?.lang && filter.lang !== codeBlock.lang) return false;
-  return true;
+  const equals = (a: unknown, b: unknown) => !a || a === b;
+  return (
+    equals(filter?.filename, codeBlock.filename) &&
+    equals(filter?.lang, codeBlock.lang)
+  );
 }
 
 /** 行テキストがコードブロックの一部であればそのテキストを、そうでなければnullを返す
