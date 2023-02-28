@@ -1,7 +1,7 @@
 /// <reference lib="deno.ns" />
 
 import { Line } from "../deps/scrapbox-rest.ts";
-import { assertSnapshot } from "../deps/testing.ts";
+import { assertEquals, assertSnapshot } from "../deps/testing.ts";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
 
 // https://scrapbox.io/takker/コードブロック記法
@@ -234,15 +234,27 @@ Deno.test("getCodeBlocks()", async (t) => {
     await getCodeBlocks({ project, title, lines: sample }),
   );
   await t.step("filename filter", async (st) => {
-    const codeBlock = await getCodeBlocks({ project, title, lines: sample }, {
-      filename: "インデント.md",
+    const filename = "インデント.md";
+    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+      filename,
     });
-    await assertSnapshot(st, codeBlock);
+    const yet = [];
+    for (const codeBlock of codeBlocks) {
+      yet.push(assertEquals(codeBlock.filename, filename));
+    }
+    await Promise.all(yet);
+    await assertSnapshot(st, codeBlocks);
   });
   await t.step("language name filter", async (st) => {
-    const codeBlock = await getCodeBlocks({ project, title, lines: sample }, {
-      lang: "py",
+    const lang = "py";
+    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+      lang,
     });
-    await assertSnapshot(st, codeBlock);
+    const yet = [];
+    for (const codeBlock of codeBlocks) {
+      yet.push(assertEquals(codeBlock.lang, lang));
+    }
+    await Promise.all(yet);
+    await assertSnapshot(st, codeBlocks);
   });
 });
