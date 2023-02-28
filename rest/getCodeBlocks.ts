@@ -53,11 +53,8 @@ export const getCodeBlocks = async (
   let currentCode: CodeTitle & {
     /** 読み取り中の行がコードブロックかどうか */
     isCodeBlock: boolean;
-    /** 読み取り中のコードブロックを保存するかどうか */
-    isCollect: boolean;
   } = {
     isCodeBlock: false,
-    isCollect: false,
     filename: "",
     lang: "",
     indent: 0,
@@ -66,13 +63,10 @@ export const getCodeBlocks = async (
     if (currentCode.isCodeBlock) {
       const body = extractFromCodeBody(line.text, currentCode.indent);
       if (body === null) {
-        if (currentCode.isCollect) {
-          codeBlocks[codeBlocks.length - 1].nextLine = line;
-        }
+        codeBlocks[codeBlocks.length - 1].nextLine = line;
         currentCode.isCodeBlock = false;
         continue;
       }
-      if (!currentCode.isCollect) continue;
       codeBlocks[codeBlocks.length - 1].bodyLines.push(line);
     } else {
       const matched = extractFromCodeTitle(line.text);
@@ -80,9 +74,7 @@ export const getCodeBlocks = async (
         currentCode.isCodeBlock = false;
         continue;
       }
-      const isCollect = isMatchFilter(matched, filter);
-      currentCode = { isCodeBlock: true, isCollect: isCollect, ...matched };
-      if (!currentCode.isCollect) continue;
+      currentCode = { isCodeBlock: true, ...matched };
       codeBlocks.push({
         filename: currentCode.filename,
         lang: currentCode.lang,
@@ -96,7 +88,7 @@ export const getCodeBlocks = async (
       });
     }
   }
-  return codeBlocks;
+  return codeBlocks.filter((codeBlock) => isMatchFilter(codeBlock, filter));
 };
 
 /** targetを`Line[]`に変換する */
@@ -111,13 +103,13 @@ async function getLines(
   }
 }
 
-/** コードタイトルのフィルターを検証する */
+/** コードブロックのフィルターに合致しているか検証する */
 function isMatchFilter(
-  codeTitle: CodeTitle,
+  codeBlock: TinyCodeBlock,
   filter?: GetCodeBlocksFilter,
 ): boolean {
-  if (filter?.filename && filter.filename !== codeTitle.filename) return false;
-  if (filter?.lang && filter.lang !== codeTitle.lang) return false;
+  if (filter?.filename && filter.filename !== codeBlock.filename) return false;
+  if (filter?.lang && filter.lang !== codeBlock.lang) return false;
   return true;
 }
 
