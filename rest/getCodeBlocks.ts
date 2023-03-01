@@ -128,7 +128,7 @@ function extractFromCodeBody(
   lineText: string,
   titleIndent: number,
 ): string | null {
-  const matched = lineText.match(/^(\s*)(.*)$/);
+  const matched = lineText.replaceAll("\r", "").match(/^(\s*)(.*)$/);
   if (matched === null || matched.length < 2) {
     return null;
   }

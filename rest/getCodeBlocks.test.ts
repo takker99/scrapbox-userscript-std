@@ -94,7 +94,7 @@ const sample: Line[] = [
   },
   {
     "id": "63b7b1261280f00000c9bc2d",
-    "text": "  - インデント",
+    "text": "  - インデント\r",
     "userId": "5ef2bdebb60650001e1280f0",
     "created": 1672982822,
     "updated": 1672982822,
