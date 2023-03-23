@@ -2,8 +2,9 @@
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
 
-import { BaseStore } from "../../deps/scrapbox.ts";
+import { BaseLine, BaseStore } from "../../deps/scrapbox.ts";
 import { Position } from "./position.ts";
+import { Page } from "./page.d.ts";
 
 export interface SetPositionOptions {
   /** カーソルが画面外に移動したとき、カーソルが見える位置までページをスクロールするかどうか
@@ -16,12 +17,16 @@ export interface SetPositionOptions {
    *
    * コード内だと、"mouse"が指定されていた場合があった。詳細は不明
    */
-  source?: string;
+  source?: "mouse";
 }
 
 /** カーソル操作クラス */
-export declare class Cursor extends BaseStore {
+export declare class Cursor extends BaseStore<
+  { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined
+> {
   constructor();
+
+  public startedWithTouch: boolean;
 
   /** カーソルの位置を初期化し、editorからカーソルを外す */
   clear(): void;
@@ -44,8 +49,17 @@ export declare class Cursor extends BaseStore {
   /** popup menuを消す */
   hidePopupMenu(): void;
 
-  /** #text-inputにカーソルをfocusし、同時にカーソルを表示する */
+  /** #text-inputにカーソルをfocusし、同時にカーソルを表示する
+   *
+   * このとき、`event: "focusTextInput"`が発行される
+   */
   focus(): void;
+
+  /** #text-inputにfocusがあたっているか返す
+   *
+   * `this.focusTextarea`と同値
+   */
+  get hasFocus(): boolean;
 
   /** #text-inputからfocusを外す。カーソルの表示状態は変えない */
   blur(): void;
@@ -108,11 +122,11 @@ export declare class Cursor extends BaseStore {
       | "go-pageup",
   ): void;
 
-  /* `scrapbox.Page.lines`とほぼ同じ */
-  get lines(): unknown[];
+  /** 現在のページ本文を取得する */
+  get lines(): BaseLine[];
 
-  /* `scrapbox.Project.pages`とほぼ同じ */
-  get pages(): unknown;
+  /** 現在のページデータを取得する */
+  get page(): Page;
 
   private goUp(): void;
   private goPageUp(): void;
@@ -143,8 +157,11 @@ export declare class Cursor extends BaseStore {
   private sync(): void;
   private syncNow(): void;
   private updateTemporalHorizontalPoint(): number;
+  /** scrollされたときに発火される
+   *
+   * このとき`event: "source"`が発行される
+   */
   private emitScroll(): void;
-  emitChange(event: string): void;
 
   private data: Position;
   private temporalHorizontalPoint: number;

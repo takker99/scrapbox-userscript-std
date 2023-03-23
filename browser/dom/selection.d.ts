@@ -2,7 +2,7 @@
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
 
-import { BaseStore } from "../../deps/scrapbox.ts";
+import { BaseLine, BaseStore } from "../../deps/scrapbox.ts";
 import { Position } from "./position.ts";
 
 export interface Range {
@@ -10,13 +10,17 @@ export interface Range {
   end: Position;
 }
 
-export declare class Selection extends BaseStore {
+export declare class Selection extends BaseStore<undefined> {
   constructor();
 
-  /** `scrapbox.Page.lines`とほぼ同じ */
-  get lines(): unknown[];
+  /** 現在のページ本文を取得する */
+  get lines(): BaseLine[];
 
-  /** 現在の選択範囲を取得する */
+  /** 現在の選択範囲を取得する
+   *
+   * @param init 選択範囲の先頭位置がRange.startになるよう並び替えたいときは`init.normalizeOrder`を`true`にする
+   * @return 現在の選択範囲
+   */
   getRange(init?: { normalizeOrder: boolean }): Range;
 
   /** 選択範囲を変更する */
@@ -25,9 +29,10 @@ export declare class Selection extends BaseStore {
   /** 選択を解除する */
   clear(): void;
 
-  /** algorithmがよくわからない
+  /** 選択範囲の先頭位置がrange.startになるよう並び替える
    *
-   * 何らかの条件に基づいて、startとendを入れ替えているのはわかる
+   * @param range 並び替えたい選択範囲
+   * @return 並び替えた選択範囲
    */
   normalizeOrder(range: Range): Range;
 
