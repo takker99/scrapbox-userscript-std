@@ -10,7 +10,7 @@ export interface Range {
   end: Position;
 }
 
-export declare class Selection extends BaseStore {
+export declare class Selection extends BaseStore<undefined> {
   constructor();
 
   /** 現在のページ本文を取得する */

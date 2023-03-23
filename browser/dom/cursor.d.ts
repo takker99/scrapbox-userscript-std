@@ -16,11 +16,13 @@ export interface SetPositionOptions {
    *
    * コード内だと、"mouse"が指定されていた場合があった。詳細は不明
    */
-  source?: string;
+  source?: "mouse";
 }
 
 /** カーソル操作クラス */
-export declare class Cursor extends BaseStore {
+export declare class Cursor extends BaseStore<
+  { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined
+> {
   constructor();
 
   /** カーソルの位置を初期化し、editorからカーソルを外す */
@@ -44,7 +46,10 @@ export declare class Cursor extends BaseStore {
   /** popup menuを消す */
   hidePopupMenu(): void;
 
-  /** #text-inputにカーソルをfocusし、同時にカーソルを表示する */
+  /** #text-inputにカーソルをfocusし、同時にカーソルを表示する
+   *
+   * このとき、`event: "focusTextInput"`が発行される
+   */
   focus(): void;
 
   /** #text-inputからfocusを外す。カーソルの表示状態は変えない */
@@ -143,8 +148,11 @@ export declare class Cursor extends BaseStore {
   private sync(): void;
   private syncNow(): void;
   private updateTemporalHorizontalPoint(): number;
+  /** scrollされたときに発火される
+   *
+   * このとき`event: "source"`が発行される
+   */
   private emitScroll(): void;
-  emitChange(event: string): void;
 
   private data: Position;
   private temporalHorizontalPoint: number;
