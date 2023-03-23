@@ -1,4 +1,5 @@
 export type {
+  BaseLine,
   Line,
   Scrapbox,
 } from "https://raw.githubusercontent.com/scrapbox-jp/types/0.3.8/userscript.ts";

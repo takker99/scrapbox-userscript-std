@@ -2,7 +2,7 @@
 /// <reference lib="esnext"/>
 /// <reference lib="dom" />
 
-import { BaseStore } from "../../deps/scrapbox.ts";
+import { BaseLine, BaseStore } from "../../deps/scrapbox.ts";
 import { Position } from "./position.ts";
 
 export interface Range {
@@ -13,8 +13,8 @@ export interface Range {
 export declare class Selection extends BaseStore {
   constructor();
 
-  /** `scrapbox.Page.lines`とほぼ同じ */
-  get lines(): unknown[];
+  /** 現在のページ本文を取得する */
+  get lines(): BaseLine[];
 
   /** 現在の選択範囲を取得する */
   getRange(init?: { normalizeOrder: boolean }): Range;
