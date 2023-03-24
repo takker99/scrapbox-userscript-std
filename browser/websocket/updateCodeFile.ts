@@ -107,14 +107,14 @@ export const updateCodeFile = async (
 /** TinyCodeBlocksの配列からコード本文をフラットな配列に格納して返す \
  * その際、コードブロックの左側に存在していたインデントは削除する
  */
-function flatCodeBodies(codeBlocks: readonly TinyCodeBlock[]): Line[] {
+const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): Line[] => {
   return codeBlocks.map((block) => {
     const indent = countBodyIndent(block);
     return block.bodyLines.map((body) => {
       return { ...body, text: body.text.slice(indent) };
     });
   }).flat();
-}
+};
 
 /** コードブロックの差分からコミットデータを作成する */
 function* makeCommits(
@@ -233,7 +233,7 @@ function* makeCommits(
   }
 }
 
-function makeCodeBlockTitle(code: SimpleCodeFile) {
+const makeCodeBlockTitle = (code: SimpleCodeFile) => {
   const codeName = code.filename + (code.lang ? `(${code.lang})` : "");
   return `code:${codeName}`;
-}
+};

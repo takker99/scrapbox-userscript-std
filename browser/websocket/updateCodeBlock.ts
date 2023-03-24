@@ -83,11 +83,11 @@ export const updateCodeBlock = async (
 };
 
 /** コード本文のテキストを取得する */
-function getCodeBody(code: string | string[] | SimpleCodeFile): string[] {
+const getCodeBody = (code: string | string[] | SimpleCodeFile): string[] => {
   const content = isSimpleCodeFile(code) ? code.content : code;
   if (Array.isArray(content)) return content;
   return content.split("\n");
-}
+};
 
 /** insertコミットの行IDとtextのインデントを修正する */
 function* fixCommits(
@@ -133,10 +133,10 @@ function* fixCommits(
 }
 
 /** コードタイトルが違う場合は書き換える */
-function makeTitleChangeCommit(
+const makeTitleChangeCommit = (
   code: SimpleCodeFile,
   target: Pick<TinyCodeBlock, "titleLine">,
-): UpdateCommit | null {
+): UpdateCommit | null => {
   const lineId = target.titleLine.id;
   const targetTitle = extractFromCodeTitle(target.titleLine.text);
   if (
@@ -158,4 +158,4 @@ function makeTitleChangeCommit(
       text: " ".repeat(countBodyIndent(target) - 1) + "code:" + title,
     },
   };
-}
+};

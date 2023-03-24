@@ -12,14 +12,14 @@ export interface CodeTitle {
 }
 
 /** コミットを送信する一連の処理 */
-export async function applyCommit(
+export const applyCommit = async (
   commits: Change[],
   head: HeadData,
   projectName: string,
   pageTitle: string,
   socket: Socket,
   userId?: string,
-): ReturnType<typeof pushWithRetry> {
+): ReturnType<typeof pushWithRetry> => {
   const [projectId, userId_] = await Promise.all([
     getProjectId(projectName),
     userId ?? getUserId(),
@@ -34,14 +34,14 @@ export async function applyCommit(
     title: pageTitle,
     retry: 3,
   });
-}
+};
 
 /** コードブロックのタイトル行から各種プロパティを抽出する
  *
  * @param lineText {string} 行テキスト
  * @return `lineText`がコードタイトル行であれば`CodeTitle`を、そうでなければ`null`を返す
  */
-export function extractFromCodeTitle(lineText: string): CodeTitle | null {
+export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {
   const matched = lineText.match(/^(\s*)code:(.+?)(\(.+\)){0,1}\s*$/);
   if (matched === null) return null;
   const filename = matched[2].trim();
@@ -66,7 +66,7 @@ export function extractFromCodeTitle(lineText: string): CodeTitle | null {
     lang: lang,
     indent: matched[1].length,
   };
-}
+};
 
 /** コードブロック本文のインデント数を計算する */
 export function countBodyIndent(
