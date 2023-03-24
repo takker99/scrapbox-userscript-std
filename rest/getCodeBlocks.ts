@@ -94,29 +94,29 @@ export const getCodeBlocks = async (
 };
 
 /** targetを`Line[]`に変換する */
-async function getLines(
+const getLines = async (
   target: { project: string; title: string; lines?: Line[] },
-): Promise<Line[]> {
+): Promise<Line[]> => {
   if (target.lines !== undefined) {
     return target.lines;
   } else {
     const head = await pull(target.project, target.title);
     return head.lines;
   }
-}
+};
 
 /** コードブロックのフィルターに合致しているか検証する */
-function isMatchFilter(
+const isMatchFilter = (
   codeBlock: TinyCodeBlock,
   filter?: GetCodeBlocksFilter,
-): boolean {
+): boolean => {
   const equals = (a: unknown, b: unknown) => !a || a === b;
   return (
     equals(filter?.filename, codeBlock.filename) &&
     equals(filter?.lang, codeBlock.lang) &&
     equals(filter?.titleLineId, codeBlock.titleLine.id)
   );
-}
+};
 
 /** 行テキストがコードブロックの一部であればそのテキストを、そうでなければnullを返す
  *
@@ -124,10 +124,10 @@ function isMatchFilter(
  * @param titleIndent {number} コードブロックのタイトル行のインデントの深さ
  * @return `lineText`がコードブロックの一部であればそのテキストを、そうでなければ`null`を返す
  */
-function extractFromCodeBody(
+const extractFromCodeBody = (
   lineText: string,
   titleIndent: number,
-): string | null {
+): string | null => {
   const matched = lineText.replaceAll("\r", "").match(/^(\s*)(.*)$/);
   if (matched === null || matched.length < 2) {
     return null;
@@ -136,4 +136,4 @@ function extractFromCodeBody(
   const body = matched[2];
   if (indent.length <= titleIndent) return null;
   return indent.slice(indent.length - titleIndent) + body;
-}
+};
