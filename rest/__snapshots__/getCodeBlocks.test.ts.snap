@@ -1,0 +1,380 @@
+export const snapshot = {};
+
+snapshot[`getCodeBlocks() 1`] = `
+[
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc27",
+        text: ' print("Hello World!")',
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "コードブロック.py",
+    lang: "py",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc28",
+      text: "無名コードブロック",
+      updated: 1672983021,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982821,
+      id: "63b7b1261280f00000c9bc26",
+      text: "code:コードブロック.py",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2a",
+        text: ' print("Hello World!")',
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "py",
+    lang: "py",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2b",
+      text: "インデントつき",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc29",
+      text: "code:py",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2d",
+        text: "  - インデント\\r",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2e",
+        text: "    - インデント",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "インデント.md",
+    lang: "md",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2f",
+      text: "言語を強制",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2c",
+      text: " code:インデント.md",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc31",
+        text: \`  console.log("I'm JavaScript");\`,
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "python",
+    lang: "js",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc32",
+      text: "文芸的プログラミング",
+      updated: 1672982825,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc30",
+      text: " code:python(js)",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc35",
+        text: "   #include <iostream>",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc36",
+        text: "   ",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "main.cpp",
+    lang: "cpp",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc37",
+      text: " main函数の定義",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc34",
+      text: "  code:main.cpp",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc39",
+        text: "   int main() {",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc3a",
+        text: '     std::cout << "Hello, C++" << "from scrapbox.io" << std::endl;',
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc3b",
+        text: "   }",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc3c",
+        text: "   ",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "main.cpp",
+    lang: "cpp",
+    nextLine: {
+      created: 1672982673,
+      id: "63b7b0911280f00000c9bc23",
+      text: "",
+      updated: 1672982673,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc38",
+      text: "  code:main.cpp",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+]
+`;
+
+snapshot[`getCodeBlocks() > filename filter 1`] = `
+[
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2d",
+        text: "  - インデント\\r",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2e",
+        text: "    - インデント",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "インデント.md",
+    lang: "md",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2f",
+      text: "言語を強制",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2c",
+      text: " code:インデント.md",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+]
+`;
+
+snapshot[`getCodeBlocks() > language name filter 1`] = `
+[
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc27",
+        text: ' print("Hello World!")',
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "コードブロック.py",
+    lang: "py",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc28",
+      text: "無名コードブロック",
+      updated: 1672983021,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982821,
+      id: "63b7b1261280f00000c9bc26",
+      text: "code:コードブロック.py",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc2a",
+        text: ' print("Hello World!")',
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "py",
+    lang: "py",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc2b",
+      text: "インデントつき",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc29",
+      text: "code:py",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+]
+`;
+
+snapshot[`getCodeBlocks() > title line ID filter 1`] = `
+[
+  {
+    bodyLines: [
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc35",
+        text: "   #include <iostream>",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+      {
+        created: 1672982822,
+        id: "63b7b1261280f00000c9bc36",
+        text: "   ",
+        updated: 1672982822,
+        userId: "5ef2bdebb60650001e1280f0",
+      },
+    ],
+    filename: "main.cpp",
+    lang: "cpp",
+    nextLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc37",
+      text: " main函数の定義",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+    pageInfo: {
+      pageTitle: "コードブロック記法",
+      projectName: "takker",
+    },
+    titleLine: {
+      created: 1672982822,
+      id: "63b7b1261280f00000c9bc34",
+      text: "  code:main.cpp",
+      updated: 1672982822,
+      userId: "5ef2bdebb60650001e1280f0",
+    },
+  },
+]
+`;

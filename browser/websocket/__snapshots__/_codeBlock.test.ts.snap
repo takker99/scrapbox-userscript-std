@@ -1,0 +1,57 @@
+export const snapshot = {};
+
+snapshot[`extractFromCodeTitle() > accurate titles > "code:foo.extA(extB)" 1`] = `
+{
+  filename: "foo.extA",
+  indent: 0,
+  lang: "extB",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > " code:foo.extA(extB)" 1`] = `
+{
+  filename: "foo.extA",
+  indent: 1,
+  lang: "extB",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > "  code: foo.extA (extB)" 1`] = `
+{
+  filename: "foo.extA",
+  indent: 2,
+  lang: "extB",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > "  code: foo (extB) " 1`] = `
+{
+  filename: "foo",
+  indent: 2,
+  lang: "extB",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > "  code: foo.extA " 1`] = `
+{
+  filename: "foo.extA",
+  indent: 2,
+  lang: "extA",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > "  code: foo " 1`] = `
+{
+  filename: "foo",
+  indent: 2,
+  lang: "foo",
+}
+`;
+
+snapshot[`extractFromCodeTitle() > accurate titles > "  code: .foo " 1`] = `
+{
+  filename: ".foo",
+  indent: 2,
+  lang: ".foo",
+}
+`;

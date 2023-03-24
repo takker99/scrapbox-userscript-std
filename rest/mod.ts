@@ -13,3 +13,4 @@ export * from "./getGyazoToken.ts";
 export * from "./auth.ts";
 export * from "./util.ts";
 export * from "./error.ts";
+export * from "./getCodeBlocks.ts";
