@@ -10,7 +10,7 @@ export const getIndentCount = (text: string): number =>
  */
 export function getIndentLineCount(
   index: number,
-  lines: string[] | { text: string }[],
+  lines: readonly string[] | readonly { text: string }[],
 ): number {
   const base = getIndentCount(getText(index, lines));
   let count = 0;
@@ -23,7 +23,10 @@ export function getIndentLineCount(
   return count;
 }
 
-function getText(index: number, lines: string[] | { text: string }[]) {
+function getText(
+  index: number,
+  lines: readonly string[] | readonly { text: string }[],
+) {
   const line = lines[index];
   return isString(line) ? line : line.text;
 }

@@ -3,6 +3,7 @@
 /// <reference lib="dom" />
 import { isNone, isNumber, isString } from "../../is.ts";
 import { ensureArray } from "../../ensure.ts";
+import { getCachedLines } from "./getCachedLines.ts";
 import type { Line, Scrapbox } from "../../deps/scrapbox.ts";
 import { lines } from "./dom.ts";
 import * as Text from "../../text.ts";
@@ -83,9 +84,10 @@ export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
 
 export const getLineCount = (): number => getLines().length;
 
-export const getLines = (): Line[] => {
-  ensureArray(scrapbox.Page.lines, "scrapbox.Page.lines");
-  return scrapbox.Page.lines;
+export const getLines = (): readonly Line[] => {
+  const lines = getCachedLines();
+  ensureArray<Line>(lines, "scrapbox.Page.lines");
+  return lines;
 };
 
 export const getText = <T extends HTMLElement>(
