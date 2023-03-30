@@ -1,5 +1,6 @@
 import { isString } from "./is.ts";
 
+/** インデント数を数える */
 export const getIndentCount = (text: string): number =>
   text.match(/^(\s*)/)?.[1]?.length ?? 0;
 
@@ -8,10 +9,10 @@ export const getIndentCount = (text: string): number =>
  * @param index 指定したい行の行番号
  * @param lines 行のリスト
  */
-export function getIndentLineCount(
+export const getIndentLineCount = (
   index: number,
   lines: readonly string[] | readonly { text: string }[],
-): number {
+): number => {
   const base = getIndentCount(getText(index, lines));
   let count = 0;
   while (
@@ -21,12 +22,12 @@ export function getIndentLineCount(
     count++;
   }
   return count;
-}
+};
 
-function getText(
+const getText = (
   index: number,
   lines: readonly string[] | readonly { text: string }[],
-) {
+) => {
   const line = lines[index];
   return isString(line) ? line : line.text;
-}
+};
