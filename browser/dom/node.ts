@@ -4,10 +4,10 @@
 import { isNone, isNumber, isString } from "../../is.ts";
 import { ensureArray } from "../../ensure.ts";
 import { getCachedLines } from "./getCachedLines.ts";
-import type { Line, Scrapbox } from "../../deps/scrapbox.ts";
+import { takeInternalLines } from "./takeInternalLines.ts";
+import type { BaseLine, Line } from "../../deps/scrapbox.ts";
 import { lines } from "./dom.ts";
 import * as Text from "../../text.ts";
-declare const scrapbox: Scrapbox;
 
 /** Get the line id from value
  *
@@ -21,9 +21,7 @@ export const getLineId = <T extends HTMLElement>(
   if (isNone(value)) return undefined;
 
   // 行番号のとき
-  if (isNumber(value)) {
-    return getLine(value)?.id;
-  }
+  if (isNumber(value)) return getBaseLine(value)?.id;
   // 行IDのとき
   if (isString(value)) return value.startsWith("L") ? value.slice(1) : value;
 
@@ -51,7 +49,7 @@ export const getLineNo = <T extends HTMLElement>(
   if (isNumber(value)) return value;
   // 行ID or DOMのとき
   const id = getLineId(value);
-  return id ? getLines().findIndex((line) => line.id === id) : -1;
+  return id ? takeInternalLines().findIndex((line) => line.id === id) : -1;
 };
 
 export const getLine = <T extends HTMLElement>(
@@ -60,12 +58,22 @@ export const getLine = <T extends HTMLElement>(
   if (isNone(value)) return undefined;
 
   // 行番号のとき
-  if (isNumber(value)) {
-    return getLines()[value];
-  }
+  if (isNumber(value)) return getLines()[value];
   // 行ID or DOMのとき
   const id = getLineId(value);
   return id ? getLines().find((line) => line.id === id) : undefined;
+};
+
+export const getBaseLine = <T extends HTMLElement>(
+  value?: number | string | T,
+): BaseLine | undefined => {
+  if (isNone(value)) return undefined;
+
+  // 行番号のとき
+  if (isNumber(value)) return takeInternalLines()[value];
+  // 行ID or DOMのとき
+  const id = getLineId(value);
+  return id ? takeInternalLines().find((line) => line.id === id) : undefined;
 };
 
 export const getLineDOM = <T extends HTMLElement>(
@@ -82,7 +90,7 @@ export const getLineDOM = <T extends HTMLElement>(
 export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
   dom instanceof HTMLDivElement && dom.classList.contains("line");
 
-export const getLineCount = (): number => getLines().length;
+export const getLineCount = (): number => takeInternalLines().length;
 
 export const getLines = (): readonly Line[] => {
   const lines = getCachedLines();
@@ -96,9 +104,9 @@ export const getText = <T extends HTMLElement>(
   if (isNone(value)) return undefined;
 
   // 数字と文字列は行として扱う
-  if (isNumber(value) || isString(value)) return getLine(value)?.text;
+  if (isNumber(value) || isString(value)) return getBaseLine(value)?.text;
   if (!(value instanceof HTMLElement)) return;
-  if (isLineDOM(value)) return getLine(value)?.text;
+  if (isLineDOM(value)) return getBaseLine(value)?.text;
   // 文字のDOMだったとき
   if (value.classList.contains("char-index")) {
     return value.textContent ?? undefined;
@@ -108,11 +116,11 @@ export const getText = <T extends HTMLElement>(
     value.classList.contains("line") ||
     value.getElementsByClassName("lines")?.[0]
   ) {
-    return getLines().map(({ text }) => text).join("\n");
+    return takeInternalLines().map(({ text }) => text).join("\n");
   }
   //中に含まれている文字の列番号を全て取得し、それに対応する文字列を返す
   const chars = [] as number[];
-  const line = getLine(value);
+  const line = getBaseLine(value);
   if (isNone(line)) return;
   for (const dom of getChars(value)) {
     chars.push(getIndex(dom));
