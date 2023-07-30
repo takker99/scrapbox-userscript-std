@@ -98,16 +98,20 @@ const findLinksAndImage = (
         return;
       case "link":
         switch (node.pathType) {
-          case "relative":
-            if (linksLc.get(toTitleLc(node.href))) return;
-            linksLc.set(toTitleLc(node.href), true);
-            links.push(node.href);
+          case "relative": {
+            const link = cutId(node.href);
+            if (linksLc.get(toTitleLc(link))) return;
+            linksLc.set(toTitleLc(link), true);
+            links.push(link);
             return;
-          case "root":
-            if (projectLinksLc.has(toTitleLc(node.href))) return;
-            projectLinksLc.add(toTitleLc(node.href));
-            projectLinks.push(node.href);
+          }
+          case "root": {
+            const link = cutId(node.href);
+            if (projectLinksLc.has(toTitleLc(link))) return;
+            projectLinksLc.add(toTitleLc(link));
+            projectLinks.push(link);
             return;
+          }
           case "absolute": {
             const props = parseYoutube(node.href);
             if (!props || props.pathType === "list") return;
@@ -167,3 +171,5 @@ function* blocksToNodes(blocks: Iterable<Block>) {
     }
   }
 }
+
+const cutId = (link: string): string => link.replace(/#[a-f\d]{24,32}$/, "");
