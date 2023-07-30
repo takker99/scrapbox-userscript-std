@@ -8,6 +8,7 @@ export interface HeadData {
   image: string | null;
   pin: number;
   links: string[];
+  projectLinks: string[];
   lines: Line[];
 }
 export const pull = async (
@@ -20,7 +21,8 @@ export const pull = async (
   if (!result.ok) {
     throw new Error(`You have no privilege of editing "/${project}/${title}".`);
   }
-  const { commitId, persistent, image, links, lines, id, pin } = result.value;
+  const { commitId, persistent, image, links, projectLinks, lines, id, pin } =
+    result.value;
 
   return {
     commitId,
@@ -28,6 +30,7 @@ export const pull = async (
     persistent,
     image,
     links,
+    projectLinks,
     pin,
     lines,
   };
