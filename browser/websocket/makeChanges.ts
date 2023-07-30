@@ -42,12 +42,18 @@ export function* makeChanges(
   }
 
   // リンクと画像の差分を入れる
-  const [links, image] = findLinksAndImage(right_.join("\n"));
+  const [links, projectLinks, image] = findLinksAndImage(right_.join("\n"));
   if (
     head.links.length !== links.length ||
     !head.links.every((link) => links.includes(link))
   ) {
     yield { links };
+  }
+  if (
+    head.projectLinks.length !== projectLinks.length ||
+    !head.projectLinks.every((link) => projectLinks.includes(link))
+  ) {
+    yield { projectLinks };
   }
   if (head.image !== image) {
     yield { image };
@@ -55,7 +61,9 @@ export function* makeChanges(
 }
 
 /** テキストに含まれる全てのリンクと最初の画像を探す */
-const findLinksAndImage = (text: string): [string[], string | null] => {
+const findLinksAndImage = (
+  text: string,
+): [string[], string[], string | null] => {
   const rows = parseToRows(text);
   const blocks = packRows(rows, { hasTitle: true }).flatMap((pack) => {
     switch (pack.type) {
@@ -77,6 +85,8 @@ const findLinksAndImage = (text: string): [string[], string | null] => {
    */
   const linksLc = new Map<string, boolean>();
   const links = [] as string[];
+  const projectLinksLc = new Set<string>();
+  const projectLinks = [] as string[];
   let image: string | null = null;
 
   const lookup = (node: Node) => {
@@ -92,6 +102,11 @@ const findLinksAndImage = (text: string): [string[], string | null] => {
             if (linksLc.get(toTitleLc(node.href))) return;
             linksLc.set(toTitleLc(node.href), true);
             links.push(node.href);
+            return;
+          case "root":
+            if (projectLinksLc.has(toTitleLc(node.href))) return;
+            projectLinksLc.add(toTitleLc(node.href));
+            projectLinks.push(node.href);
             return;
           case "absolute": {
             const props = parseYoutube(node.href);
@@ -125,7 +140,7 @@ const findLinksAndImage = (text: string): [string[], string | null] => {
     lookup(node);
   }
 
-  return [links, image];
+  return [links, projectLinks, image];
 };
 
 function* blocksToNodes(blocks: Iterable<Block>) {
