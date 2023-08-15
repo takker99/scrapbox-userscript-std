@@ -69,7 +69,7 @@ snapshot[`getCodeBlocks() 1`] = `
       {
         created: 1672982822,
         id: "63b7b1261280f00000c9bc2d",
-        text: "  - インデント",
+        text: "  - インデント",
         updated: 1672982822,
         userId: "5ef2bdebb60650001e1280f0",
       },
@@ -233,7 +233,7 @@ snapshot[`getCodeBlocks() > filename filter 1`] = `
       {
         created: 1672982822,
         id: "63b7b1261280f00000c9bc2d",
-        text: "  - インデント",
+        text: "  - インデント",
         updated: 1672982822,
         userId: "5ef2bdebb60650001e1280f0",
       },
