@@ -25,4 +25,4 @@ export type {
   SessionError,
   Snapshot,
   TweetInfo,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.4.2/rest.ts";
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.5.0/rest.ts";
