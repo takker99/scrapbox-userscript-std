@@ -27,7 +27,13 @@ const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
 
 const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) => {
   if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
+    return res.status === 404 &&
+        res.headers.get("Content-Type")?.includes?.("text/plain")
+      ? {
+        ok: false,
+        value: { name: "NotFoundError", message: "Code block is not found" },
+      }
+      : makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
   }
   return { ok: true, value: await res.text() };
 };
