@@ -107,6 +107,8 @@ const findLinksAndImage = (
           }
           case "root": {
             const link = cutId(node.href);
+            // ignore `/project` or `/project/`
+            if (/^\/[\w\d-]+\/?$/.test(link)) return;
             if (projectLinksLc.has(toTitleLc(link))) return;
             projectLinksLc.add(toTitleLc(link));
             projectLinks.push(link);
