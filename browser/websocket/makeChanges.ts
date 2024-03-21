@@ -1,12 +1,6 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Line } from "../../deps/scrapbox.ts";
-import {
-  Block,
-  convertToBlock,
-  Node,
-  packRows,
-  parseToRows,
-} from "../../deps/scrapbox.ts";
+import { Block, Node, parse } from "../../deps/scrapbox.ts";
 import type { Change } from "../../deps/socket.ts";
 import type { HeadData } from "./pull.ts";
 import { toTitleLc } from "../../title.ts";
@@ -64,15 +58,14 @@ export function* makeChanges(
 const findLinksAndImage = (
   text: string,
 ): [string[], string[], string | null] => {
-  const rows = parseToRows(text);
-  const blocks = packRows(rows, { hasTitle: true }).flatMap((pack) => {
-    switch (pack.type) {
+  const blocks = parse(text, { hasTitle: true }).flatMap((block) => {
+    switch (block.type) {
       case "codeBlock":
       case "title":
         return [];
       case "line":
       case "table":
-        return [convertToBlock(pack)];
+        return block;
     }
   });
 
