@@ -1,4 +1,3 @@
-/// <reference lib="deno.unstable" />
 import { diffToChanges } from "./diffToChanges.ts";
 import { assertEquals } from "../../deps/testing.ts";
 
