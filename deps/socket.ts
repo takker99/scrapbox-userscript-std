@@ -10,8 +10,8 @@ export type {
   ProjectUpdatesStreamEvent,
   Socket,
   UpdateCommit,
-} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.5/mod.ts";
+} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.6/mod.ts";
 export {
   socketIO,
   wrap,
-} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.5/mod.ts";
+} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.6/mod.ts";
