@@ -1,16 +1,11 @@
 import type { Line } from "../../deps/scrapbox-rest.ts";
-import {
-  DeleteChange,
-  InsertChange,
-  Socket,
-  socketIO,
-  UpdateChange,
-} from "../../deps/socket.ts";
+import { DeleteChange, InsertChange, UpdateChange } from "../../deps/socket.ts";
 import { getCodeBlocks, TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
-import { pull } from "./pull.ts";
-import { createNewLineId, getUserId } from "./id.ts";
+import { createNewLineId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
-import { applyCommit, countBodyIndent } from "./_codeBlock.ts";
+import { countBodyIndent } from "./_codeBlock.ts";
+import { push, PushOptions, RetryError } from "./push.ts";
+import { Result } from "../../rest/util.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface SimpleCodeFile {
@@ -25,7 +20,7 @@ export interface SimpleCodeFile {
 }
 
 /** updateCodeFile()に使われているオプション */
-export interface UpdateCodeFileOptions {
+export interface UpdateCodeFileOptions extends PushOptions {
   /**
    * 指定したファイルが存在しなかった時、新しいコードブロックをページのどの位置に配置するか
    *
@@ -37,9 +32,6 @@ export interface UpdateCodeFileOptions {
 
   /** `true`の場合、コードブロック作成時に空行承り太郎（ページ末尾に必ず空行を設ける機能）を有効する（既定は`true`） */
   isInsertEmptyLineInTail?: boolean;
-
-  /** WebSocketの通信に使うsocket */
-  socket?: Socket;
 
   /** `true`でデバッグ出力ON */
   debug?: boolean;
@@ -57,51 +49,51 @@ export interface UpdateCodeFileOptions {
  * @param title 書き換えたいページのタイトル
  * @param options その他の設定
  */
-export const updateCodeFile = async (
+export const updateCodeFile = (
   codeFile: SimpleCodeFile,
   project: string,
   title: string,
   options?: UpdateCodeFileOptions,
-): Promise<void> => {
+): Promise<Result<string, RetryError>> => {
   /** optionsの既定値はこの中に入れる */
-  const defaultOptions: Required<UpdateCodeFileOptions> = {
+  const defaultOptions: Required<
+    Omit<UpdateCodeFileOptions, "maxAttempts" | "socket">
+  > = {
     insertPositionIfNotExist: "notInsert",
     isInsertEmptyLineInTail: true,
-    socket: options?.socket ?? await socketIO(),
     debug: false,
   };
   const opt = options ? { ...defaultOptions, ...options } : defaultOptions;
-  const newCode = Array.isArray(codeFile.content)
-    ? codeFile.content
-    : codeFile.content.split("\n");
-  const head = await pull(project, title);
-  const lines: Line[] = head.lines;
-  const codeBlocks = await getCodeBlocks({
+
+  return push(
     project,
     title,
-    lines: lines,
-  }, {
-    filename: codeFile.filename,
-  });
-  const commits = [
-    ...makeCommits(codeBlocks, codeFile, lines, {
-      ...opt,
-      userId: await getUserId(),
-    }),
-  ];
-
-  if (opt.debug) {
-    console.log("%cvvv original code Blocks vvv", "color: limegreen;");
-    console.log(codeBlocks);
-    console.log("%cvvv new codes vvv", "color: limegreen;");
-    console.log(newCode);
-    console.log("%cvvv commits vvv", "color: limegreen;");
-    console.log(commits);
-  }
-
-  await applyCommit(commits, head, project, title, opt.socket);
-
-  if (!options?.socket) opt.socket.disconnect();
+    async (page) => {
+      const lines: Line[] = page.lines;
+      const codeBlocks = await getCodeBlocks({ project, title, lines }, {
+        filename: codeFile.filename,
+      });
+      const commits = [
+        ...makeCommits(codeBlocks, codeFile, lines, {
+          ...opt,
+          userId: page.userId,
+        }),
+      ];
+      if (opt.debug) {
+        console.log("%cvvv original code Blocks vvv", "color: limegreen;");
+        console.log(codeBlocks);
+        console.log("%cvvv new codes vvv", "color: limegreen;");
+        const newCode = Array.isArray(codeFile.content)
+          ? codeFile.content
+          : codeFile.content.split("\n");
+        console.log(newCode);
+        console.log("%cvvv commits vvv", "color: limegreen;");
+        console.log(commits);
+      }
+      return commits;
+    },
+    options,
+  );
 };
 
 /** TinyCodeBlocksの配列からコード本文をフラットな配列に格納して返す \
