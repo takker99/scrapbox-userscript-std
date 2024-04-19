@@ -58,14 +58,14 @@ export const open = (
     options?.newTab !== false &&
     (options?.newTab === true || project !== scrapbox.Project.name)
   ) {
-    window.open(url);
+    globalThis.open(url);
     return;
   }
   if (
     options?.reload !== false &&
     (options?.reload === true || project !== scrapbox.Project.name)
   ) {
-    window.open(url, "_self");
+    globalThis.open(url, "_self");
     return;
   }
 

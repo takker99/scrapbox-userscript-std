@@ -161,7 +161,7 @@ const getVisibleLineCount = (): number => {
   if (clientHeight === undefined) {
     throw Error("Could not find .line:last-of-type");
   }
-  return Math.round(window.innerHeight / clientHeight);
+  return Math.round(globalThis.innerHeight / clientHeight);
 };
 
 /** 半ページ上にスクロールする
