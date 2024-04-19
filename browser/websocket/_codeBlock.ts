@@ -1,5 +1,5 @@
 import { Change, Socket, wrap } from "../../deps/socket.ts";
-import {Page} from "../../deps/scrapbox-rest.ts";
+import { Page } from "../../deps/scrapbox-rest.ts";
 import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { pushWithRetry } from "./_fetch.ts";
