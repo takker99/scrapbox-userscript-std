@@ -1,17 +1,1 @@
-export type {
-  Change,
-  CommitNotification,
-  Delete,
-  DeleteCommit,
-  InsertCommit,
-  ListenEventMap,
-  Pin,
-  ProjectUpdatesStreamCommit,
-  ProjectUpdatesStreamEvent,
-  Socket,
-  UpdateCommit,
-} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.6/mod.ts";
-export {
-  socketIO,
-  wrap,
-} from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.1.6/mod.ts";
+export * from "https://raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.2.1/mod.ts";

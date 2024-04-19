@@ -1,9 +1,9 @@
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import type { Line } from "../../deps/scrapbox.ts";
 import type {
-  DeleteCommit,
-  InsertCommit,
-  UpdateCommit,
+  DeleteChange,
+  InsertChange,
+  UpdateChange,
 } from "../../deps/socket.ts";
 import { createNewLineId } from "./id.ts";
 
@@ -14,7 +14,7 @@ export function* diffToChanges(
   left: Pick<Line, "text" | "id">[],
   right: string[],
   { userId }: Options,
-): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
+): Generator<DeleteChange | InsertChange | UpdateChange, void, unknown> {
   const { buildSES } = diff(
     left.map(({ text }) => text),
     right,
