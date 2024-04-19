@@ -20,7 +20,7 @@ export const deletePage = async (
   options?: DeletePageOptions,
 ): Promise<void> => {
   const [
-    { pageId, commitId: parentId, persistent },
+    { id: pageId, commitId: parentId, persistent },
     projectId,
     userId,
   ] = await Promise.all([

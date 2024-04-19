@@ -1,6 +1,6 @@
 import { Change, Socket, wrap } from "../../deps/socket.ts";
+import {Page} from "../../deps/scrapbox-rest.ts";
 import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
-import { HeadData } from "./pull.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { pushWithRetry } from "./_fetch.ts";
 
@@ -14,7 +14,7 @@ export interface CodeTitle {
 /** コミットを送信する一連の処理 */
 export const applyCommit = async (
   commits: Change[],
-  head: HeadData,
+  page: Page,
   projectName: string,
   pageTitle: string,
   socket: Socket,
@@ -26,9 +26,9 @@ export const applyCommit = async (
   ]);
   const { request } = wrap(socket);
   return await pushWithRetry(request, commits, {
-    parentId: head.commitId,
+    parentId: page.commitId,
     projectId: projectId,
-    pageId: head.pageId,
+    pageId: page.id,
     userId: userId_,
     project: projectName,
     title: pageTitle,
