@@ -2,12 +2,20 @@ import { Socket, socketIO, wrap } from "../../deps/socket.ts";
 import { connect, disconnect } from "./socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { makeChanges } from "./makeChanges.ts";
-import { HeadData, pull } from "./pull.ts";
-import type { Line } from "../../deps/scrapbox-rest.ts";
+import { pull } from "./pull.ts";
+import { Line, Page } from "../../deps/scrapbox-rest.ts";
 import { pushCommit, pushWithRetry } from "./_fetch.ts";
 
 export interface PatchOptions {
   socket?: Socket;
+}
+
+export interface PatchMetadata extends Page {
+  /** 書き換えを再試行した回数
+   *
+   * 初回は`0`で、再試行するたびに増える
+   */
+  retry: number;
 }
 
 /** ページ全体を書き換える
@@ -24,12 +32,12 @@ export const patch = async (
   title: string,
   update: (
     lines: Line[],
-    metadata: HeadData,
+    metadata: PatchMetadata,
   ) => string[] | undefined | Promise<string[] | undefined>,
   options?: PatchOptions,
 ): Promise<void> => {
   const [
-    head_,
+    page_,
     projectId,
     userId,
   ] = await Promise.all([
@@ -38,7 +46,7 @@ export const patch = async (
     getUserId(),
   ]);
 
-  let head = head_;
+  let page = page_;
 
   const injectedSocket = options?.socket;
   const socket = injectedSocket ?? await socketIO();
@@ -47,9 +55,9 @@ export const patch = async (
     const { request } = wrap(socket);
 
     // 3回retryする
-    for (let i = 0; i < 3; i++) {
+    for (let retry = 0; retry < 3; retry++) {
       try {
-        const pending = update(head.lines, head);
+        const pending = update(page.lines, { ...page, retry });
         const newLines = pending instanceof Promise ? await pending : pending;
 
         if (!newLines) return;
@@ -57,8 +65,8 @@ export const patch = async (
         if (newLines.length === 0) {
           await pushWithRetry(request, [{ deleted: true }], {
             projectId,
-            pageId: head.pageId,
-            parentId: head.commitId,
+            pageId: page.id,
+            parentId: page.commitId,
             userId,
             project,
             title,
@@ -66,24 +74,24 @@ export const patch = async (
         }
 
         const changes = [
-          ...makeChanges(head.lines, newLines, { userId, head }),
+          ...makeChanges(page.lines, newLines, { userId, page }),
         ];
         await pushCommit(request, changes, {
-          parentId: head.commitId,
+          parentId: page.commitId,
           projectId,
-          pageId: head.pageId,
+          pageId: page.id,
           userId,
         });
         break;
       } catch (_e: unknown) {
-        if (i === 2) {
+        if (retry === 2) {
           throw Error("Faild to retry pushing.");
         }
         console.log(
           "Faild to push a commit. Retry after pulling new commits",
         );
         try {
-          head = await pull(project, title);
+          page = await pull(project, title);
         } catch (e: unknown) {
           throw e;
         }

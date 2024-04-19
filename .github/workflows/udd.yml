@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: "1.36.1"
+          deno-version: "v1.x"
       - name: Update dependencies
         run: >
           deno run --allow-net --allow-read --allow-write=deps/

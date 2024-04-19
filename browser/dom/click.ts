@@ -53,8 +53,8 @@ export const holdDown = async (
     target: element,
     clientX: options.X,
     clientY: options.Y,
-    pageX: options.X + window.scrollX,
-    pageY: options.Y + window.scrollY,
+    pageX: options.X + globalThis.scrollX,
+    pageY: options.Y + globalThis.scrollY,
   });
   const mouseOptions = {
     button: options.button ?? 0,

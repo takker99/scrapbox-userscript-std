@@ -1,19 +1,18 @@
 import { diffToChanges } from "./diffToChanges.ts";
-import type { Line } from "../../deps/scrapbox.ts";
-import { Block, Node, parse } from "../../deps/scrapbox.ts";
+import { Block, Line, Node, parse } from "../../deps/scrapbox.ts";
+import { Page } from "../../deps/scrapbox-rest.ts";
 import type { Change } from "../../deps/socket.ts";
-import type { HeadData } from "./pull.ts";
 import { toTitleLc } from "../../title.ts";
 import { parseYoutube } from "../../parser/youtube.ts";
 
 export interface Init {
   userId: string;
-  head: HeadData;
+  page: Page;
 }
 export function* makeChanges(
   left: Pick<Line, "text" | "id">[],
   right: string[],
-  { userId, head }: Init,
+  { userId, page }: Init,
 ): Generator<Change, void, unknown> {
   // 改行文字が入るのを防ぐ
   const right_ = right.flatMap((text) => text.split("\n"));
@@ -24,7 +23,7 @@ export function* makeChanges(
 
   // titleの差分を入れる
   // 空ページの場合もタイトル変更commitを入れる
-  if (left[0].text !== right_[0] || !head.persistent) {
+  if (left[0].text !== right_[0] || !page.persistent) {
     yield { title: right_[0] };
   }
 
@@ -38,18 +37,18 @@ export function* makeChanges(
   // リンクと画像の差分を入れる
   const [links, projectLinks, image] = findLinksAndImage(right_.join("\n"));
   if (
-    head.links.length !== links.length ||
-    !head.links.every((link) => links.includes(link))
+    page.links.length !== links.length ||
+    !page.links.every((link) => links.includes(link))
   ) {
     yield { links };
   }
   if (
-    head.projectLinks.length !== projectLinks.length ||
-    !head.projectLinks.every((link) => projectLinks.includes(link))
+    page.projectLinks.length !== projectLinks.length ||
+    !page.projectLinks.every((link) => projectLinks.includes(link))
   ) {
     yield { projectLinks };
   }
-  if (head.image !== image) {
+  if (page.image !== image) {
     yield { image };
   }
 }

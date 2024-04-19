@@ -27,7 +27,7 @@ export const pin = async (
   options?: PinOptions,
 ): Promise<void> => {
   const [
-    head,
+    page,
     projectId,
     userId,
   ] = await Promise.all([
@@ -37,12 +37,12 @@ export const pin = async (
   ]);
 
   // 既にピン留めされている場合は何もしない
-  if (head.pin > 0 || (!head.persistent && !(options?.create ?? false))) return;
+  if (page.pin > 0 || (!page.persistent && !(options?.create ?? false))) return;
 
   const init = {
-    parentId: head.commitId,
+    parentId: page.commitId,
     projectId,
-    pageId: head.pageId,
+    pageId: page.id,
     userId,
     project,
     title,
@@ -53,7 +53,7 @@ export const pin = async (
   const { request } = wrap(socket);
 
   // タイトルのみのページを作る
-  if (!head.persistent) {
+  if (!page.persistent) {
     const commitId = await pushWithRetry(request, [{ title }], init);
     init.parentId = commitId;
   }
@@ -79,7 +79,7 @@ export const unpin = async (
   options: UnPinOptions,
 ): Promise<void> => {
   const [
-    head,
+    page,
     projectId,
     userId,
   ] = await Promise.all([
@@ -89,12 +89,12 @@ export const unpin = async (
   ]);
 
   // 既にピンが外れているか、そもそも存在しないページの場合は何もしない
-  if (head.pin == 0 || !head.persistent) return;
+  if (page.pin == 0 || !page.persistent) return;
 
   const init = {
-    parentId: head.commitId,
+    parentId: page.commitId,
     projectId,
-    pageId: head.pageId,
+    pageId: page.id,
     userId,
     project,
     title,
