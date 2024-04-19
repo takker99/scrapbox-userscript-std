@@ -1,10 +1,10 @@
 import { Line } from "../../deps/scrapbox-rest.ts";
 import {
-  DeleteCommit,
-  InsertCommit,
+  DeleteChange,
+  InsertChange,
   Socket,
   socketIO,
-  UpdateCommit,
+  UpdateChange,
 } from "../../deps/socket.ts";
 import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
@@ -91,9 +91,9 @@ const getCodeBody = (code: string | string[] | SimpleCodeFile): string[] => {
 
 /** insertコミットの行IDとtextのインデントを修正する */
 function* fixCommits(
-  commits: readonly (DeleteCommit | InsertCommit | UpdateCommit)[],
+  commits: readonly (DeleteChange | InsertChange | UpdateChange)[],
   target: TinyCodeBlock,
-): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
+): Generator<DeleteChange | InsertChange | UpdateChange, void, unknown> {
   const { nextLine } = target;
   const indent = " ".repeat(countBodyIndent(target));
   for (const commit of commits) {
@@ -136,7 +136,7 @@ function* fixCommits(
 const makeTitleChangeCommit = (
   code: SimpleCodeFile,
   target: Pick<TinyCodeBlock, "titleLine">,
-): UpdateCommit | null => {
+): UpdateChange | null => {
   const lineId = target.titleLine.id;
   const targetTitle = extractFromCodeTitle(target.titleLine.text);
   if (

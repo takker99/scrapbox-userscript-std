@@ -1,10 +1,10 @@
 import type { Line } from "../../deps/scrapbox-rest.ts";
 import {
-  DeleteCommit,
-  InsertCommit,
+  DeleteChange,
+  InsertChange,
   Socket,
   socketIO,
-  UpdateCommit,
+  UpdateChange,
 } from "../../deps/socket.ts";
 import { getCodeBlocks, TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { pull } from "./pull.ts";
@@ -130,7 +130,7 @@ function* makeCommits(
       UpdateCodeFileOptions["isInsertEmptyLineInTail"]
     >;
   },
-): Generator<DeleteCommit | InsertCommit | UpdateCommit, void, unknown> {
+): Generator<DeleteChange | InsertChange | UpdateChange, void, unknown> {
   function makeIndent(codeBlock: Pick<TinyCodeBlock, "titleLine">): string {
     return " ".repeat(countBodyIndent(codeBlock));
   }

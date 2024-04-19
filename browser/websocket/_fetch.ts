@@ -1,10 +1,15 @@
 import {
   Change,
   CommitNotification,
-  Delete,
-  Pin,
+  DeletePageChange,
+  PageCommitError,
+  PageCommitResponse,
+  PinChange,
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
+  Result,
+  TimeoutError,
+  UnexpectedError,
   wrap,
 } from "../../deps/socket.ts";
 import { pull } from "./pull.ts";
@@ -22,28 +27,37 @@ export type PushCommitInit = {
   userId: string;
 };
 
-export const pushCommit = async (
+export const pushCommit = (
   request: RequestFunc,
-  changes: Change[] | [Delete] | [Pin],
+  changes: Change[] | [DeletePageChange] | [PinChange],
   commitInit: PushCommitInit,
-) => {
-  if (changes.length === 0) return { commitId: commitInit.parentId };
-  const res = await request("socket.io-request", {
-    method: "commit",
-    data: {
-      kind: "page",
-      ...commitInit,
-      changes,
-      cursor: null,
-      freeze: true,
-    },
-  });
-  return res as { commitId: string };
-};
+): Promise<
+  Result<
+    PageCommitResponse,
+    UnexpectedError | TimeoutError | PageCommitError
+  >
+> =>
+  changes.length === 0
+    ? Promise.resolve({ ok: true, value: { commitId: commitInit.parentId } })
+    : request("socket.io-request", {
+      method: "commit",
+      data: {
+        kind: "page",
+        ...commitInit,
+        changes,
+        cursor: null,
+        freeze: true,
+      },
+    }) as Promise<
+      Result<
+        PageCommitResponse,
+        UnexpectedError | TimeoutError | PageCommitError
+      >
+    >;
 
 export const pushWithRetry = async (
   request: RequestFunc,
-  changes: Change[] | [Delete] | [Pin],
+  changes: Change[] | [DeletePageChange] | [PinChange],
   { project, title, retry = 3, parentId, ...commitInit }:
     & PushCommitInit
     & {
@@ -57,8 +71,9 @@ export const pushWithRetry = async (
       parentId,
       ...commitInit,
     });
-    parentId = res.commitId;
-  } catch (_e) {
+    if (!res.ok) throw Error("Faild to push a commit");
+    parentId = res.value.commitId;
+  } catch (_) {
     console.log("Faild to push a commit. Retry after pulling new commits");
     for (let i = 0; i < retry; i++) {
       const { commitId } = await pull(project, title);
@@ -68,10 +83,11 @@ export const pushWithRetry = async (
           parentId,
           ...commitInit,
         });
-        parentId = res.commitId;
+        if (!res.ok) throw Error("Faild to push a commit");
+        parentId = res.value.commitId;
         console.log("Success in retrying");
         break;
-      } catch (_e) {
+      } catch (_) {
         continue;
       }
     }
