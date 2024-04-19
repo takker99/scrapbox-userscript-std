@@ -6,7 +6,7 @@ Request {
   headers: Headers {},
   method: "GET",
   redirect: "follow",
-  url: "https://scrapbox.io/api/projects/takker"
+  url: "https://scrapbox.io/api/projects/takker",
 }
 `;
 
@@ -16,6 +16,6 @@ Request {
   headers: Headers {},
   method: "GET",
   redirect: "follow",
-  url: "https://scrapbox.io/api/projects?ids=dummy-id1&ids=dummy-id2"
+  url: "https://scrapbox.io/api/projects?ids=dummy-id1&ids=dummy-id2",
 }
 `;
