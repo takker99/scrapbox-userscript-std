@@ -1,10 +1,8 @@
-import { Socket, socketIO, wrap } from "../../deps/socket.ts";
-import { connect, disconnect } from "./socket.ts";
-import { getProjectId, getUserId } from "./id.ts";
-import { pull } from "./pull.ts";
-import { pushWithRetry } from "./_fetch.ts";
+import { Change, Socket } from "../../deps/socket.ts";
+import { push, PushOptions, RetryError } from "./push.ts";
+import { Result } from "../../rest/util.ts";
 
-export interface PinOptions {
+export interface PinOptions extends PushOptions {
   /** ピン留め対象のページが存在しないときの振る舞いを変えるoption
    *
    * -`true`: タイトルのみのページを作成してピン留めする
@@ -13,7 +11,6 @@ export interface PinOptions {
    * @default false
    */
   create?: boolean;
-  socket?: Socket;
 }
 /** 指定したページをピン留めする
  *
@@ -21,49 +18,26 @@ export interface PinOptions {
  * @param title ピン留めしたいページのタイトル
  * @param options 使用したいSocketがあれば指定する
  */
-export const pin = async (
+export const pin = (
   project: string,
   title: string,
   options?: PinOptions,
-): Promise<void> => {
-  const [
-    page,
-    projectId,
-    userId,
-  ] = await Promise.all([
-    pull(project, title),
-    getProjectId(project),
-    getUserId(),
-  ]);
-
-  // 既にピン留めされている場合は何もしない
-  if (page.pin > 0 || (!page.persistent && !(options?.create ?? false))) return;
-
-  const init = {
-    parentId: page.commitId,
-    projectId,
-    pageId: page.id,
-    userId,
+): Promise<Result<string, RetryError>> =>
+  push(
     project,
     title,
-  };
-  const injectedSocket = options?.socket;
-  const socket = injectedSocket ?? await socketIO();
-  await connect(socket);
-  const { request } = wrap(socket);
-
-  // タイトルのみのページを作る
-  if (!page.persistent) {
-    const commitId = await pushWithRetry(request, [{ title }], init);
-    init.parentId = commitId;
-  }
-
-  try {
-    await pushWithRetry(request, [{ pin: pinNumber() }], init);
-  } finally {
-    if (!injectedSocket) await disconnect(socket);
-  }
-};
+    (page) => {
+      // 既にピン留めされている場合は何もしない
+      if (
+        page.pin > 0 || (!page.persistent && !(options?.create ?? false))
+      ) return [];
+      // @ts-ignore 多分ページ作成とピン留めを同時に行っても怒られない……はず
+      const changes: Change[] = [{ pin: pinNumber() }] as Change[];
+      if (!page.persistent) changes.unshift({ title });
+      return changes;
+    },
+    options,
+  );
 
 export interface UnPinOptions {
   socket?: Socket;
@@ -73,43 +47,19 @@ export interface UnPinOptions {
  * @param project ピン留めを外したいページのproject
  * @param title ピン留めを外したいページのタイトル
  */
-export const unpin = async (
+export const unpin = (
   project: string,
   title: string,
   options: UnPinOptions,
-): Promise<void> => {
-  const [
-    page,
-    projectId,
-    userId,
-  ] = await Promise.all([
-    pull(project, title),
-    getProjectId(project),
-    getUserId(),
-  ]);
-
-  // 既にピンが外れているか、そもそも存在しないページの場合は何もしない
-  if (page.pin == 0 || !page.persistent) return;
-
-  const init = {
-    parentId: page.commitId,
-    projectId,
-    pageId: page.id,
-    userId,
+): Promise<Result<string, RetryError>> =>
+  push(
     project,
     title,
-  };
-  const injectedSocket = options?.socket;
-  const socket = injectedSocket ?? await socketIO();
-  await connect(socket);
-  const { request } = wrap(socket);
-
-  try {
-    await pushWithRetry(request, [{ pin: 0 }], init);
-  } finally {
-    if (!injectedSocket) await disconnect(socket);
-  }
-};
+    (page) =>
+      // 既にピンが外れているか、そもそも存在しないページの場合は何もしない
+      page.pin == 0 || !page.persistent ? [] : [{ pin: 0 }],
+    options,
+  );
 
 export const pinNumber = (): number =>
   Number.MAX_SAFE_INTEGER - Math.floor(Date.now() / 1000);

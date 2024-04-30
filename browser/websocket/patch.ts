@@ -1,21 +1,18 @@
-import { Socket, socketIO, wrap } from "../../deps/socket.ts";
-import { connect, disconnect } from "./socket.ts";
-import { getProjectId, getUserId } from "./id.ts";
+import { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
 import { makeChanges } from "./makeChanges.ts";
-import { pull } from "./pull.ts";
 import { Line, Page } from "../../deps/scrapbox-rest.ts";
-import { pushCommit, pushWithRetry } from "./_fetch.ts";
+import { push, PushOptions, RetryError } from "./push.ts";
+import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
+import { Result } from "../../rest/util.ts";
 
-export interface PatchOptions {
-  socket?: Socket;
-}
+export type PatchOptions = PushOptions;
 
 export interface PatchMetadata extends Page {
   /** 書き換えを再試行した回数
    *
    * 初回は`0`で、再試行するたびに増える
    */
-  retry: number;
+  attempts: number;
 }
 
 /** ページ全体を書き換える
@@ -27,7 +24,7 @@ export interface PatchMetadata extends Page {
  * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される。undefinedを返すと書き換えを中断する
  * @param options 使用したいSocketがあれば指定する
  */
-export const patch = async (
+export const patch = (
   project: string,
   title: string,
   update: (
@@ -35,69 +32,23 @@ export const patch = async (
     metadata: PatchMetadata,
   ) => string[] | undefined | Promise<string[] | undefined>,
   options?: PatchOptions,
-): Promise<void> => {
-  const [
-    page_,
-    projectId,
-    userId,
-  ] = await Promise.all([
-    pull(project, title),
-    getProjectId(project),
-    getUserId(),
-  ]);
-
-  let page = page_;
-
-  const injectedSocket = options?.socket;
-  const socket = injectedSocket ?? await socketIO();
-  await connect(socket);
-  try {
-    const { request } = wrap(socket);
-
-    // 3回retryする
-    for (let retry = 0; retry < 3; retry++) {
-      try {
-        const pending = update(page.lines, { ...page, retry });
-        const newLines = pending instanceof Promise ? await pending : pending;
-
-        if (!newLines) return;
-
-        if (newLines.length === 0) {
-          await pushWithRetry(request, [{ deleted: true }], {
-            projectId,
-            pageId: page.id,
-            parentId: page.commitId,
-            userId,
-            project,
-            title,
-          });
-        }
-
-        const changes = [
-          ...makeChanges(page.lines, newLines, { userId, page }),
-        ];
-        await pushCommit(request, changes, {
-          parentId: page.commitId,
-          projectId,
-          pageId: page.id,
-          userId,
-        });
-        break;
-      } catch (_e: unknown) {
-        if (retry === 2) {
-          throw Error("Faild to retry pushing.");
-        }
-        console.log(
-          "Faild to push a commit. Retry after pulling new commits",
-        );
-        try {
-          page = await pull(project, title);
-        } catch (e: unknown) {
-          throw e;
-        }
+): Promise<Result<string, RetryError>> =>
+  push(
+    project,
+    title,
+    async (page, attempts, prev, reason) => {
+      if (reason === "DuplicateTitleError") {
+        const fallbackTitle = suggestUnDupTitle(title);
+        return prev.map((change) => {
+          if ("title" in change) change.title = fallbackTitle;
+          return change;
+        }) as Change[] | [DeletePageChange] | [PinChange];
       }
-    }
-  } finally {
-    if (!injectedSocket) await disconnect(socket);
-  }
-};
+      const pending = update(page.lines, { ...page, attempts });
+      const newLines = pending instanceof Promise ? await pending : pending;
+      if (newLines === undefined) return [];
+      if (newLines.length === 0) return [{ deleted: true }];
+      return [...makeChanges(page.lines, newLines, page)];
+    },
+    options,
+  );

@@ -1,27 +1,14 @@
 import { Line } from "../../deps/scrapbox-rest.ts";
-import {
-  DeleteChange,
-  InsertChange,
-  Socket,
-  socketIO,
-  UpdateChange,
-} from "../../deps/socket.ts";
+import { DeleteChange, InsertChange, UpdateChange } from "../../deps/socket.ts";
 import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
-import { getUserId } from "./id.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
-import { pull } from "./pull.ts";
 import { SimpleCodeFile } from "./updateCodeFile.ts";
-import {
-  applyCommit,
-  countBodyIndent,
-  extractFromCodeTitle,
-} from "./_codeBlock.ts";
+import { countBodyIndent, extractFromCodeTitle } from "./_codeBlock.ts";
+import { push, PushOptions, RetryError } from "./push.ts";
+import { Result } from "../../rest/util.ts";
 
-export interface UpdateCodeBlockOptions {
-  /** WebSocketの通信に使うsocket */
-  socket?: Socket;
-
+export interface UpdateCodeBlockOptions extends PushOptions {
   /** `true`でデバッグ出力ON */
   debug?: boolean;
 }
@@ -35,51 +22,45 @@ export interface UpdateCodeBlockOptions {
  * @param target 更新対象のコードブロック
  * @param project 更新対象のコードブロックが存在するプロジェクト名
  */
-export const updateCodeBlock = async (
+export const updateCodeBlock = (
   newCode: string | string[] | SimpleCodeFile,
   target: TinyCodeBlock,
   options?: UpdateCodeBlockOptions,
-) => {
-  /** optionsの既定値はこの中に入れる */
-  const defaultOptions: Required<UpdateCodeBlockOptions> = {
-    socket: options?.socket ?? await socketIO(),
-    debug: false,
-  };
-  const opt = options ? { ...defaultOptions, ...options } : defaultOptions;
-  const { projectName, pageTitle } = target.pageInfo;
-  const [
-    head,
-    userId,
-  ] = await Promise.all([
-    pull(projectName, pageTitle),
-    getUserId(),
-  ]);
+): Promise<Result<string, RetryError>> => {
   const newCodeBody = getCodeBody(newCode);
   const bodyIndent = countBodyIndent(target);
   const oldCodeWithoutIndent: Line[] = target.bodyLines.map((e) => {
     return { ...e, text: e.text.slice(bodyIndent) };
   });
 
-  const diffGenerator = diffToChanges(oldCodeWithoutIndent, newCodeBody, {
-    userId,
-  });
-  const commits = [...fixCommits([...diffGenerator], target)];
-  if (isSimpleCodeFile(newCode)) {
-    const titleCommit = makeTitleChangeCommit(newCode, target);
-    if (titleCommit) commits.push(titleCommit);
-  }
+  return push(
+    target.pageInfo.projectName,
+    target.pageInfo.pageTitle,
+    (page) => {
+      const diffGenerator = diffToChanges(
+        oldCodeWithoutIndent,
+        newCodeBody,
+        page,
+      );
+      const commits = [...fixCommits([...diffGenerator], target)];
+      if (isSimpleCodeFile(newCode)) {
+        const titleCommit = makeTitleChangeCommit(newCode, target);
+        if (titleCommit) commits.push(titleCommit);
+      }
 
-  if (opt.debug) {
-    console.log("%cvvv original code block vvv", "color: limegreen;");
-    console.log(target);
-    console.log("%cvvv new codes vvv", "color: limegreen;");
-    console.log(newCode);
-    console.log("%cvvv commits vvv", "color: limegreen;");
-    console.log(commits);
-  }
+      if (options?.debug) {
+        console.log("%cvvv original code block vvv", "color: limegreen;");
+        console.log(target);
+        console.log("%cvvv new codes vvv", "color: limegreen;");
+        console.log(newCode);
+        console.log("%cvvv commits vvv", "color: limegreen;");
+        console.log(commits);
+      }
 
-  await applyCommit(commits, head, projectName, pageTitle, opt.socket, userId);
-  if (!options?.socket) opt.socket.disconnect();
+      return commits;
+    },
+    options,
+  );
 };
 
 /** コード本文のテキストを取得する */

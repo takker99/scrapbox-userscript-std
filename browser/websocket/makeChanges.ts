@@ -5,14 +5,13 @@ import type { Change } from "../../deps/socket.ts";
 import { toTitleLc } from "../../title.ts";
 import { parseYoutube } from "../../parser/youtube.ts";
 
-export interface Init {
+export interface Init extends Page {
   userId: string;
-  page: Page;
 }
 export function* makeChanges(
   left: Pick<Line, "text" | "id">[],
   right: string[],
-  { userId, page }: Init,
+  { userId, ...page }: Init,
 ): Generator<Change, void, unknown> {
   // 改行文字が入るのを防ぐ
   const right_ = right.flatMap((text) => text.split("\n"));

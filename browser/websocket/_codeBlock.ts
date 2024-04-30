@@ -1,8 +1,4 @@
-import { Change, Socket, wrap } from "../../deps/socket.ts";
-import { Page } from "../../deps/scrapbox-rest.ts";
 import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
-import { getProjectId, getUserId } from "./id.ts";
-import { pushWithRetry } from "./_fetch.ts";
 
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
 export interface CodeTitle {
@@ -10,31 +6,6 @@ export interface CodeTitle {
   lang: string;
   indent: number;
 }
-
-/** コミットを送信する一連の処理 */
-export const applyCommit = async (
-  commits: Change[],
-  page: Page,
-  projectName: string,
-  pageTitle: string,
-  socket: Socket,
-  userId?: string,
-): ReturnType<typeof pushWithRetry> => {
-  const [projectId, userId_] = await Promise.all([
-    getProjectId(projectName),
-    userId ?? getUserId(),
-  ]);
-  const { request } = wrap(socket);
-  return await pushWithRetry(request, commits, {
-    parentId: page.commitId,
-    projectId: projectId,
-    pageId: page.id,
-    userId: userId_,
-    project: projectName,
-    title: pageTitle,
-    retry: 3,
-  });
-};
 
 /** コードブロックのタイトル行から各種プロパティを抽出する
  *
