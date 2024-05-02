@@ -1,168 +1,51 @@
 import { diffToChanges } from "./diffToChanges.ts";
-import { Block, Line, Node, parse } from "../../deps/scrapbox.ts";
 import { Page } from "../../deps/scrapbox-rest.ts";
 import type { Change } from "../../deps/socket.ts";
-import { toTitleLc } from "../../title.ts";
-import { parseYoutube } from "../../parser/youtube.ts";
+import { findMetadata, getHelpfeels } from "./findMetadata.ts";
+import { isSameArray } from "./isSameArray.ts";
 
-export interface Init extends Page {
-  userId: string;
-}
 export function* makeChanges(
-  left: Pick<Line, "text" | "id">[],
-  right: string[],
-  { userId, ...page }: Init,
+  before: Page,
+  after: string[],
+  userId: string,
 ): Generator<Change, void, unknown> {
   // 改行文字が入るのを防ぐ
-  const right_ = right.flatMap((text) => text.split("\n"));
+  const after_ = after.flatMap((text) => text.split("\n"));
   // 本文の差分を先に返す
-  for (const change of diffToChanges(left, right_, { userId })) {
+  for (const change of diffToChanges(before.lines, after_, { userId })) {
     yield change;
   }
 
   // titleの差分を入れる
   // 空ページの場合もタイトル変更commitを入れる
-  if (left[0].text !== right_[0] || !page.persistent) {
-    yield { title: right_[0] };
+  if (before.lines[0].text !== after_[0] || !before.persistent) {
+    yield { title: after_[0] };
   }
 
   // descriptionsの差分を入れる
-  const leftDescriptions = left.slice(1, 6).map((line) => line.text);
-  const rightDescriptions = right_.slice(1, 6);
+  const leftDescriptions = before.lines.slice(1, 6).map((line) => line.text);
+  const rightDescriptions = after_.slice(1, 6);
   if (leftDescriptions.join("") !== rightDescriptions.join("")) {
     yield { descriptions: rightDescriptions };
   }
 
-  // リンクと画像の差分を入れる
-  const [links, projectLinks, image] = findLinksAndImage(right_.join("\n"));
-  if (
-    page.links.length !== links.length ||
-    !page.links.every((link) => links.includes(link))
-  ) {
-    yield { links };
-  }
-  if (
-    page.projectLinks.length !== projectLinks.length ||
-    !page.projectLinks.every((link) => projectLinks.includes(link))
-  ) {
-    yield { projectLinks };
-  }
-  if (page.image !== image) {
-    yield { image };
-  }
-}
-
-/** テキストに含まれる全てのリンクと最初の画像を探す */
-const findLinksAndImage = (
-  text: string,
-): [string[], string[], string | null] => {
-  const blocks = parse(text, { hasTitle: true }).flatMap((block) => {
-    switch (block.type) {
-      case "codeBlock":
-      case "title":
-        return [];
-      case "line":
-      case "table":
-        return block;
-    }
-  });
-
-  /** 重複判定用map
-   *
-   * bracket link とhashtagを区別できるようにしている
-   * - bracket linkならtrue
-   *
-   * linkの形状はbracket linkを優先している
-   */
-  const linksLc = new Map<string, boolean>();
-  const links = [] as string[];
-  const projectLinksLc = new Set<string>();
-  const projectLinks = [] as string[];
-  let image: string | null = null;
-
-  const lookup = (node: Node) => {
-    switch (node.type) {
-      case "hashTag":
-        if (linksLc.has(toTitleLc(node.href))) return;
-        linksLc.set(toTitleLc(node.href), false);
-        links.push(node.href);
-        return;
-      case "link":
-        switch (node.pathType) {
-          case "relative": {
-            const link = cutId(node.href);
-            if (linksLc.get(toTitleLc(link))) return;
-            linksLc.set(toTitleLc(link), true);
-            links.push(link);
-            return;
-          }
-          case "root": {
-            const link = cutId(node.href);
-            // ignore `/project` or `/project/`
-            if (/^\/[\w\d-]+\/?$/.test(link)) return;
-            if (projectLinksLc.has(toTitleLc(link))) return;
-            projectLinksLc.add(toTitleLc(link));
-            projectLinks.push(link);
-            return;
-          }
-          case "absolute": {
-            const props = parseYoutube(node.href);
-            if (!props || props.pathType === "list") return;
-            image ??= `https://i.ytimg.com/vi/${props.videoId}/mqdefault.jpg`;
-            return;
-          }
-          default:
-            return;
-        }
-      case "image":
-      case "strongImage": {
-        image ??= node.src.endsWith("/thumb/1000")
-          ? node.src.replace(/\/thumb\/1000$/, "/raw")
-          : node.src;
-        return;
-      }
-      case "strong":
-      case "quote":
-      case "decoration": {
-        for (const n of node.nodes) {
-          lookup(n);
-        }
-        return;
-      }
-      default:
-        return;
-    }
-  };
-  for (const node of blocksToNodes(blocks)) {
-    lookup(node);
-  }
-
-  return [links, projectLinks, image];
-};
-
-function* blocksToNodes(blocks: Iterable<Block>) {
-  for (const block of blocks) {
-    switch (block.type) {
-      case "codeBlock":
-      case "title":
-        continue;
-      case "line":
-        for (const node of block.nodes) {
-          yield node;
-        }
-        continue;
-      case "table": {
-        for (const row of block.cells) {
-          for (const nodes of row) {
-            for (const node of nodes) {
-              yield node;
-            }
-          }
-        }
-        continue;
-      }
-    }
+  // 各種メタデータの差分を入れる
+  const [
+    links,
+    projectLinks,
+    icons,
+    image,
+    files,
+    helpfeels,
+    infoboxDefinition,
+  ] = findMetadata(after_.join("\n"));
+  if (!isSameArray(before.links, links)) yield { links };
+  if (!isSameArray(before.projectLinks, projectLinks)) yield { projectLinks };
+  if (!isSameArray(before.icons, icons)) yield { icons };
+  if (before.image !== image) yield { image };
+  if (!isSameArray(before.files, files)) yield { files };
+  if (!isSameArray(getHelpfeels(before.lines), helpfeels)) yield { helpfeels };
+  if (!isSameArray(before.infoboxDefinition, infoboxDefinition)) {
+    yield { infoboxDefinition };
   }
 }
-
-const cutId = (link: string): string => link.replace(/#[a-f\d]{24,32}$/, "");

@@ -1,0 +1,33 @@
+export const snapshot = {};
+
+snapshot[`findMetadata() 1`] = `
+[
+  [
+    "ふつうの",
+    "リンク2",
+    "hashtag",
+  ],
+  [
+    "/help-jp/外部リンク",
+  ],
+  [
+    "scrapbox",
+    "takker",
+  ],
+  "https://scrapbox.io/files/65f29c24974fd8002333b160.svg",
+  [
+    "65f29c24974fd8002333b160",
+    "65e7f82e03949c0024a367d0",
+    "65e7f4413bc95600258481fb",
+  ],
+  [
+    "助けてhelpfeel!!",
+  ],
+  [
+    "名前	[scrapbox.icon]",
+    "住所	[リンク2]を入れること",
+    "電話番号	#をつけてもリンクにならないよ",
+    "自分の強み	3個くらい列挙",
+  ],
+]
+`;

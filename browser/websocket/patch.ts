@@ -48,7 +48,7 @@ export const patch = (
       const newLines = pending instanceof Promise ? await pending : pending;
       if (newLines === undefined) return [];
       if (newLines.length === 0) return [{ deleted: true }];
-      return [...makeChanges(page.lines, newLines, page)];
+      return [...makeChanges(page, newLines, page.userId)];
     },
     options,
   );
