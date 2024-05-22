@@ -16,3 +16,4 @@ export * from "./error.ts";
 export * from "./getCodeBlocks.ts";
 export * from "./getCodeBlock.ts";
 export * from "./uploadToGCS.ts";
+export * from "./getCachedAt.ts";
