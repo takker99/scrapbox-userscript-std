@@ -14,3 +14,4 @@ export * from "./stores.ts";
 export * from "./takeInternalLines.ts";
 export * from "./pushPageTransition.ts";
 export * from "./extractCodeFiles.ts";
+export * from "./textInputEventListener.ts";
