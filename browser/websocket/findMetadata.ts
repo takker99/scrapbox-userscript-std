@@ -78,6 +78,7 @@ export const findMetadata = (
             return;
           }
           case "absolute": {
+            if (node.content) return;
             const props = parseYoutube(node.href);
             if (props && props.pathType !== "list") {
               image ??= `https://i.ytimg.com/vi/${props.videoId}/mqdefault.jpg`;
