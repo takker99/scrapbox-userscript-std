@@ -1,7 +1,3 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
 /** scrapbox.ioが管理しているcache storageから、最新のresponseを取得する
  *
  * ほぼ https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173 のパクリ
@@ -23,6 +19,29 @@ export const findLatestCache = async (
   }
 };
 
+/** scrapbox.ioが管理しているREST API系のcache storageにresponseを保存する
+ *
+ * @param request このrequestに対応するresponseを保存する
+ * @param response 保存するresponse
+ */
+export const saveApiCache = async (
+  request: Request,
+  response: Response,
+): Promise<void> => {
+  const res = response.clone();
+  res.headers.set(
+    "X-Serviceworker-Cached",
+    `${new Date(res.headers.get("date") ?? new Date()).getTime()}`,
+  );
+  const cache = await caches.open(generateCacheName(new Date()));
+  return await cache.put(request, res);
+};
+
+export const generateCacheName = (date: Date): string =>
+  `api-${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, "0")}-${
+    `${date.getDate()}`.padStart(2, "0")
+  }`;
+
 /** prefetchを実行する
  *
  * prefetchしたデータは`"prefetch"`と`"api-yyyy-MM-dd"`に格納される
@@ -33,14 +52,11 @@ export const findLatestCache = async (
  *
  * @param urls prefetchしたいAPIのURLのリスト
  */
-export const prefetch = async (
-  urls: (string | URL)[],
-): Promise<void> => {
-  await postMessage({
+export const prefetch = (urls: (string | URL)[]): Promise<void> =>
+  postMessage({
     title: "prefetch",
     body: { urls: urls.map((url) => url.toString()) },
   });
-};
 
 /** 指定したAPIのcacheの更新を依頼する
  *
@@ -48,11 +64,8 @@ export const prefetch = async (
  *
  * @param cacheしたいAPIのURL
  */
-export const fetchApiCache = async (
-  url: string,
-): Promise<void> => {
-  await postMessage({ title: "fetchApiCache", body: { url } });
-};
+export const fetchApiCache = (url: string): Promise<void> =>
+  postMessage({ title: "fetchApiCache", body: { url } });
 
 const postMessage = <T, U = unknown>(
   data: { title: string; body: T },
