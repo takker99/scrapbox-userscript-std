@@ -17,7 +17,7 @@ jobs:
         run: >
           deno run --allow-net --allow-read --allow-write=deps/
           --allow-run=deno https://deno.land/x/udd@0.7.2/main.ts deps/*.ts
-          --test="deno test --allow-read --allow-write"
+          --test="deno test --allow-read"
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
