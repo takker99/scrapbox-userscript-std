@@ -29,10 +29,6 @@ export const saveApiCache = async (
   response: Response,
 ): Promise<void> => {
   const res = response.clone();
-  res.headers.set(
-    "X-Serviceworker-Cached",
-    `${new Date(res.headers.get("date") ?? new Date()).getTime()}`,
-  );
   const cache = await caches.open(generateCacheName(new Date()));
   return await cache.put(request, res);
 };
