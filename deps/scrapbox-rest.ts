@@ -16,7 +16,8 @@ export type {
   NotPrivilegeError,
   Page,
   PageList,
-  PageSnapshot,
+  PageSnapshotList,
+  PageSnapshotResult,
   ProjectId,
   ProjectResponse,
   ProjectSearchResult,
@@ -25,4 +26,4 @@ export type {
   SessionError,
   Snapshot,
   TweetInfo,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.7.1/rest.ts";
+} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.8.0/rest.ts";
