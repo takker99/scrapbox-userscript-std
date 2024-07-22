@@ -65,28 +65,23 @@ export const push = async (
     | [PinChange],
   options?: PushOptions,
 ): Promise<Result<string, RetryError>> => {
-  const [
-    page_,
-    projectId,
-    userId,
-  ] = await Promise.all([
-    pull(project, title),
-    getProjectId(project),
-    getUserId(),
-  ]);
-
-  let page: PushMetadata = { ...page_, projectId, userId };
-
   const injectedSocket = options?.socket;
   const socket = injectedSocket ?? await socketIO();
   await connect(socket);
 
   try {
+    let page: PushMetadata = await Promise.all([
+      pull(project, title),
+      getProjectId(project),
+      getUserId(),
+    ]).then(([page_, projectId, userId]) => ({ ...page_, projectId, userId }));
+
     const { request } = wrap(socket);
-    // loop for create Diff
     let attempts = 0;
     let changes: Change[] | [DeletePageChange] | [PinChange] = [];
     let reason: "NotFastForwardError" | "DuplicateTitleError" | undefined;
+
+    // loop for create Diff
     while (
       options?.maxAttempts === undefined || attempts < options.maxAttempts
     ) {
@@ -99,10 +94,10 @@ export const push = async (
 
       const data: PageCommit = {
         kind: "page",
-        projectId,
+        projectId: page.projectId,
         pageId: page.id,
         parentId: page.commitId,
-        userId,
+        userId: page.userId,
         changes,
         cursor: null,
         freeze: true,
@@ -132,14 +127,20 @@ export const push = async (
         }
         if (name === "TimeoutError" || name === "SocketIOError") {
           await sleep(3000);
-          // go back to the diff loop
-          break;
+          // go back to the push loop
+          continue;
         }
         if (name === "NotFastForwardError") {
-          page = { ...await pull(project, title), projectId, userId };
+          await sleep(1000);
+          page = {
+            ...await pull(project, title),
+            projectId: page.projectId,
+            userId: page.userId,
+          };
         }
         reason = name;
-        // go back to the push loop
+        // go back to the diff loop
+        break;
       }
     }
     return {
