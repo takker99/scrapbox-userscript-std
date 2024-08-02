@@ -16,8 +16,14 @@ import type {
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type ExtendedOptions, setDefaults } from "./util.ts";
+import { type ExtendedOptions, setDefaults } from "./options.ts";
+import type { FetchError } from "./mod.ts";
+
+export type TweetInfoError =
+  | SessionError
+  | InvalidURLError
+  | BadRequestError
+  | HTTPError;
 
 /** 指定したTweetの情報を取得する
  *
@@ -28,17 +34,7 @@ import { type ExtendedOptions, setDefaults } from "./util.ts";
 export const getTweetInfo = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<
-  Result<
-    TweetInfo,
-    | SessionError
-    | InvalidURLError
-    | BadRequestError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<TweetInfo, TweetInfoError | FetchError>> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
 
   const csrfResult = await orElseAsyncForResult(

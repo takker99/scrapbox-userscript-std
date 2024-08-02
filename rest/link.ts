@@ -15,8 +15,8 @@ import type {
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
+import type { FetchError } from "./mod.ts";
 
 /** 不正なfollowingIdを渡されたときに発生するエラー */
 export interface InvalidFollowingIdError extends ErrorLike {
@@ -33,6 +33,12 @@ export interface GetLinksResult {
   followingId: string;
 }
 
+export type LinksError =
+  | NotFoundError
+  | NotLoggedInError
+  | InvalidFollowingIdError
+  | HTTPError;
+
 /** 指定したprojectのリンクデータを取得する
  *
  * @param project データを取得したいproject
@@ -40,17 +46,7 @@ export interface GetLinksResult {
 export const getLinks = async (
   project: string,
   options?: GetLinksOptions,
-): Promise<
-  Result<
-    GetLinksResult,
-    | NotFoundError
-    | NotLoggedInError
-    | InvalidFollowingIdError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<GetLinksResult, LinksError | FetchError>> => {
   const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
 
   const req = new Request(
@@ -96,15 +92,7 @@ export async function* readLinksBulk(
   project: string,
   options?: BaseOptions,
 ): AsyncGenerator<
-  Result<
-    SearchedTitle[],
-    | NotFoundError
-    | NotLoggedInError
-    | InvalidFollowingIdError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >,
+  Result<SearchedTitle[], LinksError | FetchError>,
   void,
   unknown
 > {
@@ -131,15 +119,7 @@ export async function* readLinks(
   project: string,
   options?: BaseOptions,
 ): AsyncGenerator<
-  Result<
-    SearchedTitle,
-    | NotFoundError
-    | NotLoggedInError
-    | InvalidFollowingIdError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >,
+  Result<SearchedTitle, LinksError | FetchError>,
   void,
   unknown
 > {

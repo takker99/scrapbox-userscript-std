@@ -21,7 +21,7 @@ import { getProfile } from "../../rest/profile.ts";
 import { getProject } from "../../rest/project.ts";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
-import type { BaseOptions } from "../../rest/util.ts";
+import type { BaseOptions } from "../../rest/options.ts";
 
 export interface PushMetadata extends Page {
   projectId: string;

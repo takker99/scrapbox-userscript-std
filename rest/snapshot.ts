@@ -7,7 +7,7 @@ import type {
   PageSnapshotResult,
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import {
   isErr,
@@ -16,13 +16,20 @@ import {
   type Result,
   unwrapOk,
 } from "option-t/plain_result";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { FetchError } from "./mod.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
   name: "InvalidPageSnapshotIdError";
 }
+
+export type SnapshotError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | InvalidPageSnapshotIdError
+  | HTTPError;
 
 /** get a page snapshot
  *
@@ -33,18 +40,7 @@ export const getSnapshot = async (
   pageId: string,
   timestampId: string,
   options?: BaseOptions,
-): Promise<
-  Result<
-    PageSnapshotResult,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | InvalidPageSnapshotIdError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<PageSnapshotResult, SnapshotError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
   const req = new Request(
@@ -74,6 +70,12 @@ export const getSnapshot = async (
   );
 };
 
+export type SnapshotTimestampIdsError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | HTTPError;
+
 /**
  * Retrieves the timestamp IDs for a specific page in a project.
  *
@@ -88,15 +90,7 @@ export const getTimestampIds = async (
   pageId: string,
   options?: BaseOptions,
 ): Promise<
-  Result<
-    PageSnapshotList,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
+  Result<PageSnapshotList, SnapshotTimestampIdsError | FetchError>
 > => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 

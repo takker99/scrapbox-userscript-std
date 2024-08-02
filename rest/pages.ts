@@ -9,7 +9,7 @@ import type {
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 import {
   andThenAsyncForResult,
   mapAsyncForResult,
@@ -18,7 +18,7 @@ import {
 } from "option-t/plain_result";
 import { unwrapOrForMaybe } from "option-t/maybe";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
+import type { FetchError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */
 export interface GetPageOption extends BaseOptions {
@@ -69,9 +69,7 @@ const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
         };
       }
 
-      return unwrapOrForMaybe<
-        NotFoundError | NotLoggedInError | NotMemberError | HTTPError
-      >(
+      return unwrapOrForMaybe<PageError>(
         await parseHTTPError(error, [
           "NotFoundError",
           "NotLoggedInError",
@@ -101,30 +99,21 @@ export interface GetPage {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<
-    Result<
-      Page,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | TooLongURIError
-      | HTTPError
-    >
-  >;
+  fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
 
-  (project: string, title: string, options?: GetPageOption): Promise<
-    Result<
-      Page,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | TooLongURIError
-      | HTTPError
-      | NetworkError
-      | AbortError
-    >
-  >;
+  (
+    project: string,
+    title: string,
+    options?: GetPageOption,
+  ): Promise<Result<Page, PageError | FetchError>>;
 }
+
+export type PageError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | TooLongURIError
+  | HTTPError;
 
 /** 指定したページのJSONデータを取得する
  *
@@ -137,17 +126,7 @@ export const getPage: GetPage = async (
   title,
   options,
 ) =>
-  andThenAsyncForResult<
-    Response,
-    Page,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | TooLongURIError
-    | HTTPError
-    | NetworkError
-    | AbortError
-  >(
+  andThenAsyncForResult<Response, Page, PageError | FetchError>(
     await setDefaults(options ?? {}).fetch(
       getPage_toRequest(project, title, options),
     ),
@@ -201,25 +180,19 @@ export interface ListPages {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<
-    Result<
-      PageList,
-      NotFoundError | NotLoggedInError | NotMemberError | HTTPError
-    >
-  >;
+  fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
 
-  (project: string, options?: ListPagesOption): Promise<
-    Result<
-      PageList,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
-  >;
+  (
+    project: string,
+    options?: ListPagesOption,
+  ): Promise<Result<PageList, ListPagesError | FetchError>>;
 }
+
+export type ListPagesError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | HTTPError;
 
 const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
   const { sid, hostName, sort, limit, skip } = setDefaults(
@@ -243,9 +216,7 @@ const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
       (res) => res.json() as Promise<PageList>,
     ),
     async (error) =>
-      unwrapOrForMaybe<
-        NotFoundError | NotLoggedInError | NotMemberError | HTTPError
-      >(
+      unwrapOrForMaybe<ListPagesError>(
         await parseHTTPError(error, [
           "NotFoundError",
           "NotLoggedInError",
@@ -264,16 +235,7 @@ export const listPages: ListPages = async (
   project,
   options?,
 ) =>
-  andThenAsyncForResult<
-    Response,
-    PageList,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >(
+  andThenAsyncForResult<Response, PageList, ListPagesError | FetchError>(
     await setDefaults(options ?? {})?.fetch(
       listPages_toRequest(project, options),
     ),

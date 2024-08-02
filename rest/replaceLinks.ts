@@ -15,8 +15,14 @@ import type {
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type ExtendedOptions, setDefaults } from "./util.ts";
+import type { FetchError } from "./robustFetch.ts";
+import { type ExtendedOptions, setDefaults } from "./options.ts";
+
+export type ReplaceLinksError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | HTTPError;
 
 /** 指定したproject内の全てのリンクを書き換える
  *
@@ -34,17 +40,7 @@ export const replaceLinks = async (
   from: string,
   to: string,
   init?: ExtendedOptions,
-): Promise<
-  Result<
-    number,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<number, ReplaceLinksError | FetchError>> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
 
   const csrfResult = await orElseAsyncForResult(

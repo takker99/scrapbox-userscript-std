@@ -17,8 +17,8 @@ import type {
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import type { FetchError } from "./robustFetch.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProject {
   /** /api/project/:project の要求を組み立てる
@@ -37,30 +37,23 @@ export interface GetProject {
    * @param res 応答
    * @return projectのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<
-    Result<
-      MemberProject | NotMemberProject,
-      | NotFoundError
-      | NotMemberError
-      | NotLoggedInError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
-  >;
+  fromResponse: (
+    res: Response,
+  ) => Promise<Result<MemberProject | NotMemberProject, ProjectError>>;
 
-  (project: string, options?: BaseOptions): Promise<
-    Result<
-      MemberProject | NotMemberProject,
-      | NotFoundError
-      | NotMemberError
-      | NotLoggedInError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
+  (
+    project: string,
+    options?: BaseOptions,
+  ): Promise<
+    Result<MemberProject | NotMemberProject, ProjectError | FetchError>
   >;
 }
+
+export type ProjectError =
+  | NotFoundError
+  | NotMemberError
+  | NotLoggedInError
+  | HTTPError;
 
 const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
   const { sid, hostName } = setDefaults(init ?? {});
@@ -125,23 +118,15 @@ export interface ListProjects {
    */
   fromResponse: (
     res: Response,
-  ) => Promise<
-    Result<
-      ProjectResponse,
-      NotLoggedInError | NetworkError | AbortError | HTTPError
-    >
-  >;
+  ) => Promise<Result<ProjectResponse, ListProjectsError>>;
 
   (
     projectIds: ProjectId[],
     init?: BaseOptions,
-  ): Promise<
-    Result<
-      ProjectResponse,
-      NotLoggedInError | NetworkError | AbortError | HTTPError
-    >
-  >;
+  ): Promise<Result<ProjectResponse, ListProjectsError | FetchError>>;
 }
+
+export type ListProjectsError = NotLoggedInError | HTTPError;
 
 const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
   const { sid, hostName } = setDefaults(init ?? {});

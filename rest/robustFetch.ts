@@ -12,10 +12,12 @@ export interface AbortError {
   request: Request;
 }
 
+export type FetchError = NetworkError | AbortError;
+
 export type RobustFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
-) => Promise<Result<Response, NetworkError | AbortError>>;
+) => Promise<Result<Response, FetchError>>;
 
 /**
  * Performs a network request using the Fetch API.

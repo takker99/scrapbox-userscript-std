@@ -9,8 +9,8 @@ import type { NotLoggedInError } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
+import type { FetchError } from "./mod.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
   /** Gyazo Teamsのチーム名
@@ -20,6 +20,8 @@ export interface GetGyazoTokenOptions extends BaseOptions {
   gyazoTeamsName?: string;
 }
 
+export type GyazoTokenError = NotLoggedInError | HTTPError;
+
 /** Gyazo OAuth uploadで使うaccess tokenを取得する
  *
  * @param init connect.sidなど
@@ -27,12 +29,7 @@ export interface GetGyazoTokenOptions extends BaseOptions {
  */
 export const getGyazoToken = async (
   init?: GetGyazoTokenOptions,
-): Promise<
-  Result<
-    string | undefined,
-    NotLoggedInError | NetworkError | AbortError | HTTPError
-  >
-> => {
+): Promise<Result<string | undefined, GyazoTokenError | FetchError>> => {
   const { fetch, sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
   const req = new Request(
     `https://${hostName}/api/login/gyazo/oauth-upload/token${

@@ -15,8 +15,14 @@ import type {
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type ExtendedOptions, setDefaults } from "./util.ts";
+import { type ExtendedOptions, setDefaults } from "./options.ts";
+import type { FetchError } from "./mod.ts";
+
+export type WebPageTitleError =
+  | SessionError
+  | InvalidURLError
+  | BadRequestError
+  | HTTPError;
 
 /** 指定したURLのweb pageのtitleをscrapboxのserver経由で取得する
  *
@@ -27,17 +33,7 @@ import { type ExtendedOptions, setDefaults } from "./util.ts";
 export const getWebPageTitle = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<
-  Result<
-    string,
-    | SessionError
-    | InvalidURLError
-    | BadRequestError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<string, WebPageTitleError | FetchError>> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
 
   const csrfResult = await orElseAsyncForResult(

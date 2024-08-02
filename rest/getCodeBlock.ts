@@ -5,7 +5,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 import {
   isErr,
   mapAsyncForResult,
@@ -15,7 +15,7 @@ import {
 } from "option-t/plain_result";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
+import type { FetchError } from "./mod.ts";
 
 const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
   project,
@@ -70,30 +70,20 @@ export interface GetCodeBlock {
    * @param res 応答
    * @return コード
    */
-  fromResponse: (res: Response) => Promise<
-    Result<
-      string,
-      NotFoundError | NotLoggedInError | NotMemberError | HTTPError
-    >
-  >;
+  fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<
-    Result<
-      string,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
-  >;
+  ): Promise<Result<string, CodeBlockError | FetchError>>;
 }
+export type CodeBlockError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | HTTPError;
 
 /** 指定したコードブロック中のテキストを取得する
  *

@@ -1,5 +1,9 @@
 import { cookie, getCSRFToken } from "./auth.ts";
-import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
+import {
+  type BaseOptions,
+  type ExtendedOptions,
+  setDefaults,
+} from "./options.ts";
 import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
 import { Md5 } from "@std/hash";
 import {
@@ -13,7 +17,7 @@ import {
   unwrapOk,
 } from "option-t/plain_result";
 import { toResultOkFromMaybe } from "option-t/maybe";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
+import type { FetchError } from "./robustFetch.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
 /** uploadしたファイルのメタデータ */
@@ -25,6 +29,12 @@ export interface GCSFile {
   originalName: string;
 }
 
+export type UploadGCSError =
+  | GCSError
+  | NotFoundError
+  | FileCapacityError
+  | HTTPError;
+
 /** 任意のファイルをscrapbox.ioにuploadする
  *
  * @param file uploadしたいファイル
@@ -35,17 +45,7 @@ export const uploadToGCS = async (
   file: File,
   projectId: string,
   options?: ExtendedOptions,
-): Promise<
-  Result<
-    GCSFile,
-    | GCSError
-    | NotFoundError
-    | FileCapacityError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<GCSFile, UploadGCSError | FetchError>> => {
   const md5 = `${new Md5().update(await file.arrayBuffer())}`;
   const res = await uploadRequest(file, projectId, md5, options);
   if (isErr(res)) return res;
@@ -82,10 +82,7 @@ const uploadRequest = async (
   md5: string,
   init?: ExtendedOptions,
 ): Promise<
-  Result<
-    GCSFile | UploadRequest,
-    FileCapacityError | NetworkError | AbortError | HTTPError
-  >
+  Result<GCSFile | UploadRequest, FileCapacityError | FetchError | HTTPError>
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const body = {
@@ -142,9 +139,7 @@ const upload = async (
   signedUrl: string,
   file: File,
   init?: BaseOptions,
-): Promise<
-  Result<undefined, GCSError | NetworkError | AbortError | HTTPError>
-> => {
+): Promise<Result<undefined, GCSError | FetchError | HTTPError>> => {
   const { sid, fetch } = setDefaults(init ?? {});
   const res = await fetch(
     signedUrl,
@@ -180,9 +175,7 @@ const verify = async (
   fileId: string,
   md5: string,
   init?: ExtendedOptions,
-): Promise<
-  Result<GCSFile, NotFoundError | NetworkError | AbortError | HTTPError>
-> => {
+): Promise<Result<GCSFile, NotFoundError | FetchError | HTTPError>> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const csrfResult = await orElseAsyncForResult(
     toResultOkFromMaybe(csrf),

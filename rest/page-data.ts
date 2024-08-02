@@ -18,8 +18,15 @@ import type {
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
+import {
+  type BaseOptions,
+  type ExtendedOptions,
+  setDefaults,
+} from "./options.ts";
+import type { FetchError } from "./mod.ts";
+
+export type ImportPagesError = HTTPError;
+
 /** projectにページをインポートする
  *
  * @param project - インポート先のprojectの名前
@@ -30,7 +37,7 @@ export const importPages = async (
   data: ImportedData<boolean>,
   init: ExtendedOptions,
 ): Promise<
-  Result<string, NetworkError | AbortError | HTTPError>
+  Result<string, ImportPagesError | FetchError>
 > => {
   if (data.pages.length === 0) return createOk("No pages to import.");
 
@@ -72,6 +79,12 @@ export const importPages = async (
   );
 };
 
+export type ExportPagesError =
+  | NotFoundError
+  | NotPrivilegeError
+  | NotLoggedInError
+  | HTTPError;
+
 /** `exportPages`の認証情報 */
 export interface ExportInit<withMetadata extends true | false>
   extends BaseOptions {
@@ -85,15 +98,7 @@ export const exportPages = async <withMetadata extends true | false>(
   project: string,
   init: ExportInit<withMetadata>,
 ): Promise<
-  Result<
-    ExportedData<withMetadata>,
-    | NotFoundError
-    | NotPrivilegeError
-    | NotLoggedInError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
+  Result<ExportedData<withMetadata>, ExportPagesError | FetchError>
 > => {
   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
 
