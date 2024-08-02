@@ -1,3 +1,10 @@
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
 import type {
   NoQueryError,
   NotFoundError,
@@ -5,10 +12,12 @@ import type {
   NotMemberError,
   ProjectSearchResult,
   SearchResult,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { type BaseOptions, type Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
 
 /** search a project for pages
  *
@@ -23,7 +32,13 @@ export const searchForPages = async (
 ): Promise<
   Result<
     SearchResult,
-    NotFoundError | NotMemberError | NotLoggedInError | NoQueryError
+    | NotFoundError
+    | NotMemberError
+    | NotLoggedInError
+    | NoQueryError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
@@ -36,22 +51,21 @@ export const searchForPages = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          name: "NoQueryError",
-          message: (await res.json()).message,
-        },
-      };
-    }
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-
-  const value = (await res.json()) as SearchResult;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+          "NoQueryError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<SearchResult>,
+  );
 };
 
 /** search for joined projects
@@ -65,7 +79,7 @@ export const searchForJoinedProjects = async (
 ): Promise<
   Result<
     ProjectSearchResult,
-    NotLoggedInError | NoQueryError
+    NotLoggedInError | NoQueryError | NetworkError | AbortError | HTTPError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
@@ -78,22 +92,19 @@ export const searchForJoinedProjects = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          name: "NoQueryError",
-          message: (await res.json()).message,
-        },
-      };
-    }
-    return makeError<NotLoggedInError>(res);
-  }
-
-  const value = (await res.json()) as ProjectSearchResult;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotLoggedInError",
+          "NoQueryError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<ProjectSearchResult>,
+  );
 };
 
 /** search for watch list
@@ -113,7 +124,7 @@ export const searchForWatchList = async (
 ): Promise<
   Result<
     ProjectSearchResult,
-    NotLoggedInError | NoQueryError
+    NotLoggedInError | NoQueryError | NetworkError | AbortError | HTTPError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
@@ -130,21 +141,17 @@ export const searchForWatchList = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          // 本当はproject idが不正なときも422 errorになる
-          name: "NoQueryError",
-          message: (await res.json()).message,
-        },
-      };
-    }
-    return makeError<NotLoggedInError>(res);
-  }
-
-  const value = (await res.json()) as ProjectSearchResult;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotLoggedInError",
+          "NoQueryError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<ProjectSearchResult>,
+  );
 };

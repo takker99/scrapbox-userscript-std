@@ -1,4 +1,4 @@
-import { assertEquals } from "../../deps/testing.ts";
+import { assertEquals } from "@std/assert";
 import { decode, encode } from "./_internal.ts";
 
 Deno.test("encode()", async (t) => {

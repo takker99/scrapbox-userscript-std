@@ -1,5 +1,5 @@
 import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
-import { assertEquals } from "../../deps/testing.ts";
+import { assertEquals } from "@std/assert";
 
 Deno.test("suggestUnDupTitle()", () => {
   assertEquals(suggestUnDupTitle("title"), "title_2");

@@ -1,4 +1,9 @@
-import type { LinkNode } from "./deps/scrapbox.ts";
+/** Parse `LinkNode` of [@progfay/scrapbox-parser](https://jsr.io/@progfay/scrapbox-parser) in detail
+ *
+ * @module
+ */
+
+import type { LinkNode } from "@progfay/scrapbox-parser";
 import { parseYoutube } from "./parser/youtube.ts";
 import { parseVimeo } from "./parser/vimeo.ts";
 import { parseSpotify } from "./parser/spotify.ts";
@@ -112,10 +117,10 @@ export const parseAbsoluteLink = (
   return { type: "absoluteLink", content, href, ...baseLink };
 };
 
-type AudioURL = `${string}.${"mp3" | "ogg" | "wav" | "acc"}`;
+export type AudioURL = `${string}.${"mp3" | "ogg" | "wav" | "acc"}`;
 const isAudioURL = (url: string): url is AudioURL =>
   /\.(?:mp3|ogg|wav|aac)$/.test(url);
 
-type VideoURL = `${string}.${"mp4" | "webm"}`;
+export type VideoURL = `${string}.${"mp4" | "webm"}`;
 const isVideoURL = (url: string): url is VideoURL =>
   /\.(?:mp4|webm)$/.test(url);

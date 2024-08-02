@@ -1,35 +1,3 @@
-import { getProject } from "../../rest/project.ts";
-import { getProfile } from "../../rest/profile.ts";
-
-/** cached user ID */
-let userId: string | undefined;
-export const getUserId = async (): Promise<string> => {
-  if (userId !== undefined) return userId;
-
-  const user = await getProfile();
-  if (user.isGuest) {
-    throw new Error("this script can only be executed by Logged in users");
-  }
-  userId = user.id;
-  return userId;
-};
-
-/** cached pairs of project name and project id */
-const projectMap = new Map<string, string>();
-export const getProjectId = async (project: string): Promise<string> => {
-  const cachedId = projectMap.get(project);
-  if (cachedId !== undefined) return cachedId;
-
-  const result = await getProject(project);
-  if (!result.ok) {
-    const { name, message } = result.value;
-    throw new Error(`${name} ${message}`);
-  }
-  const { id } = result.value;
-  projectMap.set(project, id);
-  return id;
-};
-
 const zero = (n: string) => n.padStart(8, "0");
 
 export const createNewLineId = (userId: string): string => {

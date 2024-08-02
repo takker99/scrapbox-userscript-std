@@ -4,7 +4,7 @@ import {
   toReadableTitleURI,
   toTitleLc,
 } from "./title.ts";
-import { assertStrictEquals } from "./deps/testing.ts";
+import { assertStrictEquals } from "@std/assert";
 
 Deno.test("toTitleLc()", async (t) => {
   await t.step("` ` -> `_`", () => {

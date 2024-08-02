@@ -1,6 +1,7 @@
 import type { CommitNotification } from "../../deps/socket.ts";
-import type { Line } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import { getUnixTimeFromId } from "./id.ts";
+type Line = Page["lines"][number];
 
 export interface ApplyCommitProp {
   /** changesの作成日時

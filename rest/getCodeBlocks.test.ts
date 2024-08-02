@@ -1,6 +1,8 @@
-import type { Line } from "../deps/scrapbox-rest.ts";
-import { assertEquals, assertSnapshot } from "../deps/testing.ts";
+import type { Page } from "@cosense/types/rest";
+import { assertEquals } from "@std/assert";
+import { assertSnapshot } from "@std/testing/snapshot";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
+type Line = Page["lines"][number];
 
 // https://scrapbox.io/takker/コードブロック記法
 const project = "takker";
@@ -229,11 +231,11 @@ const sample: Line[] = [
 Deno.test("getCodeBlocks()", async (t) => {
   await assertSnapshot(
     t,
-    await getCodeBlocks({ project, title, lines: sample }),
+    getCodeBlocks({ project, title, lines: sample }),
   );
   await t.step("filename filter", async (st) => {
     const filename = "インデント.md";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       filename,
     });
     const yet = [];
@@ -245,7 +247,7 @@ Deno.test("getCodeBlocks()", async (t) => {
   });
   await t.step("language name filter", async (st) => {
     const lang = "py";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       lang,
     });
     const yet = [];
@@ -257,7 +259,7 @@ Deno.test("getCodeBlocks()", async (t) => {
   });
   await t.step("title line ID filter", async (st) => {
     const titleLineId = "63b7b1261280f00000c9bc34";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       titleLineId,
     });
     const yet = [];

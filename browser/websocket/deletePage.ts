@@ -1,5 +1,5 @@
-import { push, type PushOptions, type RetryError } from "./push.ts";
-import type { Result } from "../../rest/util.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
+import type { Result } from "option-t/plain_result";
 
 export type DeletePageOptions = PushOptions;
 
@@ -13,7 +13,7 @@ export const deletePage = (
   project: string,
   title: string,
   options?: DeletePageOptions,
-): Promise<Result<string, RetryError>> =>
+): Promise<Result<string, PushError>> =>
   push(
     project,
     title,

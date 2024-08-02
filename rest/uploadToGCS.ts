@@ -1,13 +1,20 @@
 import { cookie, getCSRFToken } from "./auth.ts";
+import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
+import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
+import { Md5 } from "@std/hash";
 import {
-  type BaseOptions,
-  type ExtendedOptions,
+  createOk,
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  mapForResult,
+  orElseAsyncForResult,
   type Result,
-  setDefaults,
-} from "./util.ts";
-import { makeError, UnexpectedResponseError } from "./error.ts";
-import type { ErrorLike, NotFoundError } from "../deps/scrapbox-rest.ts";
-import { Md5 } from "../deps/hash.ts";
+  unwrapOk,
+} from "option-t/plain_result";
+import { toResultOkFromMaybe } from "option-t/maybe";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
 /** uploadしたファイルのメタデータ */
 export interface GCSFile {
@@ -29,15 +36,24 @@ export const uploadToGCS = async (
   projectId: string,
   options?: ExtendedOptions,
 ): Promise<
-  Result<GCSFile, GCSError | NotFoundError | FileCapacityError | ErrorLike>
+  Result<
+    GCSFile,
+    | GCSError
+    | NotFoundError
+    | FileCapacityError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >
 > => {
-  const md5 = new Md5().update(await file.arrayBuffer()).toString();
+  const md5 = `${new Md5().update(await file.arrayBuffer())}`;
   const res = await uploadRequest(file, projectId, md5, options);
-  if (!res.ok) return res;
-  if ("embedUrl" in res.value) return { ok: true, value: res.value };
-  const res2 = await upload(res.value.signedUrl, file, options);
-  if (!res2.ok) return res2;
-  return verify(projectId, res.value.fileId, md5, options);
+  if (isErr(res)) return res;
+  const fileOrRequest = unwrapOk(res);
+  if ("embedUrl" in fileOrRequest) return createOk(fileOrRequest);
+  const result = await upload(fileOrRequest.signedUrl, file, options);
+  if (isErr(result)) return result;
+  return verify(projectId, fileOrRequest.fileId, md5, options);
 };
 
 /** 容量を使い切ったときに発生するerror */
@@ -65,7 +81,12 @@ const uploadRequest = async (
   projectId: string,
   md5: string,
   init?: ExtendedOptions,
-): Promise<Result<GCSFile | UploadRequest, FileCapacityError | ErrorLike>> => {
+): Promise<
+  Result<
+    GCSFile | UploadRequest,
+    FileCapacityError | NetworkError | AbortError | HTTPError
+  >
+> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const body = {
     md5,
@@ -73,7 +94,11 @@ const uploadRequest = async (
     contentType: file.type,
     name: file.name,
   };
-  const token = csrf ?? await getCSRFToken();
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
   const req = new Request(
     `https://${hostName}/api/gcs/${projectId}/upload-request`,
     {
@@ -81,16 +106,27 @@ const uploadRequest = async (
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": token,
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
     },
   );
   const res = await fetch(req);
-  if (!res.ok) {
-    return makeError(res);
-  }
-  return { ok: true, value: await res.json() };
+  if (isErr(res)) return res;
+
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        error.response.status === 402
+          ? {
+            name: "FileCapacityError",
+            message: (await error.response.json()).message,
+          } as FileCapacityError
+          : error,
+    ),
+    (res) => res.json(),
+  );
 };
 
 /** Google Cloud Storage XML APIのerror
@@ -106,7 +142,9 @@ const upload = async (
   signedUrl: string,
   file: File,
   init?: BaseOptions,
-): Promise<Result<undefined, GCSError>> => {
+): Promise<
+  Result<undefined, GCSError | NetworkError | AbortError | HTTPError>
+> => {
   const { sid, fetch } = setDefaults(init ?? {});
   const res = await fetch(
     signedUrl,
@@ -119,19 +157,21 @@ const upload = async (
       },
     },
   );
-  if (!res.ok) {
-    if (res.headers.get("Content-Type")?.includes?.("/xml")) {
-      return {
-        ok: false,
-        value: {
-          name: "GCSError",
-          message: await res.text(),
-        },
-      };
-    }
-    throw new UnexpectedResponseError(res);
-  }
-  return { ok: true, value: undefined };
+  if (isErr(res)) return res;
+
+  return mapForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        error.response.headers.get("Content-Type")?.includes?.("/xml")
+          ? {
+            name: "GCSError",
+            message: await error.response.text(),
+          } as GCSError
+          : error,
+    ),
+    () => undefined,
+  );
 };
 
 /** uploadしたファイルの整合性を確認する */
@@ -140,9 +180,15 @@ const verify = async (
   fileId: string,
   md5: string,
   init?: ExtendedOptions,
-): Promise<Result<GCSFile, NotFoundError>> => {
+): Promise<
+  Result<GCSFile, NotFoundError | NetworkError | AbortError | HTTPError>
+> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
-  const token = csrf ?? await getCSRFToken();
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
   const req = new Request(
     `https://${hostName}/api/gcs/${projectId}/verify`,
     {
@@ -150,25 +196,26 @@ const verify = async (
       body: JSON.stringify({ md5, fileId }),
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": token,
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
     },
   );
+
   const res = await fetch(req);
-  if (!res.ok) {
-    try {
-      if (res.status === 404) {
-        return {
-          ok: false,
-          value: { name: "NotFoundError", message: (await res.json()).message },
-        };
-      }
-    } catch (_) {
-      throw new UnexpectedResponseError(res);
-    }
-    throw new UnexpectedResponseError(res);
-  }
-  const gcs = await res.json();
-  return { ok: true, value: gcs };
+  if (isErr(res)) return res;
+
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        error.response.status === 404
+          ? {
+            name: "NotFoundError",
+            message: (await error.response.json()).message,
+          } as NotFoundError
+          : error,
+    ),
+    (res) => res.json(),
+  );
 };

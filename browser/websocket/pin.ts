@@ -1,6 +1,6 @@
+import type { Result } from "option-t/plain_result";
 import type { Change, Socket } from "../../deps/socket.ts";
-import { push, type PushOptions, type RetryError } from "./push.ts";
-import type { Result } from "../../rest/util.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
   /** ピン留め対象のページが存在しないときの振る舞いを変えるoption
@@ -22,7 +22,7 @@ export const pin = (
   project: string,
   title: string,
   options?: PinOptions,
-): Promise<Result<string, RetryError>> =>
+): Promise<Result<string, PushError>> =>
   push(
     project,
     title,
@@ -51,7 +51,7 @@ export const unpin = (
   project: string,
   title: string,
   options: UnPinOptions,
-): Promise<Result<string, RetryError>> =>
+): Promise<Result<string, PushError>> =>
   push(
     project,
     title,

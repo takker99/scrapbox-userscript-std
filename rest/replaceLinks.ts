@@ -1,11 +1,22 @@
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  orElseAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
+import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { type ExtendedOptions, type Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type ExtendedOptions, setDefaults } from "./util.ts";
 
 /** 指定したproject内の全てのリンクを書き換える
  *
@@ -26,10 +37,21 @@ export const replaceLinks = async (
 ): Promise<
   Result<
     number,
-    NotFoundError | NotLoggedInError | NotMemberError
+    | NotFoundError
+    | NotLoggedInError
+    | NotMemberError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
 
   const req = new Request(
     `https://${hostName}/api/pages/${project}/replace/links`,
@@ -37,20 +59,30 @@ export const replaceLinks = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": csrf ?? await getCSRFToken(init),
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ from, to }),
     },
   );
 
-  const res = await fetch(req);
+  const resResult = await fetch(req);
+  if (isErr(resResult)) return resResult;
 
-  if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-
-  // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
-  const { message } = (await res.json()) as { message: string };
-  return { ok: true, value: parseInt(message.match(/\d+/)?.[0] ?? "0") };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(resResult)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+        ])) ?? error,
+    ),
+    async (res) => {
+      // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
+      const { message } = (await res.json()) as { message: string };
+      return parseInt(message.match(/\d+/)?.[0] ?? "0");
+    },
+  );
 };

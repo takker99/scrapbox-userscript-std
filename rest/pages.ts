@@ -5,11 +5,20 @@ import type {
   NotMemberError,
   Page,
   PageList,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, type Result, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
+import {
+  andThenAsyncForResult,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  type Result,
+} from "option-t/plain_result";
+import { unwrapOrForMaybe } from "option-t/maybe";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */
 export interface GetPageOption extends BaseOptions {
@@ -35,32 +44,43 @@ const getPage_toRequest: GetPage["toRequest"] = (
   for (const id of projects ?? []) {
     params.append("projects", id);
   }
-  const path = `https://${hostName}/api/pages/${project}/${
-    encodeTitleURI(title)
-  }?${params.toString()}`;
 
   return new Request(
-    path,
+    `https://${hostName}/api/pages/${project}/${
+      encodeTitleURI(title)
+    }?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
 
-const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    if (res.status === 414) {
-      return {
-        ok: false,
-        value: {
+const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
+  mapErrAsyncForResult(
+    await mapAsyncForResult(
+      responseIntoResult(res),
+      (res) => res.json() as Promise<Page>,
+    ),
+    async (
+      error,
+    ) => {
+      if (error.response.status === 414) {
+        return {
           name: "TooLongURIError",
           message: "project ids may be too much.",
-        },
-      };
-    }
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-  const value = (await res.json()) as Page;
-  return { ok: true, value };
-};
+        };
+      }
+
+      return unwrapOrForMaybe<
+        NotFoundError | NotLoggedInError | NotMemberError | HTTPError
+      >(
+        await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+        ]),
+        error,
+      );
+    },
+  );
 
 export interface GetPage {
   /** /api/pages/:project/:title の要求を組み立てる
@@ -84,14 +104,24 @@ export interface GetPage {
   fromResponse: (res: Response) => Promise<
     Result<
       Page,
-      NotFoundError | NotLoggedInError | NotMemberError | TooLongURIError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | TooLongURIError
+      | HTTPError
     >
   >;
 
   (project: string, title: string, options?: GetPageOption): Promise<
     Result<
       Page,
-      NotFoundError | NotLoggedInError | NotMemberError | TooLongURIError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | TooLongURIError
+      | HTTPError
+      | NetworkError
+      | AbortError
     >
   >;
 }
@@ -106,12 +136,23 @@ export const getPage: GetPage = async (
   project,
   title,
   options,
-) => {
-  const { fetch } = setDefaults(options ?? {});
-  const req = getPage_toRequest(project, title, options);
-  const res = await fetch(req);
-  return await getPage_fromResponse(res);
-};
+) =>
+  andThenAsyncForResult<
+    Response,
+    Page,
+    | NotFoundError
+    | NotLoggedInError
+    | NotMemberError
+    | TooLongURIError
+    | HTTPError
+    | NetworkError
+    | AbortError
+  >(
+    await setDefaults(options ?? {}).fetch(
+      getPage_toRequest(project, title, options),
+    ),
+    (input) => getPage_fromResponse(input),
+  );
 
 getPage.toRequest = getPage_toRequest;
 getPage.fromResponse = getPage_fromResponse;
@@ -163,14 +204,19 @@ export interface ListPages {
   fromResponse: (res: Response) => Promise<
     Result<
       PageList,
-      NotFoundError | NotLoggedInError | NotMemberError
+      NotFoundError | NotLoggedInError | NotMemberError | HTTPError
     >
   >;
 
   (project: string, options?: ListPagesOption): Promise<
     Result<
       PageList,
-      NotFoundError | NotLoggedInError | NotMemberError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 }
@@ -183,21 +229,31 @@ const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
   if (sort !== undefined) params.append("sort", sort);
   if (limit !== undefined) params.append("limit", `${limit}`);
   if (skip !== undefined) params.append("skip", `${skip}`);
-  const path = `https://${hostName}/api/pages/${project}?${params.toString()}`;
 
   return new Request(
-    path,
+    `https://${hostName}/api/pages/${project}?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
 
-const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-  const value = (await res.json()) as PageList;
-  return { ok: true, value };
-};
+const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
+  mapErrAsyncForResult(
+    await mapAsyncForResult(
+      responseIntoResult(res),
+      (res) => res.json() as Promise<PageList>,
+    ),
+    async (error) =>
+      unwrapOrForMaybe<
+        NotFoundError | NotLoggedInError | NotMemberError | HTTPError
+      >(
+        await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+        ]),
+        error,
+      ),
+  );
 
 /** 指定したprojectのページを一覧する
  *
@@ -207,11 +263,22 @@ const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
 export const listPages: ListPages = async (
   project,
   options?,
-) => {
-  const { fetch } = setDefaults(options ?? {});
-  const res = await fetch(listPages_toRequest(project, options));
-  return await listPages_fromResponse(res);
-};
+) =>
+  andThenAsyncForResult<
+    Response,
+    PageList,
+    | NotFoundError
+    | NotLoggedInError
+    | NotMemberError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >(
+    await setDefaults(options ?? {})?.fetch(
+      listPages_toRequest(project, options),
+    ),
+    listPages_fromResponse,
+  );
 
 listPages.toRequest = listPages_toRequest;
 listPages.fromResponse = listPages_fromResponse;

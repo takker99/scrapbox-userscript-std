@@ -1,3 +1,10 @@
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
 import type {
   MemberProject,
   NotFoundError,
@@ -6,10 +13,12 @@ import type {
   NotMemberProject,
   ProjectId,
   ProjectResponse,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { type BaseOptions, type Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
 
 export interface GetProject {
   /** /api/project/:project の要求を組み立てる
@@ -31,14 +40,24 @@ export interface GetProject {
   fromResponse: (res: Response) => Promise<
     Result<
       MemberProject | NotMemberProject,
-      NotFoundError | NotMemberError | NotLoggedInError
+      | NotFoundError
+      | NotMemberError
+      | NotLoggedInError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 
   (project: string, options?: BaseOptions): Promise<
     Result<
       MemberProject | NotMemberProject,
-      NotFoundError | NotMemberError | NotLoggedInError
+      | NotFoundError
+      | NotMemberError
+      | NotLoggedInError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 }
@@ -52,14 +71,19 @@ const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
   );
 };
 
-const getProject_fromResponse: GetProject["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    return makeError<NotFoundError | NotMemberError | NotLoggedInError>(res);
-  }
-
-  const value = (await res.json()) as MemberProject | NotMemberProject;
-  return { ok: true, value };
-};
+const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
+  mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(res),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<MemberProject | NotMemberProject>,
+  );
 
 /** get the project information
  *
@@ -74,8 +98,9 @@ export const getProject: GetProject = async (
 
   const req = getProject_toRequest(project, init);
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  return getProject_fromResponse(res);
+  return getProject_fromResponse(unwrapOk(res));
 };
 
 getProject.toRequest = getProject_toRequest;
@@ -100,12 +125,22 @@ export interface ListProjects {
    */
   fromResponse: (
     res: Response,
-  ) => Promise<Result<ProjectResponse, NotLoggedInError>>;
+  ) => Promise<
+    Result<
+      ProjectResponse,
+      NotLoggedInError | NetworkError | AbortError | HTTPError
+    >
+  >;
 
   (
     projectIds: ProjectId[],
     init?: BaseOptions,
-  ): Promise<Result<ProjectResponse, NotLoggedInError>>;
+  ): Promise<
+    Result<
+      ProjectResponse,
+      NotLoggedInError | NetworkError | AbortError | HTTPError
+    >
+  >;
 }
 
 const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
@@ -121,14 +156,15 @@ const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
   );
 };
 
-const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    return makeError<NotLoggedInError>(res);
-  }
-
-  const value = (await res.json()) as ProjectResponse;
-  return { ok: true, value };
-};
+const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
+  mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(res),
+      async (error) =>
+        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
+    ),
+    (res) => res.json() as Promise<ProjectResponse>,
+  );
 
 /** list the projects' information
  *
@@ -142,8 +178,9 @@ export const listProjects: ListProjects = async (
   const { fetch } = setDefaults(init ?? {});
 
   const res = await fetch(ListProject_toRequest(projectIds, init));
+  if (isErr(res)) return res;
 
-  return ListProject_fromResponse(res);
+  return ListProject_fromResponse(unwrapOk(res));
 };
 
 listProjects.toRequest = ListProject_toRequest;

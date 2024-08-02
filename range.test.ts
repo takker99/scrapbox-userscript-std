@@ -1,5 +1,5 @@
 import { range } from "./range.ts";
-import { assertStrictEquals } from "./deps/testing.ts";
+import { assertStrictEquals } from "@std/assert";
 
 Deno.test("range()", () => {
   let count = 0;

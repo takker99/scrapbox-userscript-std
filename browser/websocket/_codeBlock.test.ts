@@ -1,4 +1,5 @@
-import { assertEquals, assertSnapshot } from "../../deps/testing.ts";
+import { assertEquals } from "@std/assert";
+import { assertSnapshot } from "@std/testing/snapshot";
 import { extractFromCodeTitle } from "./_codeBlock.ts";
 
 Deno.test("extractFromCodeTitle()", async (t) => {

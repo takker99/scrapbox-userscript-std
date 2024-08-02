@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "jsr:@core/unknownutil@^3.18.1": "jsr:@core/unknownutil@3.18.1",
       "jsr:@cosense/types@0.10": "jsr:@cosense/types@0.10.1",
       "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.0.0",
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.1",
@@ -13,9 +14,13 @@
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/path@1.0.0-rc.2": "jsr:@std/path@1.0.0-rc.2",
       "jsr:@std/path@^1.0.2": "jsr:@std/path@1.0.2",
-      "jsr:@std/testing@0": "jsr:@std/testing@0.225.3"
+      "jsr:@std/testing@0": "jsr:@std/testing@0.225.3",
+      "npm:option-t@^49.1.0": "npm:option-t@49.1.0"
     },
     "jsr": {
+      "@core/unknownutil@3.18.1": {
+        "integrity": "6aaa108b623ff971d062dd345da7ca03b97f61ae3d29c8677bff14fec11f0d76"
+      },
       "@cosense/types@0.10.1": {
         "integrity": "13d2488a02c7b0b035a265bc3299affbdab1ea5b607516379685965cd37b2058"
       },
@@ -61,6 +66,12 @@
           "jsr:@std/internal@^1.0.0",
           "jsr:@std/path@1.0.0-rc.2"
         ]
+      }
+    },
+    "npm": {
+      "option-t@49.1.0": {
+        "integrity": "sha512-K5o4+D8rSE1VcmfwrieRZWyShPxX27NEGuZPT11S4CbvjE73YUDR/sanKAYnhVRj6Hn1mKcjfhjhbOCD2ef3qg==",
+        "dependencies": {}
       }
     }
   },
@@ -135,7 +146,9 @@
     "https://deno.land/std@0.224.0/path/windows/to_file_url.ts": "40e560ee4854fe5a3d4d12976cef2f4e8914125c81b11f1108e127934ced502e",
     "https://deno.land/std@0.224.0/testing/snapshot.ts": "35ca1c8e8bfb98d7b7e794f1b7be8d992483fcff572540e41396f22a5bddb944",
     "https://esm.sh/@progfay/scrapbox-parser@9.0.0": "24b6a5a7b95e3b8f49a259fce1f39b0d9c333b2c8afc71d844d551c47473b3b1",
+    "https://esm.sh/option-t@49.1.0/maybe": "ab18c4aaccc1f75da79c06c5e9e435ac17385e698ad191b1392eca2daf64ff84",
     "https://esm.sh/v135/@progfay/scrapbox-parser@9.0.0/denonext/scrapbox-parser.mjs": "36ea0381aaf840f8e1d177d3f349d191e70a2b33292010b87e84ea1d34fd4937",
+    "https://esm.sh/v135/option-t@49.1.0/denonext/maybe.js": "663a6bdadc7b26347b55486297c3b89ff6c31098a730b8f9bd3065609df6442b",
     "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/base.ts": "63bd526c652edbdd43aa86b119828b87828b25dfbb997ce521437cc6fc40fbcb",
     "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/baseStore.ts": "b05ed2f2de45d187afc8f9fbb4767b209929cc6924f67d1d6f252eb3bb64c32f",
     "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/blocks.ts": "d37c6bb33b600ece0bfeb5b63246300c567bdf38e559adf01e1d26c967f8999f",
@@ -191,11 +204,13 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@core/unknownutil@^3.18.1",
       "jsr:@cosense/types@0.10",
       "jsr:@progfay/scrapbox-parser@9",
       "jsr:@std/assert@1",
       "jsr:@std/async@1",
-      "jsr:@std/testing@0"
+      "jsr:@std/testing@0",
+      "npm:option-t@^49.1.0"
     ]
   }
 }

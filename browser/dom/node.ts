@@ -1,8 +1,8 @@
-import { isNone, isNumber, isString } from "../../is.ts";
-import { ensureArray } from "../../ensure.ts";
+import { isNumber, isString, isUndefined } from "@core/unknownutil";
+import { ensure, isArray } from "@core/unknownutil";
 import { getCachedLines } from "./getCachedLines.ts";
 import { takeInternalLines } from "./takeInternalLines.ts";
-import type { BaseLine, Line } from "../../deps/scrapbox.ts";
+import type { BaseLine, Line } from "@cosense/types/userscript";
 import { lines } from "./dom.ts";
 import * as Text from "../../text.ts";
 
@@ -15,7 +15,7 @@ import * as Text from "../../text.ts";
 export const getLineId = <T extends HTMLElement>(
   value?: number | string | T,
 ): string | undefined => {
-  if (isNone(value)) return undefined;
+  if (isUndefined(value)) return undefined;
 
   // 行番号のとき
   if (isNumber(value)) return getBaseLine(value)?.id;
@@ -40,7 +40,7 @@ export const getLineId = <T extends HTMLElement>(
 export const getLineNo = <T extends HTMLElement>(
   value?: number | string | T,
 ): number | undefined => {
-  if (isNone(value)) return undefined;
+  if (isUndefined(value)) return undefined;
 
   // 行番号のとき
   if (isNumber(value)) return value;
@@ -52,7 +52,7 @@ export const getLineNo = <T extends HTMLElement>(
 export const getLine = <T extends HTMLElement>(
   value?: number | string | T,
 ): Line | undefined => {
-  if (isNone(value)) return undefined;
+  if (isUndefined(value)) return undefined;
 
   // 行番号のとき
   if (isNumber(value)) return getLines()[value];
@@ -64,7 +64,7 @@ export const getLine = <T extends HTMLElement>(
 export const getBaseLine = <T extends HTMLElement>(
   value?: number | string | T,
 ): BaseLine | undefined => {
-  if (isNone(value)) return undefined;
+  if (isUndefined(value)) return undefined;
 
   // 行番号のとき
   if (isNumber(value)) return takeInternalLines()[value];
@@ -79,9 +79,9 @@ export const getLineDOM = <T extends HTMLElement>(
   if (isLineDOM(value)) return value;
 
   const id = getLineId(value);
-  if (isNone(id)) return id;
+  if (isUndefined(id)) return id;
   const line = document.getElementById(`L${id}`);
-  if (isNone(line)) return undefined;
+  if (isUndefined(line)) return undefined;
   return line as HTMLDivElement;
 };
 export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
@@ -90,15 +90,14 @@ export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
 export const getLineCount = (): number => takeInternalLines().length;
 
 export const getLines = (): readonly Line[] => {
-  const lines = getCachedLines();
-  ensureArray<Line>(lines, "scrapbox.Page.lines");
-  return lines;
+  const lines = ensure(getCachedLines(), isArray);
+  return lines as Line[];
 };
 
 export const getText = <T extends HTMLElement>(
   value?: number | string | T,
 ): string | undefined => {
-  if (isNone(value)) return undefined;
+  if (isUndefined(value)) return undefined;
 
   // 数字と文字列は行として扱う
   if (isNumber(value) || isString(value)) return getBaseLine(value)?.text;
@@ -118,7 +117,7 @@ export const getText = <T extends HTMLElement>(
   //中に含まれている文字の列番号を全て取得し、それに対応する文字列を返す
   const chars = [] as number[];
   const line = getBaseLine(value);
-  if (isNone(line)) return;
+  if (isUndefined(line)) return;
   for (const dom of getChars(value)) {
     chars.push(getIndex(dom));
   }
@@ -127,30 +126,30 @@ export const getText = <T extends HTMLElement>(
 
 export const getExternalLink = (dom: HTMLElement): HTMLElement | undefined => {
   const link = dom.closest(".link");
-  if (isNone(link)) return undefined;
+  if (isUndefined(link)) return undefined;
   return link as HTMLElement;
 };
 export const getInternalLink = (dom: HTMLElement): HTMLElement | undefined => {
   const link = dom.closest(".page-link");
-  if (isNone(link)) return undefined;
+  if (isUndefined(link)) return undefined;
   return link as HTMLElement;
 };
 export const getLink = (dom: HTMLElement): HTMLElement | undefined => {
   const link = dom.closest(".link, .page-link");
-  if (isNone(link)) return undefined;
+  if (isUndefined(link)) return undefined;
   return link as HTMLElement;
 };
 
 export const getFormula = (dom: HTMLElement): HTMLElement | undefined => {
   const formula = dom.closest(".formula");
-  if (isNone(formula)) return undefined;
+  if (isUndefined(formula)) return undefined;
   return formula as HTMLElement;
 };
 export const getNextLine = <T extends HTMLElement>(
   value?: number | string | T,
 ): Line | undefined => {
   const index = getLineNo(value);
-  if (isNone(index)) return undefined;
+  if (isUndefined(index)) return undefined;
 
   return getLine(index + 1);
 };
@@ -159,26 +158,26 @@ export const getPrevLine = <T extends HTMLElement>(
   value?: number | string | T,
 ): Line | undefined => {
   const index = getLineNo(value);
-  if (isNone(index)) return undefined;
+  if (isUndefined(index)) return undefined;
 
   return getLine(index - 1);
 };
 
 export const getHeadLineDOM = (): HTMLDivElement | undefined => {
   const line = lines()?.firstElementChild;
-  if (isNone(line)) return undefined;
+  if (isUndefined(line)) return undefined;
   return line as HTMLDivElement;
 };
 export const getTailLineDOM = (): HTMLDivElement | undefined => {
   const line = lines()?.lastElementChild;
-  if (isNone(line)) return undefined;
+  if (isUndefined(line)) return undefined;
   return line as HTMLDivElement;
 };
 export const getIndentCount = <T extends HTMLElement>(
   value?: number | string | T,
 ): number | undefined => {
   const text = getText(value);
-  if (isNone(text)) return undefined;
+  if (isUndefined(text)) return undefined;
   return Text.getIndentCount(text);
 };
 /** 指定した行の配下にある行の数を返す
@@ -189,7 +188,7 @@ export const getIndentLineCount = <T extends HTMLElement>(
   value?: number | string | T,
 ): number | undefined => {
   const index = getLineNo(value);
-  if (isNone(index)) return;
+  if (isUndefined(index)) return;
   return Text.getIndentLineCount(index, getLines());
 };
 
@@ -210,7 +209,7 @@ export const getIndex = (dom: HTMLSpanElement): number => {
   if (!isCharDOM(dom)) throw Error("A char DOM is required.");
 
   const index = dom.className.match(/c-(\d+)/)?.[1];
-  if (isNone(index)) throw Error('.char-index must have ".c-{\\d}"');
+  if (isUndefined(index)) throw Error('.char-index must have ".c-{\\d}"');
   return parseInt(index);
 };
 export const getHeadCharDOM = (
@@ -242,7 +241,7 @@ export const getDOMFromPoint = (
   const char = targets.find((target) => isCharDOM(target));
   const line = targets.find((target) => isLineDOM(target));
   return {
-    char: isNone(char) ? undefined : char as HTMLSpanElement,
-    line: isNone(line) ? undefined : line as HTMLDivElement,
+    char: isUndefined(char) ? undefined : char as HTMLSpanElement,
+    line: isUndefined(line) ? undefined : line as HTMLDivElement,
   };
 };

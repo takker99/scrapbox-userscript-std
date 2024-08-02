@@ -1,5 +1,5 @@
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
-import type { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "@cosense/types/userscript";
 import type {
   DeleteChange,
   InsertChange,

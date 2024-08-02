@@ -1,6 +1,6 @@
 import { extractCodeFiles } from "./extractCodeFiles.ts";
-import type { Line } from "../../deps/scrapbox.ts";
-import { assertSnapshot } from "../../deps/testing.ts";
+import type { Line } from "@cosense/types/userscript";
+import { assertSnapshot } from "@std/testing/snapshot";
 import sample from "./sample-lines1.json" with { type: "json" };
 
 Deno.test("extractCodeFiles", async (t) => {

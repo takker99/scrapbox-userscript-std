@@ -1,5 +1,5 @@
 import { parseSpotify } from "./spotify.ts";
-import { assertSnapshot } from "../deps/testing.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 Deno.test("spotify links", async (t) => {
   await t.step("is", async (t) => {

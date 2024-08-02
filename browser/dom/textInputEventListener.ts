@@ -1,4 +1,4 @@
-import type { Scrapbox } from "../../deps/scrapbox.ts";
+import type { Scrapbox } from "@cosense/types/userscript";
 import { textInput } from "./dom.ts";
 import { decode, encode } from "./_internal.ts";
 declare const scrapbox: Scrapbox;

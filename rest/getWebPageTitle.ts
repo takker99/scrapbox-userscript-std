@@ -1,11 +1,22 @@
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  orElseAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
+import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   BadRequestError,
   InvalidURLError,
   SessionError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { type ExtendedOptions, type Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type ExtendedOptions, setDefaults } from "./util.ts";
 
 /** 指定したURLのweb pageのtitleをscrapboxのserver経由で取得する
  *
@@ -22,19 +33,28 @@ export const getWebPageTitle = async (
     | SessionError
     | InvalidURLError
     | BadRequestError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
 
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
+
   const req = new Request(
     `https://${hostName}/api/embed-text/url?url=${
-      encodeURIComponent(url.toString())
+      encodeURIComponent(`${url}`)
     }`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": csrf ?? await getCSRFToken(init),
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ timeout: 3000 }),
@@ -42,20 +62,21 @@ export const getWebPageTitle = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          name: "InvalidURLError",
-          message: (await res.json()).message as string,
-        },
-      };
-    }
-    return makeError<SessionError | BadRequestError>(res);
-  }
-
-  const { title } = (await res.json()) as { title: string };
-  return { ok: true, value: title };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "SessionError",
+          "BadRequestError",
+          "InvalidURLError",
+        ])) ?? error,
+    ),
+    async (res) => {
+      const { title } = (await res.json()) as { title: string };
+      return title;
+    },
+  );
 };

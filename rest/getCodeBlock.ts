@@ -2,11 +2,20 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, type Result, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
   project,
@@ -15,28 +24,30 @@ const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
   options,
 ) => {
   const { sid, hostName } = setDefaults(options ?? {});
-  const path = `https://${hostName}/api/code/${project}/${
-    encodeTitleURI(title)
-  }/${encodeTitleURI(filename)}`;
 
   return new Request(
-    path,
+    `https://${hostName}/api/code/${project}/${encodeTitleURI(title)}/${
+      encodeTitleURI(filename)
+    }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
 
-const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    return res.status === 404 &&
-        res.headers.get("Content-Type")?.includes?.("text/plain")
-      ? {
-        ok: false,
-        value: { name: "NotFoundError", message: "Code block is not found" },
-      }
-      : makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-  return { ok: true, value: await res.text() };
-};
+const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
+  mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(res),
+      async (res) =>
+        res.response.status === 404 &&
+          res.response.headers.get("Content-Type")?.includes?.("text/plain")
+          ? { name: "NotFoundError", message: "Code block is not found" }
+          : (await parseHTTPError(res, [
+            "NotLoggedInError",
+            "NotMemberError",
+          ])) ?? res,
+    ),
+    (res) => res.text(),
+  );
 
 export interface GetCodeBlock {
   /** /api/code/:project/:title/:filename の要求を組み立てる
@@ -62,7 +73,7 @@ export interface GetCodeBlock {
   fromResponse: (res: Response) => Promise<
     Result<
       string,
-      NotFoundError | NotLoggedInError | NotMemberError
+      NotFoundError | NotLoggedInError | NotMemberError | HTTPError
     >
   >;
 
@@ -74,7 +85,12 @@ export interface GetCodeBlock {
   ): Promise<
     Result<
       string,
-      NotFoundError | NotLoggedInError | NotMemberError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 }
@@ -92,10 +108,9 @@ export const getCodeBlock: GetCodeBlock = async (
   filename,
   options,
 ) => {
-  const { fetch } = setDefaults(options ?? {});
   const req = getCodeBlock_toRequest(project, title, filename, options);
-  const res = await fetch(req);
-  return await getCodeBlock_fromResponse(res);
+  const res = await setDefaults(options ?? {}).fetch(req);
+  return isErr(res) ? res : getCodeBlock_fromResponse(unwrapOk(res));
 };
 
 getCodeBlock.toRequest = getCodeBlock_toRequest;

@@ -2,11 +2,20 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, type Result, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  type Result,
+  unwrapOk,
+} from "option-t/plain_result";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
   project,
@@ -25,22 +34,24 @@ const getTable_toRequest: GetTable["toRequest"] = (
   );
 };
 
-const getTable_fromResponse: GetTable["fromResponse"] = async (res) => {
-  if (!res.ok) {
-    if (res.status === 404) {
-      // responseが空文字の時があるので、自前で組み立てる
-      return {
-        ok: false,
-        value: {
-          name: "NotFoundError",
-          message: "Table not found.",
-        },
-      };
-    }
-    return makeError<NotLoggedInError | NotMemberError>(res);
-  }
-  return { ok: true, value: await res.text() };
-};
+const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
+  mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(res),
+      async (error) =>
+        error.response.status === 404
+          ? {
+            // responseが空文字の時があるので、自前で組み立てる
+            name: "NotFoundError",
+            message: "Table not found.",
+          }
+          : (await parseHTTPError(error, [
+            "NotLoggedInError",
+            "NotMemberError",
+          ])) ?? error,
+    ),
+    (res) => res.text(),
+  );
 
 export interface GetTable {
   /** /api/table/:project/:title/:filename.csv の要求を組み立てる
@@ -66,7 +77,12 @@ export interface GetTable {
   fromResponse: (res: Response) => Promise<
     Result<
       string,
-      NotFoundError | NotLoggedInError | NotMemberError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 
@@ -78,7 +94,12 @@ export interface GetTable {
   ): Promise<
     Result<
       string,
-      NotFoundError | NotLoggedInError | NotMemberError
+      | NotFoundError
+      | NotLoggedInError
+      | NotMemberError
+      | NetworkError
+      | AbortError
+      | HTTPError
     >
   >;
 }
@@ -99,7 +120,8 @@ export const getTable: GetTable = async (
   const { fetch } = setDefaults(options ?? {});
   const req = getTable_toRequest(project, title, filename, options);
   const res = await fetch(req);
-  return await getTable_fromResponse(res);
+  if (isErr(res)) return res;
+  return await getTable_fromResponse(unwrapOk(res));
 };
 
 getTable.toRequest = getTable_toRequest;

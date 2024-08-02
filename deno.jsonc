@@ -2,7 +2,7 @@
   "name": "@cosense/std",
   "version": "0.0.0",
   "tasks": {
-    "check": "deno fmt && deno lint && deno check --remote **/*.ts && deno test --allow-read",
+    "check": "deno fmt && deno lint --fix && deno check --remote **/*.ts && deno test --allow-read",
     "check:dry": "deno fmt --check && deno lint && deno check --remote **/*.ts && deno test --allow-read",
     "update:check": "deno run --allow-env --allow-read --allow-write=.,'~/.local/share/deno-wasmbuild' --allow-run=git,deno --allow-net=deno.land,raw.githubusercontent.com,esm.sh,jsr.io,registry.npmjs.org jsr:@molt/cli@0.19",
     "update": "deno task update:check --write",
@@ -10,6 +10,7 @@
     "publish": "deno run --allow-env --allow-run=deno --allow-read --allow-write=deno.jsonc jsr:@david/publish-on-tag@0.1.x"
   },
   "imports": {
+    "@core/unknownutil": "jsr:@core/unknownutil@^3.18.1",
     "@cosense/types/rest": "jsr:@cosense/types@0.10/rest",
     "@cosense/types/userscript": "jsr:@cosense/types@0.10/userscript",
     "@progfay/scrapbox-parser": "jsr:@progfay/scrapbox-parser@9",
@@ -18,7 +19,8 @@
     "@std/hash": "./vendor/deno.land/std@0.160.0/hash/md5.ts",
     "@std/testing/snapshot": "jsr:@std/testing@0/snapshot",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
-    "@takker/scrapbox-userscript-websocket": "./vendor/raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.2.4/mod.ts"
+    "@takker/scrapbox-userscript-websocket": "./vendor/raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.2.4/mod.ts",
+    "option-t": "npm:option-t@^49.1.0"
   },
   "exports": {
     ".": "./mod.ts",
@@ -26,6 +28,8 @@
     "./browser": "./browser/mod.ts",
     "./browser/dom": "./browser/dom/mod.ts",
     "./browser/websocket": "./browser/websocket/mod.ts",
+    "./parseAbsoluteLink": "./parseAbsoluteLink.ts",
+    "./title": "./title.ts",
     "./text": "./text.ts"
   },
   "compilerOptions": {

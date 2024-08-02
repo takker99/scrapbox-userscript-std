@@ -1,4 +1,4 @@
-import type { Line } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import type {
   DeleteChange,
   InsertChange,
@@ -8,8 +8,9 @@ import { getCodeBlocks, type TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { createNewLineId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { countBodyIndent } from "./_codeBlock.ts";
-import { push, type PushOptions, type RetryError } from "./push.ts";
-import type { Result } from "../../rest/util.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
+import type { Result } from "option-t/plain_result";
+type Line = Page["lines"][number];
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface SimpleCodeFile {
@@ -58,7 +59,7 @@ export const updateCodeFile = (
   project: string,
   title: string,
   options?: UpdateCodeFileOptions,
-): Promise<Result<string, RetryError>> => {
+): Promise<Result<string, PushError>> => {
   /** optionsの既定値はこの中に入れる */
   const defaultOptions: Required<
     Omit<UpdateCodeFileOptions, "maxAttempts" | "socket">
@@ -72,9 +73,9 @@ export const updateCodeFile = (
   return push(
     project,
     title,
-    async (page) => {
+    (page) => {
       const lines: Line[] = page.lines;
-      const codeBlocks = await getCodeBlocks({ project, title, lines }, {
+      const codeBlocks = getCodeBlocks({ project, title, lines }, {
         filename: codeFile.filename,
       });
       const commits = [
