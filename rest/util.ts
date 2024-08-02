@@ -1,14 +1,4 @@
-/** 正常値と異常値を格納する型 */
-export type Result<T, E> = { ok: true; value: T } | { ok: false; value: E };
-
-/** networkからdataをとってくる処理
- *
- * interfaceは`fetch()`と同じ
- */
-export type Fetch = (
-  input: string | Request,
-  init?: RequestInit,
-) => Promise<Response>;
+import { RobustFetch, robustFetch } from "./robustFetch.ts";
 
 /** 全てのREST APIに共通するopitons */
 export interface BaseOptions {
@@ -22,7 +12,7 @@ export interface BaseOptions {
    *
    * @default fetch
    */
-  fetch?: Fetch;
+  fetch?: RobustFetch;
 
   /** REST APIのdomain
    *
@@ -45,7 +35,6 @@ export interface ExtendedOptions extends BaseOptions {
 export const setDefaults = <T extends BaseOptions = BaseOptions>(
   options: T,
 ): Omit<T, "fetch" | "hostName"> & Required<Omit<BaseOptions, "sid">> => {
-  const { fetch = globalThis.fetch, hostName = "scrapbox.io", ...rest } =
-    options;
+  const { fetch = robustFetch, hostName = "scrapbox.io", ...rest } = options;
   return { fetch, hostName, ...rest };
 };

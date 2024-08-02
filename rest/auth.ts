@@ -1,4 +1,7 @@
+import { createOk, mapForResult, Result } from "../deps/option-t.ts";
 import { getProfile } from "./profile.ts";
+import { HTTPError } from "./responseIntoResult.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
 import { BaseOptions } from "./util.ts";
 
 // scrapbox.io内なら`window._csrf`にCSRF tokenが入っている
@@ -20,9 +23,8 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  */
 export const getCSRFToken = async (
   init?: BaseOptions,
-): Promise<string> => {
-  if (globalThis._csrf) return globalThis._csrf;
-
-  const user = await getProfile(init);
-  return user.csrfToken;
-};
+): Promise<Result<string, NetworkError | AbortError | HTTPError>> =>
+  globalThis._csrf ? createOk(globalThis._csrf) : mapForResult(
+    await getProfile(init),
+    (user) => user.csrfToken,
+  );

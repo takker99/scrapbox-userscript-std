@@ -1,3 +1,9 @@
+import { createOk, isErr, Result, unwrapOk } from "../../deps/option-t.ts";
+import {
+  NotFoundError,
+  NotLoggedInError,
+  NotMemberError,
+} from "../../deps/scrapbox-rest.ts";
 import {
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
@@ -5,8 +11,10 @@ import {
   socketIO,
   wrap,
 } from "../../deps/socket.ts";
+import { HTTPError } from "../../rest/responseIntoResult.ts";
+import { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import { getProjectId } from "./pull.ts";
 import { connect, disconnect } from "./socket.ts";
-import { getProjectId } from "./id.ts";
 export type {
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
@@ -27,11 +35,24 @@ export async function* listenStream(
   events: ["commit" | "event", ...("commit" | "event")[]],
   options?: ListenStreamOptions,
 ): AsyncGenerator<
-  ProjectUpdatesStreamEvent | ProjectUpdatesStreamCommit,
+  Result<
+    ProjectUpdatesStreamEvent | ProjectUpdatesStreamCommit,
+    | NotFoundError
+    | NotLoggedInError
+    | NotMemberError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >,
   void,
   unknown
 > {
-  const projectId = await getProjectId(project);
+  const result = await getProjectId(project);
+  if (isErr(result)) {
+    yield result;
+    return;
+  }
+  const projectId = unwrapOk(result);
 
   const injectedSocket = options?.socket;
   const socket = injectedSocket ?? await socketIO();
@@ -45,9 +66,13 @@ export async function* listenStream(
       data: { projectId, pageId: null, projectUpdatesStream: true },
     });
 
-    yield* response(
-      ...events.map((event) => `projectUpdatesStream:${event}` as const),
-    );
+    for await (
+      const streamEvent of response(
+        ...events.map((event) => `projectUpdatesStream:${event}` as const),
+      )
+    ) {
+      yield createOk(streamEvent);
+    }
   } finally {
     if (!injectedSocket) await disconnect(socket);
   }

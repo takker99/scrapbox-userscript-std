@@ -231,11 +231,11 @@ const sample: Line[] = [
 Deno.test("getCodeBlocks()", async (t) => {
   await assertSnapshot(
     t,
-    await getCodeBlocks({ project, title, lines: sample }),
+    getCodeBlocks({ project, title, lines: sample }),
   );
   await t.step("filename filter", async (st) => {
     const filename = "インデント.md";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       filename,
     });
     const yet = [];
@@ -247,7 +247,7 @@ Deno.test("getCodeBlocks()", async (t) => {
   });
   await t.step("language name filter", async (st) => {
     const lang = "py";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       lang,
     });
     const yet = [];
@@ -259,7 +259,7 @@ Deno.test("getCodeBlocks()", async (t) => {
   });
   await t.step("title line ID filter", async (st) => {
     const titleLineId = "63b7b1261280f00000c9bc34";
-    const codeBlocks = await getCodeBlocks({ project, title, lines: sample }, {
+    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
       titleLineId,
     });
     const yet = [];

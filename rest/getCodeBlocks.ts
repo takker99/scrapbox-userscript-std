@@ -1,5 +1,4 @@
 import type { Line } from "../deps/scrapbox-rest.ts";
-import { pull } from "../browser/websocket/pull.ts";
 import {
   CodeTitle,
   extractFromCodeTitle,
@@ -45,11 +44,10 @@ export interface GetCodeBlocksFilter {
  * @param filter 取得するコードブロックを絞り込むfilter
  * @return コードブロックの配列
  */
-export const getCodeBlocks = async (
-  target: { project: string; title: string; lines?: Line[] },
+export const getCodeBlocks = (
+  target: { project: string; title: string; lines: Line[] },
   filter?: GetCodeBlocksFilter,
-): Promise<TinyCodeBlock[]> => {
-  const lines = await getLines(target);
+): TinyCodeBlock[] => {
   const codeBlocks: TinyCodeBlock[] = [];
 
   let currentCode: CodeTitle & {
@@ -61,7 +59,7 @@ export const getCodeBlocks = async (
     lang: "",
     indent: 0,
   };
-  for (const line of lines) {
+  for (const line of target.lines) {
     if (currentCode.isCodeBlock) {
       const body = extractFromCodeBody(line.text, currentCode.indent);
       if (body === null) {
@@ -93,30 +91,16 @@ export const getCodeBlocks = async (
   return codeBlocks.filter((codeBlock) => isMatchFilter(codeBlock, filter));
 };
 
-/** targetを`Line[]`に変換する */
-const getLines = async (
-  target: { project: string; title: string; lines?: Line[] },
-): Promise<Line[]> => {
-  if (target.lines !== undefined) {
-    return target.lines;
-  } else {
-    const head = await pull(target.project, target.title);
-    return head.lines;
-  }
-};
-
 /** コードブロックのフィルターに合致しているか検証する */
 const isMatchFilter = (
   codeBlock: TinyCodeBlock,
   filter?: GetCodeBlocksFilter,
-): boolean => {
-  const equals = (a: unknown, b: unknown) => !a || a === b;
-  return (
-    equals(filter?.filename, codeBlock.filename) &&
-    equals(filter?.lang, codeBlock.lang) &&
-    equals(filter?.titleLineId, codeBlock.titleLine.id)
-  );
-};
+): boolean =>
+  equals(filter?.filename, codeBlock.filename) &&
+  equals(filter?.lang, codeBlock.lang) &&
+  equals(filter?.titleLineId, codeBlock.titleLine.id);
+
+const equals = (a: unknown, b: unknown): boolean => !a || a === b;
 
 /** 行テキストがコードブロックの一部であればそのテキストを、そうでなければnullを返す
  *

@@ -1,7 +1,16 @@
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  Result,
+  unwrapOk,
+} from "../deps/option-t.ts";
 import type { NotLoggedInError } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
+import { BaseOptions, setDefaults } from "./util.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
   /** Gyazo Teamsのチーム名
@@ -21,10 +30,10 @@ export const getGyazoToken = async (
 ): Promise<
   Result<
     string | undefined,
-    NotLoggedInError
+    NotLoggedInError | NetworkError | AbortError | HTTPError
   >
 > => {
-  const { sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
+  const { fetch, sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
   const req = new Request(
     `https://${hostName}/api/login/gyazo/oauth-upload/token${
       gyazoTeamsName ? `?gyazoTeamsName=${gyazoTeamsName}` : ""
@@ -33,10 +42,14 @@ export const getGyazoToken = async (
   );
 
   const res = await fetch(req);
-  if (!res.ok) {
-    return makeError<NotLoggedInError>(res);
-  }
+  if (isErr(res)) return res;
 
-  const { token } = (await res.json()) as { token?: string };
-  return { ok: true, value: token };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
+    ),
+    (res) => res.json().then((json) => json.token as string | undefined),
+  );
 };

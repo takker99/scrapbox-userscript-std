@@ -5,8 +5,8 @@ import { diffToChanges } from "./diffToChanges.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
 import { SimpleCodeFile } from "./updateCodeFile.ts";
 import { countBodyIndent, extractFromCodeTitle } from "./_codeBlock.ts";
-import { push, PushOptions, RetryError } from "./push.ts";
-import { Result } from "../../rest/util.ts";
+import { push, PushError, PushOptions } from "./push.ts";
+import { Result } from "../../deps/option-t.ts";
 
 export interface UpdateCodeBlockOptions extends PushOptions {
   /** `true`でデバッグ出力ON */
@@ -26,7 +26,7 @@ export const updateCodeBlock = (
   newCode: string | string[] | SimpleCodeFile,
   target: TinyCodeBlock,
   options?: UpdateCodeBlockOptions,
-): Promise<Result<string, RetryError>> => {
+): Promise<Result<string, PushError>> => {
   const newCodeBody = getCodeBody(newCode);
   const bodyIndent = countBodyIndent(target);
   const oldCodeWithoutIndent: Line[] = target.bodyLines.map((e) => {

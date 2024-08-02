@@ -7,8 +7,17 @@ import type {
   PageSnapshotResult,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
-import { makeError } from "./error.ts";
+import { BaseOptions, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  Result,
+  unwrapOk,
+} from "../deps/option-t.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
+import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
@@ -31,6 +40,9 @@ export const getSnapshot = async (
     | NotLoggedInError
     | NotMemberError
     | InvalidPageSnapshotIdError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
@@ -41,22 +53,25 @@ export const getSnapshot = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          name: "InvalidPageSnapshotIdError",
-          message: await res.text(),
-        },
-      };
-    }
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-
-  const value = (await res.json()) as PageSnapshotResult;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        error.response.status === 422
+          ? {
+            name: "InvalidPageSnapshotIdError",
+            message: await error.response.text(),
+          }
+          : (await parseHTTPError(error, [
+            "NotFoundError",
+            "NotLoggedInError",
+            "NotMemberError",
+          ])) ?? error,
+    ),
+    (res) => res.json() as Promise<PageSnapshotResult>,
+  );
 };
 
 /**
@@ -73,7 +88,15 @@ export const getTimestampIds = async (
   pageId: string,
   options?: BaseOptions,
 ): Promise<
-  Result<PageSnapshotList, NotFoundError | NotLoggedInError | NotMemberError>
+  Result<
+    PageSnapshotList,
+    | NotFoundError
+    | NotLoggedInError
+    | NotMemberError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >
 > => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
@@ -83,11 +106,18 @@ export const getTimestampIds = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    return makeError<NotFoundError | NotLoggedInError | NotMemberError>(res);
-  }
-
-  const value = (await res.json()) as PageSnapshotList;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotMemberError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<PageSnapshotList>,
+  );
 };

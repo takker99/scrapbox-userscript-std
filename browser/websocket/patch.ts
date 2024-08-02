@@ -1,9 +1,9 @@
 import { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
 import { makeChanges } from "./makeChanges.ts";
 import { Line, Page } from "../../deps/scrapbox-rest.ts";
-import { push, PushOptions, RetryError } from "./push.ts";
+import { push, PushError, PushOptions } from "./push.ts";
 import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
-import { Result } from "../../rest/util.ts";
+import { Result } from "../../deps/option-t.ts";
 
 export type PatchOptions = PushOptions;
 
@@ -32,7 +32,7 @@ export const patch = (
     metadata: PatchMetadata,
   ) => string[] | undefined | Promise<string[] | undefined>,
   options?: PatchOptions,
-): Promise<Result<string, RetryError>> =>
+): Promise<Result<string, PushError>> =>
   push(
     project,
     title,

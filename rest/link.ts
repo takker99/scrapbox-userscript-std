@@ -1,3 +1,11 @@
+import {
+  createOk,
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  Result,
+  unwrapOk,
+} from "../deps/option-t.ts";
 import type {
   ErrorLike,
   NotFoundError,
@@ -5,8 +13,10 @@ import type {
   SearchedTitle,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
+import { BaseOptions, setDefaults } from "./util.ts";
 
 /** 不正なfollowingIdを渡されたときに発生するエラー */
 export interface InvalidFollowingIdError extends ErrorLike {
@@ -18,6 +28,11 @@ export interface GetLinksOptions extends BaseOptions {
   followingId?: string;
 }
 
+export interface GetLinksResult {
+  pages: SearchedTitle[];
+  followingId: string;
+}
+
 /** 指定したprojectのリンクデータを取得する
  *
  * @param project データを取得したいproject
@@ -26,10 +41,15 @@ export const getLinks = async (
   project: string,
   options?: GetLinksOptions,
 ): Promise<
-  Result<{
-    pages: SearchedTitle[];
-    followingId: string;
-  }, NotFoundError | NotLoggedInError | InvalidFollowingIdError>
+  Result<
+    GetLinksResult,
+    | NotFoundError
+    | NotLoggedInError
+    | InvalidFollowingIdError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >
 > => {
   const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
 
@@ -41,26 +61,28 @@ export const getLinks = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
-          name: "InvalidFollowingIdError",
-          message: await res.text(),
-        },
-      };
-    }
-
-    return makeError<NotFoundError | NotLoggedInError>(res);
-  }
-
-  const pages = (await res.json()) as SearchedTitle[];
-  return {
-    ok: true,
-    value: { pages, followingId: res.headers.get("X-following-id") ?? "" },
-  };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        error.response.status === 422
+          ? {
+            name: "InvalidFollowingIdError",
+            message: await error.response.text(),
+          } as InvalidFollowingIdError
+          : (await parseHTTPError(error, [
+            "NotFoundError",
+            "NotLoggedInError",
+          ])) ?? error,
+    ),
+    (res) =>
+      res.json().then((pages: SearchedTitle[]) => ({
+        pages,
+        followingId: res.headers.get("X-following-id") ?? "",
+      })),
+  );
 };
 
 /** 指定したprojectの全てのリンクデータを取得する
@@ -70,57 +92,64 @@ export const getLinks = async (
  * @param project データを取得したいproject
  * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
  */
-export const readLinksBulk = async (
+export async function* readLinksBulk(
   project: string,
   options?: BaseOptions,
-): Promise<
-  | NotFoundError
-  | NotLoggedInError
-  | InvalidFollowingIdError
-  | AsyncGenerator<SearchedTitle[], void, unknown>
-> => {
-  const first = await getLinks(project, options);
-  if (!first.ok) return first.value;
-
-  return async function* () {
-    yield first.value.pages;
-    let followingId = first.value.followingId;
-
-    while (followingId) {
-      const result = await getLinks(project, { followingId, ...options });
-
-      // すでに認証は通っているので、ここでエラーになるはずがない
-      if (!result.ok) {
-        throw new Error("The authorization cannot be unavailable");
-      }
-      yield result.value.pages;
-      followingId = result.value.followingId;
+): AsyncGenerator<
+  Result<
+    SearchedTitle[],
+    | NotFoundError
+    | NotLoggedInError
+    | InvalidFollowingIdError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >,
+  void,
+  unknown
+> {
+  let followingId: string | undefined;
+  do {
+    const result = await getLinks(project, { followingId, ...options });
+    if (isErr(result)) {
+      yield result;
+      return;
     }
-  }();
-};
+    const res = unwrapOk(result);
+
+    yield createOk(res.pages);
+    followingId = res.followingId;
+  } while (followingId);
+}
 
 /** 指定したprojectの全てのリンクデータを取得し、一つづつ返す
  *
  * @param project データを取得したいproject
  * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
  */
-export const readLinks = async (
+export async function* readLinks(
   project: string,
   options?: BaseOptions,
-): Promise<
-  | NotFoundError
-  | NotLoggedInError
-  | InvalidFollowingIdError
-  | AsyncGenerator<SearchedTitle, void, unknown>
-> => {
-  const reader = await readLinksBulk(project, options);
-  if ("name" in reader) return reader;
-
-  return async function* () {
-    for await (const titles of reader) {
-      for (const title of titles) {
-        yield title;
-      }
+): AsyncGenerator<
+  Result<
+    SearchedTitle,
+    | NotFoundError
+    | NotLoggedInError
+    | InvalidFollowingIdError
+    | NetworkError
+    | AbortError
+    | HTTPError
+  >,
+  void,
+  unknown
+> {
+  for await (const result of readLinksBulk(project, options)) {
+    if (isErr(result)) {
+      yield result;
+      return;
     }
-  }();
-};
+    for (const page of unwrapOk(result)) {
+      yield createOk(page);
+    }
+  }
+}

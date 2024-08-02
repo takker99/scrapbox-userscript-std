@@ -1,12 +1,23 @@
-import type {
+import {
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  orElseAsyncForResult,
+  Result,
+  toResultOkFromMaybe,
+  unwrapOk,
+} from "../deps/option-t.ts";
+import {
   BadRequestError,
   InvalidURLError,
   SessionError,
   TweetInfo,
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { ExtendedOptions, Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
+import { ExtendedOptions, setDefaults } from "./util.ts";
 
 /** 指定したTweetの情報を取得する
  *
@@ -23,18 +34,28 @@ export const getTweetInfo = async (
     | SessionError
     | InvalidURLError
     | BadRequestError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
+
   const req = new Request(
     `https://${hostName}/api/embed-text/twitter?url=${
-      encodeURIComponent(url.toString())
+      encodeURIComponent(`${url}`)
     }`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": csrf ?? await getCSRFToken(init),
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ timeout: 3000 }),
@@ -42,20 +63,25 @@ export const getTweetInfo = async (
   );
 
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    if (res.status === 422) {
-      return {
-        ok: false,
-        value: {
+  return mapErrAsyncForResult(
+    await mapAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      (res) => res.json() as Promise<TweetInfo>,
+    ),
+    async (res) => {
+      if (res.response.status === 422) {
+        return {
           name: "InvalidURLError",
-          message: (await res.json()).message as string,
-        },
-      };
-    }
-    return makeError<SessionError | BadRequestError>(res);
-  }
-
-  const tweet = (await res.json()) as TweetInfo;
-  return { ok: true, value: tweet };
+          message: (await res.response.json()).message as string,
+        };
+      }
+      const parsed = await parseHTTPError(res, [
+        "SessionError",
+        "BadRequestError",
+      ]);
+      return parsed ?? res;
+    },
+  );
 };

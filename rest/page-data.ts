@@ -1,5 +1,14 @@
+import {
+  createOk,
+  isErr,
+  mapAsyncForResult,
+  mapErrAsyncForResult,
+  orElseAsyncForResult,
+  Result,
+  toResultOkFromMaybe,
+  unwrapOk,
+} from "../deps/option-t.ts";
 import type {
-  ErrorLike,
   ExportedData,
   ImportedData,
   NotFoundError,
@@ -7,8 +16,10 @@ import type {
   NotPrivilegeError,
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
-import { makeError } from "./error.ts";
-import { BaseOptions, ExtendedOptions, Result, setDefaults } from "./util.ts";
+import { parseHTTPError } from "./parseHTTPError.ts";
+import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { AbortError, NetworkError } from "./robustFetch.ts";
+import { BaseOptions, ExtendedOptions, setDefaults } from "./util.ts";
 /** projectにページをインポートする
  *
  * @param project - インポート先のprojectの名前
@@ -19,11 +30,9 @@ export const importPages = async (
   data: ImportedData<boolean>,
   init: ExtendedOptions,
 ): Promise<
-  Result<string, ErrorLike>
+  Result<string, NetworkError | AbortError | HTTPError>
 > => {
-  if (data.pages.length === 0) {
-    return { ok: true, value: "No pages to import." };
-  }
+  if (data.pages.length === 0) return createOk("No pages to import.");
 
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const formData = new FormData();
@@ -34,6 +43,13 @@ export const importPages = async (
     }),
   );
   formData.append("name", "undefined");
+
+  const csrfResult = await orElseAsyncForResult(
+    toResultOkFromMaybe(csrf),
+    () => getCSRFToken(init),
+  );
+  if (isErr(csrfResult)) return csrfResult;
+
   const req = new Request(
     `https://${hostName}/api/page-data/import/${project}.json`,
     {
@@ -41,19 +57,19 @@ export const importPages = async (
       headers: {
         ...(sid ? { Cookie: cookie(sid) } : {}),
         Accept: "application/json, text/plain, */*",
-        "X-CSRF-TOKEN": csrf ?? await getCSRFToken(init),
+        "X-CSRF-TOKEN": unwrapOk(csrfResult),
       },
       body: formData,
     },
   );
 
   const res = await fetch(req);
-  if (!res.ok) {
-    return makeError(res);
-  }
+  if (isErr(res)) return res;
 
-  const { message } = (await res.json()) as { message: string };
-  return { ok: true, value: message };
+  return mapAsyncForResult(
+    responseIntoResult(unwrapOk(res)),
+    async (res) => (await res.json()).message as string,
+  );
 };
 
 /** `exportPages`の認証情報 */
@@ -71,7 +87,12 @@ export const exportPages = async <withMetadata extends true | false>(
 ): Promise<
   Result<
     ExportedData<withMetadata>,
-    NotFoundError | NotPrivilegeError | NotLoggedInError
+    | NotFoundError
+    | NotPrivilegeError
+    | NotLoggedInError
+    | NetworkError
+    | AbortError
+    | HTTPError
   >
 > => {
   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
@@ -81,11 +102,18 @@ export const exportPages = async <withMetadata extends true | false>(
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
   const res = await fetch(req);
+  if (isErr(res)) return res;
 
-  if (!res.ok) {
-    return makeError<NotFoundError | NotPrivilegeError | NotLoggedInError>(res);
-  }
-
-  const value = (await res.json()) as ExportedData<withMetadata>;
-  return { ok: true, value };
+  return mapAsyncForResult(
+    await mapErrAsyncForResult(
+      responseIntoResult(unwrapOk(res)),
+      async (error) =>
+        (await parseHTTPError(error, [
+          "NotFoundError",
+          "NotLoggedInError",
+          "NotPrivilegeError",
+        ])) ?? error,
+    ),
+    (res) => res.json() as Promise<ExportedData<withMetadata>>,
+  );
 };

@@ -12,7 +12,7 @@ export * from "./getTweetInfo.ts";
 export * from "./getGyazoToken.ts";
 export * from "./auth.ts";
 export * from "./util.ts";
-export * from "./error.ts";
+export * from "./parseHTTPError.ts";
 export * from "./getCodeBlocks.ts";
 export * from "./getCodeBlock.ts";
 export * from "./uploadToGCS.ts";
