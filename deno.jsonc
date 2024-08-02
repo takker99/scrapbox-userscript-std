@@ -1,5 +1,5 @@
 {
-  "name": "@takker/scrapbox-userscript-std",
+  "name": "@cosense/std",
   "version": "0.0.0",
   "tasks": {
     "check": "deno fmt && deno lint && deno check --remote **/*.ts && deno test --allow-read",
