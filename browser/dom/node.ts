@@ -1,5 +1,5 @@
 import { isNumber, isString, isUndefined } from "@core/unknownutil";
-import { ensureArray } from "../../ensure.ts";
+import { ensure, isArray } from "@core/unknownutil";
 import { getCachedLines } from "./getCachedLines.ts";
 import { takeInternalLines } from "./takeInternalLines.ts";
 import type { BaseLine, Line } from "@cosense/types/userscript";
@@ -90,9 +90,8 @@ export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
 export const getLineCount = (): number => takeInternalLines().length;
 
 export const getLines = (): readonly Line[] => {
-  const lines = getCachedLines();
-  ensureArray<Line>(lines, "scrapbox.Page.lines");
-  return lines;
+  const lines = ensure(getCachedLines(), isArray);
+  return lines as Line[];
 };
 
 export const getText = <T extends HTMLElement>(
