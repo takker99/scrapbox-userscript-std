@@ -1,5 +1,5 @@
-import { push, PushOptions, RetryError } from "./push.ts";
-import { Result } from "../../rest/util.ts";
+import { push, type PushOptions, type RetryError } from "./push.ts";
+import type { Result } from "../../rest/util.ts";
 
 export type DeletePageOptions = PushOptions;
 

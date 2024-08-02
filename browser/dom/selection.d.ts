@@ -1,9 +1,5 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
-import { BaseLine, BaseStore } from "../../deps/scrapbox.ts";
-import { Position } from "./position.ts";
+import { type BaseLine, BaseStore } from "../../deps/scrapbox.ts";
+import type { Position } from "./position.ts";
 
 export interface Range {
   start: Position;

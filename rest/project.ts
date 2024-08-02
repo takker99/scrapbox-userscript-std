@@ -9,7 +9,7 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
 import { makeError } from "./error.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { type BaseOptions, type Result, setDefaults } from "./util.ts";
 
 export interface GetProject {
   /** /api/project/:project の要求を組み立てる

@@ -1,7 +1,7 @@
 import {
-  ProjectUpdatesStreamCommit,
-  ProjectUpdatesStreamEvent,
-  Socket,
+  type ProjectUpdatesStreamCommit,
+  type ProjectUpdatesStreamEvent,
+  type Socket,
   socketIO,
   wrap,
 } from "../../deps/socket.ts";

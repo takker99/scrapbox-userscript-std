@@ -6,7 +6,7 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { makeError } from "./error.ts";
-import { ExtendedOptions, Result, setDefaults } from "./util.ts";
+import { type ExtendedOptions, type Result, setDefaults } from "./util.ts";
 
 /** 指定したTweetの情報を取得する
  *

@@ -7,7 +7,7 @@ import type {
   PageSnapshotResult,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { type BaseOptions, type Result, setDefaults } from "./util.ts";
 import { makeError } from "./error.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */

@@ -1,11 +1,15 @@
 import type { Line } from "../../deps/scrapbox-rest.ts";
-import { DeleteChange, InsertChange, UpdateChange } from "../../deps/socket.ts";
-import { getCodeBlocks, TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
+import type {
+  DeleteChange,
+  InsertChange,
+  UpdateChange,
+} from "../../deps/socket.ts";
+import { getCodeBlocks, type TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { createNewLineId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { countBodyIndent } from "./_codeBlock.ts";
-import { push, PushOptions, RetryError } from "./push.ts";
-import { Result } from "../../rest/util.ts";
+import { push, type PushOptions, type RetryError } from "./push.ts";
+import type { Result } from "../../rest/util.ts";
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface SimpleCodeFile {

@@ -1,5 +1,10 @@
 import { cookie, getCSRFToken } from "./auth.ts";
-import { BaseOptions, ExtendedOptions, Result, setDefaults } from "./util.ts";
+import {
+  type BaseOptions,
+  type ExtendedOptions,
+  type Result,
+  setDefaults,
+} from "./util.ts";
 import { makeError, UnexpectedResponseError } from "./error.ts";
 import type { ErrorLike, NotFoundError } from "../deps/scrapbox-rest.ts";
 import { Md5 } from "../deps/hash.ts";

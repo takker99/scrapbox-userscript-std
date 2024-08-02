@@ -1,9 +1,7 @@
 export type {
   BaseLine,
+  BaseStore,
   Line,
   Scrapbox,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/userscript.ts";
-export type {
-  BaseStore,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/baseStore.ts";
-export * from "https://esm.sh/@progfay/scrapbox-parser@9.0.0";
+} from "@cosense/types/userscript";
+export * from "@progfay/scrapbox-parser";

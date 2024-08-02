@@ -1,22 +1,22 @@
 import {
-  Change,
-  DeletePageChange,
-  PageCommit,
-  PageCommitError,
-  PageCommitResponse,
-  PinChange,
-  Socket,
+  type Change,
+  type DeletePageChange,
+  type PageCommit,
+  type PageCommitError,
+  type PageCommitResponse,
+  type PinChange,
+  type Socket,
   socketIO,
-  TimeoutError,
-  UnexpectedError,
+  type TimeoutError,
+  type UnexpectedError,
   wrap,
 } from "../../deps/socket.ts";
 import { connect, disconnect } from "./socket.ts";
 import { getProjectId, getUserId } from "./id.ts";
 import { pull } from "./pull.ts";
-import { Page } from "../../deps/scrapbox-rest.ts";
-import { sleep } from "../../sleep.ts";
-import { Result } from "../../rest/util.ts";
+import type { Page } from "../../deps/scrapbox-rest.ts";
+import { delay } from "@std/async/delay";
+import type { Result } from "../../rest/util.ts";
 
 export interface PushOptions {
   /** 外部からSocketを指定したいときに使う */
@@ -126,12 +126,12 @@ export const push = async (
           throw error;
         }
         if (name === "TimeoutError" || name === "SocketIOError") {
-          await sleep(3000);
+          await delay(3000);
           // go back to the push loop
           continue;
         }
         if (name === "NotFastForwardError") {
-          await sleep(1000);
+          await delay(1000);
           page = {
             ...await pull(project, title),
             projectId: page.projectId,

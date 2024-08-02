@@ -5,7 +5,7 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { makeError } from "./error.ts";
-import { ExtendedOptions, Result, setDefaults } from "./util.ts";
+import { type ExtendedOptions, type Result, setDefaults } from "./util.ts";
 
 /** 指定したproject内の全てのリンクを書き換える
  *

@@ -1,4 +1,4 @@
-import { Page } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "../../deps/scrapbox-rest.ts";
 import { getPage } from "../../rest/pages.ts";
 
 export const pull = async (
