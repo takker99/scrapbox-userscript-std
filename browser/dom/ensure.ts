@@ -1,4 +1,3 @@
-/// <reference lib="dom" />
 // These code are based on https://deno.land/x/unknownutil@v1.1.0/ensure.ts
 
 export const ensureHTMLDivElement: (

@@ -1,8 +1,4 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
-import { sleep } from "../../sleep.ts";
+import { delay } from "@std/async/delay";
 
 /** the options for `click()` */
 export interface ClickOptions {
@@ -36,7 +32,7 @@ export const click = async (
 
   // ScrapboxのReactの処理が終わるまで少し待つ
   // 待ち時間は感覚で決めた
-  await sleep(10);
+  await delay(10);
 };
 
 export interface HoldDownOptions extends ClickOptions {
@@ -71,12 +67,12 @@ export const holdDown = async (
   };
   element.dispatchEvent(new TouchEvent("touchstart", mouseOptions));
   element.dispatchEvent(new MouseEvent("mousedown", mouseOptions));
-  await sleep(options.holding ?? 1000);
+  await delay(options.holding ?? 1000);
   element.dispatchEvent(new MouseEvent("mouseup", mouseOptions));
   element.dispatchEvent(new TouchEvent("touchend", mouseOptions));
   element.dispatchEvent(new MouseEvent("click", mouseOptions));
 
   // ScrapboxのReactの処理が終わるまで少し待つ
   // 待ち時間は感覚で決めた
-  await sleep(10);
+  await delay(10);
 };

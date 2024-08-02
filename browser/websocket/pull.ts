@@ -3,21 +3,25 @@ import {
   createOk,
   isErr,
   mapForResult,
-  Result,
+  type Result,
   unwrapOk,
 } from "../../deps/option-t.ts";
-import {
+import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
   Page,
 } from "../../deps/scrapbox-rest.ts";
-import { getPage, GetPageOption, TooLongURIError } from "../../rest/pages.ts";
+import {
+  getPage,
+  type GetPageOption,
+  type TooLongURIError,
+} from "../../rest/pages.ts";
 import { getProfile } from "../../rest/profile.ts";
 import { getProject } from "../../rest/project.ts";
-import { HTTPError } from "../../rest/responseIntoResult.ts";
-import { AbortError, NetworkError } from "../../rest/robustFetch.ts";
-import { BaseOptions } from "../../rest/util.ts";
+import type { HTTPError } from "../../rest/responseIntoResult.ts";
+import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import type { BaseOptions } from "../../rest/util.ts";
 
 export interface PushMetadata extends Page {
   projectId: string;

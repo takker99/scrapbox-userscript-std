@@ -26,4 +26,4 @@ export type {
   SessionError,
   Snapshot,
   TweetInfo,
-} from "https://raw.githubusercontent.com/scrapbox-jp/types/0.9.0/rest.ts";
+} from "@cosense/types/rest";

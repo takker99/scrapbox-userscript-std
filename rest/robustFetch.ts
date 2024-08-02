@@ -1,4 +1,4 @@
-import { createErr, createOk, Result } from "../deps/option-t.ts";
+import { createErr, createOk, type Result } from "../deps/option-t.ts";
 
 export interface NetworkError {
   name: "NetworkError";

@@ -3,11 +3,11 @@ import {
   mapAsyncForResult,
   mapErrAsyncForResult,
   orElseAsyncForResult,
-  Result,
+  type Result,
   toResultOkFromMaybe,
   unwrapOk,
 } from "../deps/option-t.ts";
-import {
+import type {
   BadRequestError,
   InvalidURLError,
   SessionError,
@@ -15,9 +15,9 @@ import {
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { ExtendedOptions, setDefaults } from "./util.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type ExtendedOptions, setDefaults } from "./util.ts";
 
 /** 指定したTweetの情報を取得する
  *

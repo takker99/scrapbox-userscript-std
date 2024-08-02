@@ -1,5 +1,5 @@
-import { Result } from "../../deps/option-t.ts";
-import { push, PushError, PushOptions } from "./push.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
+import type { Result } from "../../deps/option-t.ts";
 
 export type DeletePageOptions = PushOptions;
 

@@ -1,9 +1,5 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
 import { BaseStore } from "../../deps/scrapbox.ts";
-import { Page as PageData } from "../../deps/scrapbox-rest.ts";
+import type { Page as PageData } from "../../deps/scrapbox-rest.ts";
 
 export interface SetPositionOptions {
   /** カーソルが画面外に移動したとき、カーソルが見える位置までページをスクロールするかどうか

@@ -7,17 +7,17 @@ import type {
   PageSnapshotResult,
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import {
   isErr,
   mapAsyncForResult,
   mapErrAsyncForResult,
-  Result,
+  type Result,
   unwrapOk,
 } from "../deps/option-t.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */
 export interface InvalidPageSnapshotIdError extends ErrorLike {

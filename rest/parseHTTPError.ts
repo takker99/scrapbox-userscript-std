@@ -1,4 +1,4 @@
-import {
+import type {
   BadRequestError,
   InvalidURLError,
   NoQueryError,
@@ -8,14 +8,14 @@ import {
   NotPrivilegeError,
   SessionError,
 } from "../deps/scrapbox-rest.ts";
-import { Maybe } from "../deps/option-t.ts";
+import type { Maybe } from "../deps/option-t.ts";
 import {
   isArrayOf,
   isLiteralOneOf,
   isRecord,
   isString,
 } from "../deps/unknownutil.ts";
-import { HTTPError } from "./responseIntoResult.ts";
+import type { HTTPError } from "./responseIntoResult.ts";
 
 export interface RESTfullAPIErrorMap {
   BadRequestError: BadRequestError;

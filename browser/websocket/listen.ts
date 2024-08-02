@@ -1,18 +1,18 @@
-import { createOk, isErr, Result, unwrapOk } from "../../deps/option-t.ts";
-import {
+import { createOk, isErr, type Result, unwrapOk } from "../../deps/option-t.ts";
+import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
 } from "../../deps/scrapbox-rest.ts";
 import {
-  ProjectUpdatesStreamCommit,
-  ProjectUpdatesStreamEvent,
-  Socket,
+  type ProjectUpdatesStreamCommit,
+  type ProjectUpdatesStreamEvent,
+  type Socket,
   socketIO,
   wrap,
 } from "../../deps/socket.ts";
-import { HTTPError } from "../../rest/responseIntoResult.ts";
-import { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import type { HTTPError } from "../../rest/responseIntoResult.ts";
+import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import { getProjectId } from "./pull.ts";
 import { connect, disconnect } from "./socket.ts";
 export type {

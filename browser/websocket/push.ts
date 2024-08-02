@@ -1,36 +1,36 @@
 import {
-  Change,
-  DeletePageChange,
-  PageCommit,
-  PageCommitError,
-  PageCommitResponse,
-  PinChange,
-  Result as SocketResult,
-  Socket,
+  type Change,
+  type DeletePageChange,
+  type PageCommit,
+  type PageCommitError,
+  type PageCommitResponse,
+  type PinChange,
+  type Result as SocketResult,
+  type Socket,
   socketIO,
-  TimeoutError,
+  type TimeoutError,
   wrap,
 } from "../../deps/socket.ts";
 import { connect, disconnect } from "./socket.ts";
 import { pull } from "./pull.ts";
-import {
+import type {
   ErrorLike,
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
   Page,
 } from "../../deps/scrapbox-rest.ts";
-import { sleep } from "../../sleep.ts";
+import { delay } from "@std/async/delay";
 import {
   createErr,
   createOk,
   isErr,
-  Result,
+  type Result,
   unwrapOk,
 } from "../../deps/option-t.ts";
-import { TooLongURIError } from "../../mod.ts";
-import { HTTPError } from "../../rest/responseIntoResult.ts";
-import { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import type { HTTPError } from "../../rest/responseIntoResult.ts";
+import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import type { TooLongURIError } from "../../rest/pages.ts";
 
 export interface PushOptions {
   /** 外部からSocketを指定したいときに使う */
@@ -148,12 +148,12 @@ export const push = async (
           return createErr({ name, message: JSON.stringify(result.value) });
         }
         if (name === "TimeoutError" || name === "SocketIOError") {
-          await sleep(3000);
+          await delay(3000);
           // go back to the push loop
           continue;
         }
         if (name === "NotFastForwardError") {
-          await sleep(1000);
+          await delay(1000);
           const pullResult = await pull(project, title);
           if (isErr(pullResult)) return pullResult;
           metadata = unwrapOk(pullResult);

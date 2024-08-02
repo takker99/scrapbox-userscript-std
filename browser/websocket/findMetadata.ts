@@ -1,4 +1,4 @@
-import { BaseLine, Node, parse } from "../../deps/scrapbox.ts";
+import { type BaseLine, type Node, parse } from "../../deps/scrapbox.ts";
 import { toTitleLc } from "../../title.ts";
 import { parseYoutube } from "../../parser/youtube.ts";
 

@@ -1,5 +1,5 @@
 import { diffToChanges } from "./diffToChanges.ts";
-import { Page } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "../../deps/scrapbox-rest.ts";
 import type { Change } from "../../deps/socket.ts";
 import { findMetadata, getHelpfeels } from "./findMetadata.ts";
 import { isSameArray } from "./isSameArray.ts";

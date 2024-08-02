@@ -1,7 +1,3 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
 import { textInput } from "./dom.ts";
 
 /** the options for `press()` */

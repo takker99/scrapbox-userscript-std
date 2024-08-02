@@ -1,10 +1,6 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
-
 import { encodeTitleURI } from "../../title.ts";
 import {
-  PageTransitionContext,
+  type PageTransitionContext,
   pushPageTransition,
 } from "./pushPageTransition.ts";
 import type { Scrapbox } from "../../deps/scrapbox.ts";
@@ -43,7 +39,7 @@ export const open = (
   project: string,
   title: string,
   options?: OpenOptions,
-) => {
+): void => {
   const url = new URL(`/${project}/${encodeTitleURI(title)}`, location.href);
   if (options?.body) url.search = `?body=${encodeURIComponent(options.body)}`;
   if (options?.id) url.hash = `#${options.id}`;
@@ -88,4 +84,4 @@ export const openInTheSameTab = (
   project: string,
   title: string,
   body?: string,
-) => open(project, title, { newTab: false, reload: false, body });
+): void => open(project, title, { newTab: false, reload: false, body });

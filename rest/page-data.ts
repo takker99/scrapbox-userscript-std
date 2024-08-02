@@ -4,7 +4,7 @@ import {
   mapAsyncForResult,
   mapErrAsyncForResult,
   orElseAsyncForResult,
-  Result,
+  type Result,
   toResultOkFromMaybe,
   unwrapOk,
 } from "../deps/option-t.ts";
@@ -17,9 +17,9 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { BaseOptions, ExtendedOptions, setDefaults } from "./util.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
 /** projectにページをインポートする
  *
  * @param project - インポート先のprojectの名前

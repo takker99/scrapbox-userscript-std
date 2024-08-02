@@ -1,4 +1,4 @@
-import { SimpleCodeFile } from "./updateCodeFile.ts";
+import type { SimpleCodeFile } from "./updateCodeFile.ts";
 
 /** objectがSimpleCodeFile型かどうかを判別する */
 export function isSimpleCodeFile(obj: unknown): obj is SimpleCodeFile {

@@ -1,6 +1,6 @@
-import { Result } from "../../deps/option-t.ts";
-import { Change, Socket } from "../../deps/socket.ts";
-import { push, PushError, PushOptions } from "./push.ts";
+import type { Result } from "../../deps/option-t.ts";
+import type { Change, Socket } from "../../deps/socket.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
   /** ピン留め対象のページが存在しないときの振る舞いを変えるoption

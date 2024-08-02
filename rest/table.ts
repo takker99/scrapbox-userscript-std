@@ -5,17 +5,17 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
-import { BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
 import {
   isErr,
   mapAsyncForResult,
   mapErrAsyncForResult,
-  Result,
+  type Result,
   unwrapOk,
 } from "../deps/option-t.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
   project,

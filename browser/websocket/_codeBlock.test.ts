@@ -1,5 +1,3 @@
-/// <reference lib="deno.ns" />
-
 import { assertEquals, assertSnapshot } from "../../deps/testing.ts";
 import { extractFromCodeTitle } from "./_codeBlock.ts";
 

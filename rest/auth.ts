@@ -1,15 +1,8 @@
-import { createOk, mapForResult, Result } from "../deps/option-t.ts";
+import { createOk, mapForResult, type Result } from "../deps/option-t.ts";
 import { getProfile } from "./profile.ts";
-import { HTTPError } from "./responseIntoResult.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { BaseOptions } from "./util.ts";
-
-// scrapbox.io内なら`window._csrf`にCSRF tokenが入っている
-declare global {
-  // globalThisに変数を宣言するには、`var`を使うしかない
-  // deno-lint-ignore no-var
-  var _csrf: string | undefined;
-}
+import type { HTTPError } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import type { BaseOptions } from "./util.ts";
 
 /** HTTP headerのCookieに入れる文字列を作る
  *
@@ -24,7 +17,11 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
 export const getCSRFToken = async (
   init?: BaseOptions,
 ): Promise<Result<string, NetworkError | AbortError | HTTPError>> =>
-  globalThis._csrf ? createOk(globalThis._csrf) : mapForResult(
-    await getProfile(init),
-    (user) => user.csrfToken,
-  );
+  // deno-lint-ignore no-explicit-any
+  (globalThis as any)._csrf
+    // deno-lint-ignore no-explicit-any
+    ? createOk((globalThis as any)._csrf)
+    : mapForResult(
+      await getProfile(init),
+      (user) => user.csrfToken,
+    );

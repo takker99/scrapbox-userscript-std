@@ -1,5 +1,5 @@
 import { cookie, getCSRFToken } from "./auth.ts";
-import { BaseOptions, ExtendedOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
 import type { ErrorLike, NotFoundError } from "../deps/scrapbox-rest.ts";
 import { Md5 } from "../deps/hash.ts";
 import {
@@ -9,12 +9,12 @@ import {
   mapErrAsyncForResult,
   mapForResult,
   orElseAsyncForResult,
-  Result,
+  type Result,
   toResultOkFromMaybe,
   unwrapOk,
 } from "../deps/option-t.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
 /** uploadしたファイルのメタデータ */
 export interface GCSFile {

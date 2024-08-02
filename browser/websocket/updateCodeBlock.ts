@@ -1,12 +1,16 @@
-import { Line } from "../../deps/scrapbox-rest.ts";
-import { DeleteChange, InsertChange, UpdateChange } from "../../deps/socket.ts";
-import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
+import type { Line } from "../../deps/scrapbox-rest.ts";
+import type {
+  DeleteChange,
+  InsertChange,
+  UpdateChange,
+} from "../../deps/socket.ts";
+import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
-import { SimpleCodeFile } from "./updateCodeFile.ts";
+import type { SimpleCodeFile } from "./updateCodeFile.ts";
 import { countBodyIndent, extractFromCodeTitle } from "./_codeBlock.ts";
-import { push, PushError, PushOptions } from "./push.ts";
-import { Result } from "../../deps/option-t.ts";
+import { push, type PushError, type PushOptions } from "./push.ts";
+import type { Result } from "../../deps/option-t.ts";
 
 export interface UpdateCodeBlockOptions extends PushOptions {
   /** `true`でデバッグ出力ON */

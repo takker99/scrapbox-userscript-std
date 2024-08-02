@@ -1,4 +1,4 @@
-import { RobustFetch, robustFetch } from "./robustFetch.ts";
+import { type RobustFetch, robustFetch } from "./robustFetch.ts";
 
 /** 全てのREST APIに共通するopitons */
 export interface BaseOptions {

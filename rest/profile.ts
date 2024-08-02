@@ -1,14 +1,14 @@
 import {
   isErr,
   mapAsyncForResult,
-  Result,
+  type Result,
   unwrapOk,
 } from "../deps/option-t.ts";
-import { GuestUser, MemberUser } from "../deps/scrapbox-rest.ts";
+import type { GuestUser, MemberUser } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
-import { HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import { AbortError, NetworkError } from "./robustFetch.ts";
-import { BaseOptions, setDefaults } from "./util.ts";
+import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
+import { type BaseOptions, setDefaults } from "./util.ts";
 
 export interface GetProfile {
   /** /api/users/me の要求を組み立てる
