@@ -1,4 +1,4 @@
-import type { Line, Scrapbox } from "../../deps/scrapbox.ts";
+import type { Line, Scrapbox } from "@cosense/types/userscript";
 declare const scrapbox: Scrapbox;
 
 let isLatestData = false;

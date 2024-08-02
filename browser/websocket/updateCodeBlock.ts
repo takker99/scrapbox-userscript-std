@@ -1,4 +1,4 @@
-import type { Line } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import type {
   DeleteChange,
   InsertChange,
@@ -10,7 +10,9 @@ import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
 import type { SimpleCodeFile } from "./updateCodeFile.ts";
 import { countBodyIndent, extractFromCodeTitle } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
-import type { Result } from "../../deps/option-t.ts";
+import type { Result } from "option-t/plain_result";
+
+type Line = Page["lines"][number];
 
 export interface UpdateCodeBlockOptions extends PushOptions {
   /** `true`でデバッグ出力ON */

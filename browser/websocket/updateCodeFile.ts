@@ -1,4 +1,4 @@
-import type { Line } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import type {
   DeleteChange,
   InsertChange,
@@ -9,7 +9,8 @@ import { createNewLineId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { countBodyIndent } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
-import type { Result } from "../../deps/option-t.ts";
+import type { Result } from "option-t/plain_result";
+type Line = Page["lines"][number];
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface SimpleCodeFile {

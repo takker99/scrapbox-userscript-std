@@ -5,13 +5,13 @@ import {
   mapForResult,
   type Result,
   unwrapOk,
-} from "../../deps/option-t.ts";
+} from "option-t/plain_result";
 import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
   Page,
-} from "../../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import {
   getPage,
   type GetPageOption,

@@ -1,5 +1,5 @@
 import { getPage, listPages } from "./pages.ts";
-import { assertSnapshot } from "../deps/testing.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 Deno.test("getPage", async (t) => {
   await assertSnapshot(

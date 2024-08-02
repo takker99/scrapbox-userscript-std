@@ -1,5 +1,6 @@
 import { findMetadata, getHelpfeels } from "./findMetadata.ts";
-import { assertEquals, assertSnapshot } from "../../deps/testing.ts";
+import { assertEquals } from "@std/assert";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 const text = `てすと
 [ふつうの]リンク

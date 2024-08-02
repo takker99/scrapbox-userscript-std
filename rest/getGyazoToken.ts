@@ -4,8 +4,8 @@ import {
   mapErrAsyncForResult,
   type Result,
   unwrapOk,
-} from "../deps/option-t.ts";
-import type { NotLoggedInError } from "../deps/scrapbox-rest.ts";
+} from "option-t/plain_result";
+import type { NotLoggedInError } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";

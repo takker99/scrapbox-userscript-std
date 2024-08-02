@@ -1,5 +1,5 @@
 import { lines } from "./dom.ts";
-import type { BaseLine } from "../../deps/scrapbox.ts";
+import type { BaseLine } from "@cosense/types/userscript";
 
 /** Scrapbox内部の本文データの参照を取得する
  *

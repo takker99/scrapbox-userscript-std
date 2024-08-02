@@ -1,6 +1,8 @@
-import type { Line } from "../deps/scrapbox-rest.ts";
-import { assertEquals, assertSnapshot } from "../deps/testing.ts";
+import type { Page } from "@cosense/types/rest";
+import { assertEquals } from "@std/assert";
+import { assertSnapshot } from "@std/testing/snapshot";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
+type Line = Page["lines"][number];
 
 // https://scrapbox.io/takker/コードブロック記法
 const project = "takker";

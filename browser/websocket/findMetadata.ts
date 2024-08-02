@@ -1,4 +1,5 @@
-import { type BaseLine, type Node, parse } from "../../deps/scrapbox.ts";
+import { type Node, parse } from "@progfay/scrapbox-parser";
+import type { BaseLine } from "@cosense/types/userscript";
 import { toTitleLc } from "../../title.ts";
 import { parseYoutube } from "../../parser/youtube.ts";
 

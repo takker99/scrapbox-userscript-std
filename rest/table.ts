@@ -2,7 +2,7 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./util.ts";
@@ -12,7 +12,7 @@ import {
   mapErrAsyncForResult,
   type Result,
   unwrapOk,
-} from "../deps/option-t.ts";
+} from "option-t/plain_result";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";

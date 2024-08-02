@@ -1,4 +1,4 @@
-import { assert, assertFalse } from "../../deps/testing.ts";
+import { assert, assertFalse } from "@std/assert";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
 import type { SimpleCodeFile } from "./updateCodeFile.ts";
 

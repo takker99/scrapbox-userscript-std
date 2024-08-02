@@ -4,14 +4,14 @@ import {
   mapErrAsyncForResult,
   orElseAsyncForResult,
   type Result,
-  toResultOkFromMaybe,
   unwrapOk,
-} from "../deps/option-t.ts";
+} from "option-t/plain_result";
+import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   BadRequestError,
   InvalidURLError,
   SessionError,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";

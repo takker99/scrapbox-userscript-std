@@ -1,5 +1,5 @@
-import { BaseStore } from "../../deps/scrapbox.ts";
-import type { Page as PageData } from "../../deps/scrapbox-rest.ts";
+import { BaseStore } from "@cosense/types/userscript";
+import type { Page as PageData } from "@cosense/types/rest";
 
 export interface SetPositionOptions {
   /** カーソルが画面外に移動したとき、カーソルが見える位置までページをスクロールするかどうか

@@ -5,13 +5,13 @@ import {
   mapErrAsyncForResult,
   type Result,
   unwrapOk,
-} from "../deps/option-t.ts";
+} from "option-t/plain_result";
 import type {
   ErrorLike,
   NotFoundError,
   NotLoggedInError,
   SearchedTitle,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";

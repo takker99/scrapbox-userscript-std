@@ -1,9 +1,9 @@
-import { createOk, isErr, type Result, unwrapOk } from "../../deps/option-t.ts";
+import { createOk, isErr, type Result, unwrapOk } from "option-t/plain_result";
 import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-} from "../../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import {
   type ProjectUpdatesStreamCommit,
   type ProjectUpdatesStreamEvent,

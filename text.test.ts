@@ -1,5 +1,5 @@
 import { getIndentCount } from "./text.ts";
-import { assertStrictEquals } from "./deps/testing.ts";
+import { assertStrictEquals } from "@std/assert";
 
 Deno.test("getIndentCount()", () => {
   assertStrictEquals(getIndentCount("sample text "), 0);

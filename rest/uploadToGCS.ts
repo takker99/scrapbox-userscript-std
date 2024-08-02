@@ -1,7 +1,7 @@
 import { cookie, getCSRFToken } from "./auth.ts";
 import { type BaseOptions, type ExtendedOptions, setDefaults } from "./util.ts";
-import type { ErrorLike, NotFoundError } from "../deps/scrapbox-rest.ts";
-import { Md5 } from "../deps/hash.ts";
+import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
+import { Md5 } from "@std/hash";
 import {
   createOk,
   isErr,
@@ -10,9 +10,9 @@ import {
   mapForResult,
   orElseAsyncForResult,
   type Result,
-  toResultOkFromMaybe,
   unwrapOk,
-} from "../deps/option-t.ts";
+} from "option-t/plain_result";
+import { toResultOkFromMaybe } from "option-t/maybe";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 

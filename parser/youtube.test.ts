@@ -1,5 +1,5 @@
 import { parseYoutube } from "./youtube.ts";
-import { assertSnapshot } from "../deps/testing.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 Deno.test("youtube links", async (t) => {
   await t.step("is", async (t) => {

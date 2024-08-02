@@ -1,4 +1,4 @@
-import { isString } from "./deps/unknownutil.ts";
+import { isString } from "@core/unknownutil";
 
 /** インデント数を数える */
 export const getIndentCount = (text: string): number =>

@@ -7,14 +7,14 @@ import type {
   NotMemberError,
   NotPrivilegeError,
   SessionError,
-} from "../deps/scrapbox-rest.ts";
-import type { Maybe } from "../deps/option-t.ts";
+} from "@cosense/types/rest";
+import type { Maybe } from "option-t/maybe";
 import {
   isArrayOf,
   isLiteralOneOf,
   isRecord,
   isString,
-} from "../deps/unknownutil.ts";
+} from "@core/unknownutil";
 import type { HTTPError } from "./responseIntoResult.ts";
 
 export interface RESTfullAPIErrorMap {

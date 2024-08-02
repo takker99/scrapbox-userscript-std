@@ -1,5 +1,5 @@
 import { getProject, listProjects } from "./project.ts";
-import { assertSnapshot } from "../deps/testing.ts";
+import { assertSnapshot } from "@std/testing/snapshot";
 
 Deno.test("getProject", async (t) => {
   await assertSnapshot(

@@ -1,4 +1,4 @@
-import { type BaseLine, BaseStore } from "../../deps/scrapbox.ts";
+import { type BaseLine, BaseStore } from "@cosense/types/userscript";
 import type { Position } from "./position.ts";
 
 export interface Range {

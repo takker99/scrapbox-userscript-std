@@ -1,4 +1,4 @@
-import type { LinkNode } from "./deps/scrapbox.ts";
+import type { LinkNode } from "@progfay/scrapbox-parser";
 import { parseYoutube } from "./parser/youtube.ts";
 import { parseVimeo } from "./parser/vimeo.ts";
 import { parseSpotify } from "./parser/spotify.ts";

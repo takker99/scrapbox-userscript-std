@@ -1,11 +1,12 @@
 import type { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
 import { makeChanges } from "./makeChanges.ts";
-import type { Line, Page } from "../../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
-import type { Result } from "../../deps/option-t.ts";
+import type { Result } from "option-t/plain_result";
 
 export type PatchOptions = PushOptions;
+type Line = Page["lines"][number];
 
 export interface PatchMetadata extends Page {
   /** 書き換えを再試行した回数

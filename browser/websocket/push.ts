@@ -19,7 +19,7 @@ import type {
   NotLoggedInError,
   NotMemberError,
   Page,
-} from "../../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { delay } from "@std/async/delay";
 import {
   createErr,
@@ -27,7 +27,7 @@ import {
   isErr,
   type Result,
   unwrapOk,
-} from "../../deps/option-t.ts";
+} from "option-t/plain_result";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import type { TooLongURIError } from "../../rest/pages.ts";

@@ -5,7 +5,7 @@ import type {
   NotMemberError,
   Page,
   PageList,
-} from "../deps/scrapbox-rest.ts";
+} from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
@@ -15,8 +15,8 @@ import {
   mapAsyncForResult,
   mapErrAsyncForResult,
   type Result,
-  unwrapOrForMaybe,
-} from "../deps/option-t.ts";
+} from "option-t/plain_result";
+import { unwrapOrForMaybe } from "option-t/maybe";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 

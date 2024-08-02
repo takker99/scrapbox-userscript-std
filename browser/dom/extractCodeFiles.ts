@@ -1,4 +1,4 @@
-import type { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "@cosense/types/userscript";
 
 /** 一つのソースコードを表す */
 export interface CodeFile {

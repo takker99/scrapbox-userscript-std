@@ -3,8 +3,8 @@ import {
   mapAsyncForResult,
   type Result,
   unwrapOk,
-} from "../deps/option-t.ts";
-import type { GuestUser, MemberUser } from "../deps/scrapbox-rest.ts";
+} from "option-t/plain_result";
+import type { GuestUser, MemberUser } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";

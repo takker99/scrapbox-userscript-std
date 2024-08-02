@@ -1,5 +1,5 @@
 import { isSameArray } from "./isSameArray.ts";
-import { assert } from "../../deps/testing.ts";
+import { assert } from "@std/assert";
 
 Deno.test("isSameArray()", () => {
   assert(isSameArray([1, 2, 3], [1, 2, 3]));

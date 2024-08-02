@@ -1,8 +1,8 @@
-import { isNumber, isString, isUndefined } from "../../deps/unknownutil.ts";
+import { isNumber, isString, isUndefined } from "@core/unknownutil";
 import { ensureArray } from "../../ensure.ts";
 import { getCachedLines } from "./getCachedLines.ts";
 import { takeInternalLines } from "./takeInternalLines.ts";
-import type { BaseLine, Line } from "../../deps/scrapbox.ts";
+import type { BaseLine, Line } from "@cosense/types/userscript";
 import { lines } from "./dom.ts";
 import * as Text from "../../text.ts";
 

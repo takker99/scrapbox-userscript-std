@@ -1,4 +1,4 @@
-import { createErr, createOk, type Result } from "../deps/option-t.ts";
+import { createErr, createOk, type Result } from "option-t/plain_result";
 
 export interface HTTPError {
   name: "HTTPError";

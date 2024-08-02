@@ -1,5 +1,5 @@
 import { diffToChanges } from "./diffToChanges.ts";
-import { assertEquals } from "../../deps/testing.ts";
+import { assertEquals } from "@std/assert";
 
 Deno.test("diffToChanges()", async ({ step }) => {
   const userId = "xxxyyy";

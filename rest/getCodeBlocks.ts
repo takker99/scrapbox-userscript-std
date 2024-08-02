@@ -1,8 +1,9 @@
-import type { Line } from "../deps/scrapbox-rest.ts";
+import type { Page } from "@cosense/types/rest";
 import {
   type CodeTitle,
   extractFromCodeTitle,
 } from "../browser/websocket/_codeBlock.ts";
+type Line = Page["lines"][number];
 
 /** pull()から取れる情報で構成したコードブロックの最低限の情報 */
 export interface TinyCodeBlock {
