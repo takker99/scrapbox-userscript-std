@@ -4,7 +4,7 @@ import { getLineCount } from "./node.ts";
 import { range } from "../../range.ts";
 import { textInput } from "./dom.ts";
 import { isArray, isNumber, isString } from "../../is.ts";
-import { sleep } from "../../sleep.ts";
+import { delay } from "@std/async/delay";
 
 export const undo = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -165,5 +165,5 @@ export const insertText = async (text: string): Promise<void> => {
 
   const event = new InputEvent("input", { bubbles: true });
   cursor.dispatchEvent(event);
-  await sleep(1); // 待ち時間は感覚で決めた
+  await delay(1); // 待ち時間は感覚で決めた
 };

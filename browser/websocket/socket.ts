@@ -1,4 +1,4 @@
-import { Socket, socketIO } from "../../deps/socket.ts";
+import { type Socket, socketIO } from "../../deps/socket.ts";
 export type { Socket } from "../../deps/socket.ts";
 
 /** 新しいsocketを作る */

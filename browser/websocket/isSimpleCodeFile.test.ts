@@ -1,6 +1,6 @@
 import { assert, assertFalse } from "../../deps/testing.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";
-import { SimpleCodeFile } from "./updateCodeFile.ts";
+import type { SimpleCodeFile } from "./updateCodeFile.ts";
 
 const codeFile: SimpleCodeFile = {
   filename: "filename",

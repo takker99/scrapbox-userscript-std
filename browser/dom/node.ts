@@ -1,6 +1,3 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext"/>
-/// <reference lib="dom" />
 import { isNone, isNumber, isString } from "../../is.ts";
 import { ensureArray } from "../../ensure.ts";
 import { getCachedLines } from "./getCachedLines.ts";
@@ -138,7 +135,7 @@ export const getInternalLink = (dom: HTMLElement): HTMLElement | undefined => {
   if (isNone(link)) return undefined;
   return link as HTMLElement;
 };
-export const getLink = (dom: HTMLElement) => {
+export const getLink = (dom: HTMLElement): HTMLElement | undefined => {
   const link = dom.closest(".link, .page-link");
   if (isNone(link)) return undefined;
   return link as HTMLElement;

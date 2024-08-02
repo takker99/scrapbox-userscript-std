@@ -1,7 +1,7 @@
 import type { Line } from "../deps/scrapbox-rest.ts";
 import { pull } from "../browser/websocket/pull.ts";
 import {
-  CodeTitle,
+  type CodeTitle,
   extractFromCodeTitle,
 } from "../browser/websocket/_codeBlock.ts";
 

@@ -6,7 +6,7 @@ import type {
 import { cookie } from "./auth.ts";
 import { makeError } from "./error.ts";
 import { encodeTitleURI } from "../title.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { type BaseOptions, type Result, setDefaults } from "./util.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
   project,

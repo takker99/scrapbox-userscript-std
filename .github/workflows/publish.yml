@@ -1,0 +1,27 @@
+# cf. https://jsr.io/@core/unknownutil/3.18.1/.github/workflows/jsr.yml
+name: publish
+
+env:
+  DENO_VERSION: 1.x
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: read
+  id-token: write # The OIDC ID token is used for authentication with JSR.
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - name: Publish on tag
+        run: deno task publish

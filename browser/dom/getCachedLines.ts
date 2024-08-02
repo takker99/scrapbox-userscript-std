@@ -1,4 +1,4 @@
-import { Line, Scrapbox } from "../../deps/scrapbox.ts";
+import type { Line, Scrapbox } from "../../deps/scrapbox.ts";
 declare const scrapbox: Scrapbox;
 
 let isLatestData = false;

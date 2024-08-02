@@ -1,12 +1,5 @@
 import { getProfile } from "./profile.ts";
-import { BaseOptions } from "./util.ts";
-
-// scrapbox.io内なら`window._csrf`にCSRF tokenが入っている
-declare global {
-  // globalThisに変数を宣言するには、`var`を使うしかない
-  // deno-lint-ignore no-var
-  var _csrf: string | undefined;
-}
+import type { BaseOptions } from "./util.ts";
 
 /** HTTP headerのCookieに入れる文字列を作る
  *
@@ -21,7 +14,8 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
 export const getCSRFToken = async (
   init?: BaseOptions,
 ): Promise<string> => {
-  if (globalThis._csrf) return globalThis._csrf;
+  // deno-lint-ignore no-explicit-any
+  if ((globalThis as any)._csrf) return (globalThis as any)._csrf;
 
   const user = await getProfile(init);
   return user.csrfToken;

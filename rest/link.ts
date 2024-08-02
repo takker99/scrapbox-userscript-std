@@ -6,7 +6,7 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie } from "./auth.ts";
 import { makeError } from "./error.ts";
-import { BaseOptions, Result, setDefaults } from "./util.ts";
+import { type BaseOptions, type Result, setDefaults } from "./util.ts";
 
 /** 不正なfollowingIdを渡されたときに発生するエラー */
 export interface InvalidFollowingIdError extends ErrorLike {

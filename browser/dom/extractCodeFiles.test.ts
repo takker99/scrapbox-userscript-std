@@ -1,5 +1,5 @@
 import { extractCodeFiles } from "./extractCodeFiles.ts";
-import { Line } from "../../deps/scrapbox.ts";
+import type { Line } from "../../deps/scrapbox.ts";
 import { assertSnapshot } from "../../deps/testing.ts";
 import sample from "./sample-lines1.json" with { type: "json" };
 

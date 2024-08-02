@@ -1,4 +1,4 @@
-import { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
+import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 
 /** コードブロックのタイトル行の情報を保持しておくためのinterface */
 export interface CodeTitle {

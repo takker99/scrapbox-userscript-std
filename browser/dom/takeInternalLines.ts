@@ -1,5 +1,5 @@
 import { lines } from "./dom.ts";
-import { BaseLine } from "../../deps/scrapbox.ts";
+import type { BaseLine } from "../../deps/scrapbox.ts";
 
 /** Scrapbox内部の本文データの参照を取得する
  *

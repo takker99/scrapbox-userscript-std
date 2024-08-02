@@ -1,9 +1,9 @@
-import { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
+import type { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
 import { makeChanges } from "./makeChanges.ts";
-import { Line, Page } from "../../deps/scrapbox-rest.ts";
-import { push, PushOptions, RetryError } from "./push.ts";
+import type { Line, Page } from "../../deps/scrapbox-rest.ts";
+import { push, type PushOptions, type RetryError } from "./push.ts";
 import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
-import { Result } from "../../rest/util.ts";
+import type { Result } from "../../rest/util.ts";
 
 export type PatchOptions = PushOptions;
 

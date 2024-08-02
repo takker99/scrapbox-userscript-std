@@ -1,32 +1,39 @@
-# from https://zenn.dev/kawarimidoll/articles/c68204d248c107#設定ファイル
-name: update-deno-dependencies
+# ported from https://github.com/jsr-core/unknownutil/blob/v3.18.1/.github/workflows/udd.yml and modified a bit
+name: Update
 
 on:
   schedule:
     - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   udd:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: "v1.x"
+          deno-version: "1.x"
       - name: Update dependencies
-        run: >
-          deno run --allow-net --allow-read --allow-write=deps/
-          --allow-run=deno https://deno.land/x/udd@0.8.2/main.ts deps/*.ts
-          --test="deno test --allow-read"
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+        run: |
+          deno task upgrade > ../output.txt
+        env:
+          NO_COLOR: 1
+      - name: Read ../output.txt
+        id: log
+        uses: juliangruber/read-file-action@v1
         with:
-          commit-message: ":arrow_up: update deno dependencies"
-          title: Update Deno Dependencies
-          body: >
-            Automated updates by [deno-udd](https://github.com/hayd/deno-udd)
-            and [create-pull-request](https://github.com/peter-evans/create-pull-request)
-            GitHub action
+          path: ../output.txt
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: ":package: Update Deno dependencies"
+          title: ":package: Update Deno dependencies"
+          body: |
+            The output of `deno task update` is
+
+            ```
+            ${{ steps.log.outputs.content }}
+            ```
           branch: update-deno-dependencies
           author: GitHub <noreply@github.com>
           delete-branch: true

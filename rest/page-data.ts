@@ -8,7 +8,12 @@ import type {
 } from "../deps/scrapbox-rest.ts";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { makeError } from "./error.ts";
-import { BaseOptions, ExtendedOptions, Result, setDefaults } from "./util.ts";
+import {
+  type BaseOptions,
+  type ExtendedOptions,
+  type Result,
+  setDefaults,
+} from "./util.ts";
 /** projectにページをインポートする
  *
  * @param project - インポート先のprojectの名前

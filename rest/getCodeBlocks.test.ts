@@ -1,6 +1,4 @@
-/// <reference lib="deno.ns" />
-
-import { Line } from "../deps/scrapbox-rest.ts";
+import type { Line } from "../deps/scrapbox-rest.ts";
 import { assertEquals, assertSnapshot } from "../deps/testing.ts";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
 
