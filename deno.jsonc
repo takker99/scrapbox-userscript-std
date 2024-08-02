@@ -28,6 +28,7 @@
     "./browser": "./browser/mod.ts",
     "./browser/dom": "./browser/dom/mod.ts",
     "./browser/websocket": "./browser/websocket/mod.ts",
+    "./parseAbsoluteLink": "./parseAbsoluteLink.ts",
     "./title": "./title.ts",
     "./text": "./text.ts"
   },
