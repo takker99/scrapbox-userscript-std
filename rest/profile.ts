@@ -7,8 +7,8 @@ import {
 import type { GuestUser, MemberUser } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import type { FetchError } from "./robustFetch.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProfile {
   /** /api/users/me の要求を組み立てる
@@ -26,13 +26,15 @@ export interface GetProfile {
   fromResponse: (
     res: Response,
   ) => Promise<
-    Result<MemberUser | GuestUser, HTTPError>
+    Result<MemberUser | GuestUser, ProfileError>
   >;
 
   (init?: BaseOptions): Promise<
-    Result<MemberUser | GuestUser, NetworkError | HTTPError | AbortError>
+    Result<MemberUser | GuestUser, ProfileError | FetchError>
   >;
 }
+
+export type ProfileError = HTTPError;
 
 const getProfile_toRequest: GetProfile["toRequest"] = (
   init,

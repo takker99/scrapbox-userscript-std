@@ -2,7 +2,7 @@ import { createOk, mapForResult, type Result } from "option-t/plain_result";
 import { getProfile } from "./profile.ts";
 import type { HTTPError } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
-import type { BaseOptions } from "./util.ts";
+import type { BaseOptions } from "./options.ts";
 
 /** HTTP headerのCookieに入れる文字列を作る
  *

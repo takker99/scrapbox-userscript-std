@@ -16,8 +16,15 @@ import type {
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
+import type { FetchError } from "./mod.ts";
+
+export type SearchForPagesError =
+  | NotFoundError
+  | NotMemberError
+  | NotLoggedInError
+  | NoQueryError
+  | HTTPError;
 
 /** search a project for pages
  *
@@ -29,18 +36,7 @@ export const searchForPages = async (
   query: string,
   project: string,
   init?: BaseOptions,
-): Promise<
-  Result<
-    SearchResult,
-    | NotFoundError
-    | NotMemberError
-    | NotLoggedInError
-    | NoQueryError
-    | NetworkError
-    | AbortError
-    | HTTPError
-  >
-> => {
+): Promise<Result<SearchResult, SearchForPagesError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const req = new Request(
@@ -68,6 +64,11 @@ export const searchForPages = async (
   );
 };
 
+export type SearchForJoinedProjectsError =
+  | NotLoggedInError
+  | NoQueryError
+  | HTTPError;
+
 /** search for joined projects
  *
  * @param query 検索語句
@@ -79,7 +80,7 @@ export const searchForJoinedProjects = async (
 ): Promise<
   Result<
     ProjectSearchResult,
-    NotLoggedInError | NoQueryError | NetworkError | AbortError | HTTPError
+    SearchForJoinedProjectsError | FetchError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
@@ -107,6 +108,8 @@ export const searchForJoinedProjects = async (
   );
 };
 
+export type SearchForWatchListError = SearchForJoinedProjectsError;
+
 /** search for watch list
  *
  * watch listと銘打っているが、実際には参加していないpublic projectならどれでも検索できる
@@ -124,7 +127,7 @@ export const searchForWatchList = async (
 ): Promise<
   Result<
     ProjectSearchResult,
-    NotLoggedInError | NoQueryError | NetworkError | AbortError | HTTPError
+    SearchForWatchListError | FetchError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});

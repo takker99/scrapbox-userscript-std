@@ -5,7 +5,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
-import { type BaseOptions, setDefaults } from "./util.ts";
+import { type BaseOptions, setDefaults } from "./options.ts";
 import {
   isErr,
   mapAsyncForResult,
@@ -15,7 +15,7 @@ import {
 } from "option-t/plain_result";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import type { AbortError, NetworkError } from "./robustFetch.ts";
+import type { FetchError } from "./mod.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
   project,
@@ -53,6 +53,12 @@ const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
     (res) => res.text(),
   );
 
+export type TableError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | HTTPError;
+
 export interface GetTable {
   /** /api/table/:project/:title/:filename.csv の要求を組み立てる
    *
@@ -74,34 +80,14 @@ export interface GetTable {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<
-    Result<
-      string,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
-  >;
+  fromResponse: (res: Response) => Promise<Result<string, TableError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<
-    Result<
-      string,
-      | NotFoundError
-      | NotLoggedInError
-      | NotMemberError
-      | NetworkError
-      | AbortError
-      | HTTPError
-    >
-  >;
+  ): Promise<Result<string, TableError | FetchError>>;
 }
 
 /** 指定したテーブルをCSV形式で得る
