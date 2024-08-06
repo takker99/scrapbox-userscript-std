@@ -9,12 +9,11 @@ import type {
   SessionError,
 } from "@cosense/types/rest";
 import type { Maybe } from "option-t/maybe";
-import {
-  isArrayOf,
-  isLiteralOneOf,
-  isRecord,
-  isString,
-} from "@core/unknownutil";
+import { isArrayOf } from "@core/unknownutil/is/array-of";
+import { isLiteralOneOf } from "@core/unknownutil/is/literal-one-of";
+import { isRecord } from "@core/unknownutil/is/record";
+import { isString } from "@core/unknownutil/is/string";
+
 import type { HTTPError } from "./responseIntoResult.ts";
 
 export interface RESTfullAPIErrorMap {

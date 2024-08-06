@@ -1,5 +1,8 @@
-import { isNumber, isString, isUndefined } from "@core/unknownutil";
-import { ensure, isArray } from "@core/unknownutil";
+import { isArray } from "@core/unknownutil/is/array";
+import { isNumber } from "@core/unknownutil/is/number";
+import { isString } from "@core/unknownutil/is/string";
+import { ensure } from "@core/unknownutil/ensure";
+import { isUndefined } from "@core/unknownutil/is/undefined";
 import { getCachedLines } from "./getCachedLines.ts";
 import { takeInternalLines } from "./takeInternalLines.ts";
 import type { BaseLine, Line } from "@cosense/types/userscript";

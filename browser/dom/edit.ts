@@ -3,7 +3,9 @@ import { press } from "./press.ts";
 import { getLineCount } from "./node.ts";
 import { range } from "../../range.ts";
 import { textInput } from "./dom.ts";
-import { isArray, isNumber, isString } from "@core/unknownutil";
+import { isArray } from "@core/unknownutil/is/array";
+import { isNumber } from "@core/unknownutil/is/number";
+import { isString } from "@core/unknownutil/is/string";
 import { delay } from "@std/async/delay";
 
 export const undo = (count = 1): void => {
