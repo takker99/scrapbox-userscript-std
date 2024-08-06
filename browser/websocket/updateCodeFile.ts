@@ -1,4 +1,4 @@
-import type { Page } from "@cosense/types/rest";
+import type { BaseLine } from "@cosense/types/rest";
 import type {
   DeleteChange,
   InsertChange,
@@ -10,7 +10,6 @@ import { diff, toExtendedChanges } from "../../deps/onp.ts";
 import { countBodyIndent } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import type { Result } from "option-t/plain_result";
-type Line = Page["lines"][number];
 
 /** コードブロックの上書きに使う情報のinterface */
 export interface SimpleCodeFile {
@@ -74,7 +73,7 @@ export const updateCodeFile = (
     project,
     title,
     (page) => {
-      const lines: Line[] = page.lines;
+      const lines: BaseLine[] = page.lines;
       const codeBlocks = getCodeBlocks({ project, title, lines }, {
         filename: codeFile.filename,
       });
@@ -104,7 +103,7 @@ export const updateCodeFile = (
 /** TinyCodeBlocksの配列からコード本文をフラットな配列に格納して返す \
  * その際、コードブロックの左側に存在していたインデントは削除する
  */
-const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): Line[] => {
+const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): BaseLine[] => {
   return codeBlocks.map((block) => {
     const indent = countBodyIndent(block);
     return block.bodyLines.map((body) => {
@@ -117,7 +116,7 @@ const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): Line[] => {
 function* makeCommits(
   _codeBlocks: readonly TinyCodeBlock[],
   codeFile: SimpleCodeFile,
-  lines: Line[],
+  lines: BaseLine[],
   { userId, insertPositionIfNotExist, isInsertEmptyLineInTail }: {
     userId: string;
     insertPositionIfNotExist: Required<

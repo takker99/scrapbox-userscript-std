@@ -1,13 +1,12 @@
-import type { Page } from "@cosense/types/rest";
+import type { BaseLine } from "@cosense/types/rest";
 import { assertEquals } from "@std/assert";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
-type Line = Page["lines"][number];
 
 // https://scrapbox.io/takker/コードブロック記法
 const project = "takker";
 const title = "コードブロック記法";
-const sample: Line[] = [
+const sample: BaseLine[] = [
   {
     "id": "63b7aeeb5defe7001ddae116",
     "text": "コードブロック記法",

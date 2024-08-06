@@ -1,9 +1,8 @@
-import type { Page } from "@cosense/types/rest";
+import type { BaseLine } from "@cosense/types/rest";
 import {
   type CodeTitle,
   extractFromCodeTitle,
 } from "../browser/websocket/_codeBlock.ts";
-type Line = Page["lines"][number];
 
 /** pull()から取れる情報で構成したコードブロックの最低限の情報 */
 export interface TinyCodeBlock {
@@ -14,13 +13,13 @@ export interface TinyCodeBlock {
   lang: string;
 
   /** タイトル行 */
-  titleLine: Line;
+  titleLine: BaseLine;
 
   /** コードブロックの中身（タイトル行を含まない） */
-  bodyLines: Line[];
+  bodyLines: BaseLine[];
 
   /** コードブロックの真下の行（無ければ`null`） */
-  nextLine: Line | null;
+  nextLine: BaseLine | null;
 
   /** コードブロックが存在するページの情報 */
   pageInfo: { projectName: string; pageTitle: string };
@@ -46,7 +45,7 @@ export interface GetCodeBlocksFilter {
  * @return コードブロックの配列
  */
 export const getCodeBlocks = (
-  target: { project: string; title: string; lines: Line[] },
+  target: { project: string; title: string; lines: BaseLine[] },
   filter?: GetCodeBlocksFilter,
 ): TinyCodeBlock[] => {
   const codeBlocks: TinyCodeBlock[] = [];
