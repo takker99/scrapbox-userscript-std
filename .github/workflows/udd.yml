@@ -16,7 +16,7 @@ jobs:
           deno-version: "1.x"
       - name: Update dependencies
         run: |
-          deno task upgrade > ../output.txt
+          deno task update > ../output.txt
         env:
           NO_COLOR: 1
       - name: Read ../output.txt
