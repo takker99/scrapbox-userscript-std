@@ -1,4 +1,4 @@
-import type { Page } from "@cosense/types/rest";
+import type { BaseLine } from "@cosense/types/rest";
 import type {
   DeleteChange,
   InsertChange,
@@ -11,8 +11,6 @@ import type { SimpleCodeFile } from "./updateCodeFile.ts";
 import { countBodyIndent, extractFromCodeTitle } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import type { Result } from "option-t/plain_result";
-
-type Line = Page["lines"][number];
 
 export interface UpdateCodeBlockOptions extends PushOptions {
   /** `true`でデバッグ出力ON */
@@ -35,7 +33,7 @@ export const updateCodeBlock = (
 ): Promise<Result<string, PushError>> => {
   const newCodeBody = getCodeBody(newCode);
   const bodyIndent = countBodyIndent(target);
-  const oldCodeWithoutIndent: Line[] = target.bodyLines.map((e) => {
+  const oldCodeWithoutIndent: BaseLine[] = target.bodyLines.map((e) => {
     return { ...e, text: e.text.slice(bodyIndent) };
   });
 

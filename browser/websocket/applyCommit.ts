@@ -1,7 +1,6 @@
 import type { CommitNotification } from "./websocket-types.ts";
-import type { Page } from "@cosense/types/rest";
+import type { BaseLine } from "@cosense/types/rest";
 import { getUnixTimeFromId } from "./id.ts";
-type Line = Page["lines"][number];
 
 export interface ApplyCommitProp {
   /** changesの作成日時
@@ -19,10 +18,10 @@ export interface ApplyCommitProp {
  * @param changes 適用するcommits
  */
 export const applyCommit = (
-  lines: readonly Line[],
+  lines: readonly BaseLine[],
   changes: CommitNotification["changes"],
   { updated, userId }: ApplyCommitProp,
-): Line[] => {
+): BaseLine[] => {
   const newLines = [...lines];
   const getPos = (lineId: string) => {
     const position = newLines.findIndex(({ id }) => id === lineId);
