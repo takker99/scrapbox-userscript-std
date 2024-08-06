@@ -1,12 +1,12 @@
 // deno-lint-ignore-file no-explicit-any camelcase
 // this file is copied from https://cdn.esm.sh/v54/socket.io-client@4.2.0/build/socket.d.ts
-import { Packet } from "./parser.ts";
-import { Manager } from "./manager.ts";
+import type { Packet } from "./parser.ts";
+import type { Manager } from "./manager.ts";
 import {
-  DefaultEventsMap,
-  EventNames,
-  EventParams,
-  EventsMap,
+  type DefaultEventsMap,
+  type EventNames,
+  type EventParams,
+  type EventsMap,
   StrictEventEmitter,
 } from "./typed-events.ts";
 export interface SocketOptions {

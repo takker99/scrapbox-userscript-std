@@ -1,5 +1,5 @@
 import type { Result } from "option-t/plain_result";
-import type { Change, Socket } from "../../deps/socket.ts";
+import type { Change, Socket } from "./wrap.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {

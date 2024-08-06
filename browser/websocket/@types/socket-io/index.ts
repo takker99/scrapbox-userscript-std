@@ -1,6 +1,6 @@
 // this file is copied from https://cdn.esm.sh/v54/socket.io-client@4.2.0/build/index.d.ts
-import { ManagerOptions } from "./manager.ts";
-import { Socket, SocketOptions } from "./socket.ts";
+import type { ManagerOptions } from "./manager.ts";
+import type { Socket, SocketOptions } from "./socket.ts";
 /**
  * Looks up an existing `Manager` for multiplexing.
  * If the user summons:

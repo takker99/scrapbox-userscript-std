@@ -8,6 +8,7 @@
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.1",
       "jsr:@std/assert@1.0.0-rc.2": "jsr:@std/assert@1.0.0-rc.2",
       "jsr:@std/async@1": "jsr:@std/async@1.0.1",
+      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.1",
       "jsr:@std/fmt@^0.225.4": "jsr:@std/fmt@0.225.6",
       "jsr:@std/fs@^1.0.0-rc.1": "jsr:@std/fs@1.0.0",
       "jsr:@std/internal@^1.0.0": "jsr:@std/internal@1.0.1",
@@ -15,6 +16,7 @@
       "jsr:@std/path@1.0.0-rc.2": "jsr:@std/path@1.0.0-rc.2",
       "jsr:@std/path@^1.0.2": "jsr:@std/path@1.0.2",
       "jsr:@std/testing@0": "jsr:@std/testing@0.225.3",
+      "jsr:@takker/md5@0.1": "jsr:@takker/md5@0.1.0",
       "npm:option-t@^49.1.0": "npm:option-t@49.1.0"
     },
     "jsr": {
@@ -38,6 +40,9 @@
       },
       "@std/async@1.0.1": {
         "integrity": "3c7f6324a8a1b47ca657e5a349b511c9a6c2c0729e9d66b223c9ecaac0753ecb"
+      },
+      "@std/encoding@1.0.1": {
+        "integrity": "5955c6c542ebb4ce6587c3b548dc71e07a6c27614f1976d1d3887b1196cf4e65"
       },
       "@std/fmt@0.225.6": {
         "integrity": "aba6aea27f66813cecfd9484e074a9e9845782ab0685c030e453a8a70b37afc8"
@@ -66,6 +71,9 @@
           "jsr:@std/internal@^1.0.0",
           "jsr:@std/path@1.0.0-rc.2"
         ]
+      },
+      "@takker/md5@0.1.0": {
+        "integrity": "4c423d8247aadf7bcb1eb83c727bf28c05c21906e916517395d00aa157b6eae0"
       }
     },
     "npm": {
@@ -209,7 +217,9 @@
       "jsr:@progfay/scrapbox-parser@9",
       "jsr:@std/assert@1",
       "jsr:@std/async@1",
+      "jsr:@std/encoding@1",
       "jsr:@std/testing@0",
+      "jsr:@takker/md5@0.1",
       "npm:option-t@^49.1.0"
     ]
   }

@@ -3,7 +3,7 @@ import type {
   DeleteChange,
   InsertChange,
   UpdateChange,
-} from "../../deps/socket.ts";
+} from "./websocket-types.ts";
 import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";

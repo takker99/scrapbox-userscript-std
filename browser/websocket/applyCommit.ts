@@ -1,4 +1,4 @@
-import type { CommitNotification } from "../../deps/socket.ts";
+import type { CommitNotification } from "./websocket-types.ts";
 import type { Page } from "@cosense/types/rest";
 import { getUnixTimeFromId } from "./id.ts";
 type Line = Page["lines"][number];

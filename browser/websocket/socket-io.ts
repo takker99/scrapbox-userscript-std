@@ -3,7 +3,7 @@ import type {
   ManagerOptions,
   Socket,
   SocketOptions,
-} from "./types/socketIO/index.ts";
+} from "./@types/socket-io/index.ts";
 export type { Manager, ManagerOptions, Socket, SocketOptions };
 
 export const socketIO = async (): Promise<Socket> => {

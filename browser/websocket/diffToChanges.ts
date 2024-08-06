@@ -4,7 +4,7 @@ import type {
   DeleteChange,
   InsertChange,
   UpdateChange,
-} from "../../deps/socket.ts";
+} from "./websocket-types.ts";
 import { createNewLineId } from "./id.ts";
 
 type Options = {

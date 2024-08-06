@@ -1,17 +1,17 @@
-import type { Socket } from "./socket.ts";
+import type { Socket } from "./socket-io.ts";
 import {
-  DataOf,
-  EventMap,
-  FailedResOf,
+  type DataOf,
+  type EventMap,
+  type FailedResOf,
   isPageCommitError,
-  ListenEventMap,
-  Result,
-  SuccessResOf,
-  TimeoutError,
-  UnexpectedError,
-} from "./types.ts";
-export * from "./types.ts";
-export * from "./socket.ts";
+  type ListenEventMap,
+  type Result,
+  type SuccessResOf,
+  type TimeoutError,
+  type UnexpectedError,
+} from "./websocket-types.ts";
+export * from "./websocket-types.ts";
+export * from "./socket-io.ts";
 
 export interface SocketOperator {
   request: <EventName extends keyof EventMap>(
