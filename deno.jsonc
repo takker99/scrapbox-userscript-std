@@ -10,7 +10,7 @@
     "publish": "deno run --allow-env --allow-run=deno --allow-read --allow-write=deno.jsonc jsr:@david/publish-on-tag@0.1.x"
   },
   "imports": {
-    "@core/unknownutil": "jsr:@core/unknownutil@^3.18.1",
+    "@core/unknownutil": "jsr:@core/unknownutil@^4.0.0",
     "@cosense/types/rest": "jsr:@cosense/types@0.10/rest",
     "@cosense/types/userscript": "jsr:@cosense/types@0.10/userscript",
     "@progfay/scrapbox-parser": "jsr:@progfay/scrapbox-parser@9",
@@ -18,7 +18,7 @@
     "@std/async": "jsr:@std/async@1",
     "@std/encoding": "jsr:@std/encoding@1",
     "@takker/md5": "jsr:@takker/md5@0.1",
-    "@std/testing/snapshot": "jsr:@std/testing@0/snapshot",
+    "@std/testing/snapshot": "jsr:@std/testing@1/snapshot",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
     "option-t": "npm:option-t@^49.1.0"
   },
