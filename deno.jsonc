@@ -16,10 +16,10 @@
     "@progfay/scrapbox-parser": "jsr:@progfay/scrapbox-parser@9",
     "@std/assert": "jsr:@std/assert@1",
     "@std/async": "jsr:@std/async@1",
-    "@std/hash": "./vendor/deno.land/std@0.160.0/hash/md5.ts",
+    "@std/encoding": "jsr:@std/encoding@1",
+    "@takker/md5": "jsr:@takker/md5@0.1",
     "@std/testing/snapshot": "jsr:@std/testing@0/snapshot",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
-    "@takker/scrapbox-userscript-websocket": "./vendor/raw.githubusercontent.com/takker99/scrapbox-userscript-websocket/0.2.4/mod.ts",
     "option-t": "npm:option-t@^49.1.0"
   },
   "exports": {

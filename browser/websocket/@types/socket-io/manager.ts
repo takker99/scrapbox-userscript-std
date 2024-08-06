@@ -1,10 +1,10 @@
 // this file is copied from https://cdn.esm.sh/v54/socket.io-client@4.2.0/build/manager.d.ts
 // deno-lint-ignore-file no-explicit-any camelcase ban-types
-import { Socket, SocketOptions } from "./socket.ts";
-import { Packet } from "./parser.ts";
+import type { Socket, SocketOptions } from "./socket.ts";
+import type { Packet } from "./parser.ts";
 import {
-  DefaultEventsMap,
-  EventsMap,
+  type DefaultEventsMap,
+  type EventsMap,
   StrictEventEmitter,
 } from "./typed-events.ts";
 interface EngineOptions {

@@ -1,6 +1,6 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
-import type { Change } from "../../deps/socket.ts";
+import type { Change } from "./websocket-types.ts";
 import { findMetadata, getHelpfeels } from "./findMetadata.ts";
 import { isSameArray } from "./isSameArray.ts";
 

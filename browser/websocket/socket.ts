@@ -1,5 +1,5 @@
-import { type Socket, socketIO } from "../../deps/socket.ts";
-export type { Socket } from "../../deps/socket.ts";
+import { type Socket, socketIO } from "./socket-io.ts";
+export type { Socket } from "./socket-io.ts";
 
 /** 新しいsocketを作る */
 export const makeSocket = (): Promise<Socket> => socketIO();

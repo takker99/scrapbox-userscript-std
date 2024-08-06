@@ -5,7 +5,8 @@ import {
   setDefaults,
 } from "./options.ts";
 import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
-import { Md5 } from "@std/hash";
+import { md5 } from "@takker/md5";
+import { encodeHex } from "@std/encoding/hex";
 import {
   createOk,
   isErr,
@@ -46,14 +47,14 @@ export const uploadToGCS = async (
   projectId: string,
   options?: ExtendedOptions,
 ): Promise<Result<GCSFile, UploadGCSError | FetchError>> => {
-  const md5 = `${new Md5().update(await file.arrayBuffer())}`;
-  const res = await uploadRequest(file, projectId, md5, options);
+  const md5Hash = `${encodeHex(md5(await file.arrayBuffer()))}`;
+  const res = await uploadRequest(file, projectId, md5Hash, options);
   if (isErr(res)) return res;
   const fileOrRequest = unwrapOk(res);
   if ("embedUrl" in fileOrRequest) return createOk(fileOrRequest);
   const result = await upload(fileOrRequest.signedUrl, file, options);
   if (isErr(result)) return result;
-  return verify(projectId, fileOrRequest.fileId, md5, options);
+  return verify(projectId, fileOrRequest.fileId, md5Hash, options);
 };
 
 /** 容量を使い切ったときに発生するerror */

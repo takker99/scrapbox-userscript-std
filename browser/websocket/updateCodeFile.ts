@@ -3,7 +3,7 @@ import type {
   DeleteChange,
   InsertChange,
   UpdateChange,
-} from "../../deps/socket.ts";
+} from "./websocket-types.ts";
 import { getCodeBlocks, type TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 import { createNewLineId } from "./id.ts";
 import { diff, toExtendedChanges } from "../../deps/onp.ts";

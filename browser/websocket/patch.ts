@@ -1,4 +1,4 @@
-import type { Change, DeletePageChange, PinChange } from "../../deps/socket.ts";
+import type { Change, DeletePageChange, PinChange } from "./wrap.ts";
 import { makeChanges } from "./makeChanges.ts";
 import type { Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";

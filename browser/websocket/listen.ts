@@ -10,7 +10,7 @@ import {
   type Socket,
   socketIO,
   wrap,
-} from "../../deps/socket.ts";
+} from "./wrap.ts";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import { getProjectId } from "./pull.ts";
@@ -18,7 +18,7 @@ import { connect, disconnect } from "./socket.ts";
 export type {
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
-} from "../../deps/socket.ts";
+} from "./websocket-types.ts";
 
 export interface ListenStreamOptions {
   socket?: Socket;

@@ -10,7 +10,7 @@ import {
   socketIO,
   type TimeoutError,
   wrap,
-} from "../../deps/socket.ts";
+} from "./wrap.ts";
 import { connect, disconnect } from "./socket.ts";
 import { pull } from "./pull.ts";
 import type {
