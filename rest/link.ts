@@ -39,29 +39,51 @@ export type LinksError =
   | InvalidFollowingIdError
   | HTTPError;
 
-/** 指定したprojectのリンクデータを取得する
+/** Get the links of the specified project
  *
- * @param project データを取得したいproject
+ * @param project The project to get the data from
+ * @param options Options for the request
+ * @return a promise that resolves to the parsed data
  */
-export const getLinks = async (
-  project: string,
-  options?: GetLinksOptions,
-): Promise<Result<GetLinksResult, LinksError | FetchError>> => {
-  const { sid, hostName, fetch, followingId } = setDefaults(options ?? {});
+export interface GetLinks {
+  (
+    project: string,
+    options?: GetLinksOptions,
+  ): Promise<Result<GetLinksResult, LinksError | FetchError>>;
 
-  const req = new Request(
+  /** Create a request to `GET /api/pages/:project/search/titles`
+   *
+   * @param project The project to get the data from
+   * @param options Options for the request
+   * @return The request object
+   */
+  toRequest: (project: string, options?: GetLinksOptions) => Request;
+
+  /** Parse the response from `GET /api/pages/:project/search/titles`
+   *
+   * @param response The response object
+   * @return a promise that resolves to the parsed data
+   */
+  fromResponse: (
+    response: Response,
+  ) => Promise<Result<GetLinksResult, LinksError>>;
+}
+
+const getLinks_toRequest: GetLinks["toRequest"] = (project, options) => {
+  const { sid, hostName, followingId } = setDefaults(options ?? {});
+
+  return new Request(
     `https://${hostName}/api/pages/${project}/search/titles${
       followingId ? `?followingId=${followingId}` : ""
     }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
+};
 
-  const res = await fetch(req);
-  if (isErr(res)) return res;
-
-  return mapAsyncForResult(
+const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
+  mapAsyncForResult(
     await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
+      responseIntoResult(response),
       async (error) =>
         error.response.status === 422
           ? {
@@ -79,7 +101,21 @@ export const getLinks = async (
         followingId: res.headers.get("X-following-id") ?? "",
       })),
   );
+
+/** 指定したprojectのリンクデータを取得する
+ *
+ * @param project データを取得したいproject
+ */
+export const getLinks: GetLinks = async (project, options) => {
+  const res = await setDefaults(options ?? {}).fetch(
+    getLinks_toRequest(project, options),
+  );
+  if (isErr(res)) return res;
+  return getLinks_fromResponse(unwrapOk(res));
 };
+
+getLinks.toRequest = getLinks_toRequest;
+getLinks.fromResponse = getLinks_fromResponse;
 
 /** 指定したprojectの全てのリンクデータを取得する
  *
