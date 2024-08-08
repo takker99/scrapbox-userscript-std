@@ -1,3 +1,4 @@
+import { createErr, createOk, type Result } from "option-t/plain_result";
 import type { Socket } from "./socket-io.ts";
 import {
   type DataOf,
@@ -5,7 +6,6 @@ import {
   type FailedResOf,
   isPageCommitError,
   type ListenEventMap,
-  type Result,
   type SuccessResOf,
   type TimeoutError,
   type UnexpectedError,
@@ -62,25 +62,23 @@ export const wrap = (
                   typeof response.error.name === "string" &&
                   isPageCommitError({ name: response.error.name })
                 ) {
-                  resolve({ ok: false, value: response.error });
+                  resolve(createErr(response.error));
                 } else {
-                  resolve({
-                    ok: false,
-                    value: { name: "UnexpectedError", value: response.error },
-                  });
+                  resolve(
+                    createErr(unexpectedError(response.error)),
+                  );
                 }
               } else if ("data" in response) {
-                resolve({ ok: true, value: response.data });
+                resolve(createOk(response.data));
               }
               break;
             case "cursor":
               if ("error" in response) {
-                resolve({
-                  ok: false,
-                  value: { name: "UnexpectedError", value: response.error },
-                });
+                resolve(
+                  createErr(unexpectedError(response.error)),
+                );
               } else if ("data" in response) {
-                resolve({ ok: true, value: response.data });
+                resolve(createOk(response.data));
               }
               break;
           }
@@ -93,13 +91,12 @@ export const wrap = (
       );
       id = setTimeout(() => {
         socket.off("disconnect", onDisconnect);
-        resolve({
-          ok: false,
-          value: {
+        resolve(
+          createErr({
             name: "TimeoutError",
             message: `Timeout: exceeded ${timeout}ms`,
-          },
-        });
+          }),
+        );
       }, timeout);
       socket.once("disconnect", onDisconnect);
     });
@@ -135,3 +132,8 @@ export const wrap = (
 
   return { request, response };
 };
+
+const unexpectedError = (value: unknown): UnexpectedError => ({
+  name: "UnexpectedError",
+  value,
+});
