@@ -2,11 +2,9 @@ import {
   isErr,
   mapAsyncForResult,
   mapErrAsyncForResult,
-  orElseAsyncForResult,
   type Result,
   unwrapOk,
 } from "option-t/plain_result";
-import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   BadRequestError,
   InvalidURLError,
@@ -34,12 +32,9 @@ export const getWebPageTitle = async (
   url: string | URL,
   init?: ExtendedOptions,
 ): Promise<Result<string, WebPageTitleError | FetchError>> => {
-  const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+  const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const csrfResult = await orElseAsyncForResult(
-    toResultOkFromMaybe(csrf),
-    () => getCSRFToken(init),
-  );
+  const csrfResult = await getCSRFToken(init);
   if (isErr(csrfResult)) return csrfResult;
 
   const req = new Request(

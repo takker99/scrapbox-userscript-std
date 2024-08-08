@@ -2,11 +2,9 @@ import {
   isErr,
   mapAsyncForResult,
   mapErrAsyncForResult,
-  orElseAsyncForResult,
   type Result,
   unwrapOk,
 } from "option-t/plain_result";
-import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   NotFoundError,
   NotLoggedInError,
@@ -41,12 +39,9 @@ export const replaceLinks = async (
   to: string,
   init?: ExtendedOptions,
 ): Promise<Result<number, ReplaceLinksError | FetchError>> => {
-  const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+  const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const csrfResult = await orElseAsyncForResult(
-    toResultOkFromMaybe(csrf),
-    () => getCSRFToken(init),
-  );
+  const csrfResult = await getCSRFToken(init);
   if (isErr(csrfResult)) return csrfResult;
 
   const req = new Request(

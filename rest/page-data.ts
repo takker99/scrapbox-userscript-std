@@ -3,11 +3,9 @@ import {
   isErr,
   mapAsyncForResult,
   mapErrAsyncForResult,
-  orElseAsyncForResult,
   type Result,
   unwrapOk,
 } from "option-t/plain_result";
-import { toResultOkFromMaybe } from "option-t/maybe";
 import type {
   ExportedData,
   ImportedData,
@@ -41,7 +39,7 @@ export const importPages = async (
 > => {
   if (data.pages.length === 0) return createOk("No pages to import.");
 
-  const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+  const { sid, hostName, fetch } = setDefaults(init ?? {});
   const formData = new FormData();
   formData.append(
     "import-file",
@@ -51,10 +49,7 @@ export const importPages = async (
   );
   formData.append("name", "undefined");
 
-  const csrfResult = await orElseAsyncForResult(
-    toResultOkFromMaybe(csrf),
-    () => getCSRFToken(init),
-  );
+  const csrfResult = await getCSRFToken(init);
   if (isErr(csrfResult)) return csrfResult;
 
   const req = new Request(
