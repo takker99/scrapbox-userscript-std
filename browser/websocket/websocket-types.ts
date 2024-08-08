@@ -152,10 +152,6 @@ const pageCommitErrorNames = [
   "NotFastForwardError",
 ];
 
-export type Result<T, E = unknown> =
-  | { ok: true; value: T }
-  | { ok: false; value: E };
-
 export interface EventMap {
   "socket.io-request": (
     req: { method: "commit"; data: PageCommit } | {

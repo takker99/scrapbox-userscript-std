@@ -5,7 +5,6 @@ import {
   type PageCommitError,
   type PageCommitResponse,
   type PinChange,
-  type Result as SocketResult,
   type Socket,
   socketIO,
   type TimeoutError,
@@ -26,6 +25,7 @@ import {
   createOk,
   isErr,
   type Result,
+  unwrapErr,
   unwrapOk,
 } from "option-t/plain_result";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
@@ -133,19 +133,20 @@ export const push = async (
         const result = (await request("socket.io-request", {
           method: "commit",
           data,
-        })) as SocketResult<
+        })) as Result<
           PageCommitResponse,
           UnexpectedError | TimeoutError | PageCommitError
         >;
 
-        if (result.ok) {
-          metadata.commitId = result.value.commitId;
+        if (createOk(result)) {
+          metadata.commitId = unwrapOk(result).commitId;
           // success
           return createOk(metadata.commitId);
         }
-        const name = result.value.name;
+        const error = unwrapErr(result);
+        const name = error.name;
         if (name === "UnexpectedError") {
-          return createErr({ name, message: JSON.stringify(result.value) });
+          return createErr({ name, message: JSON.stringify(error) });
         }
         if (name === "TimeoutError" || name === "SocketIOError") {
           await delay(3000);
