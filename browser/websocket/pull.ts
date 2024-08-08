@@ -73,7 +73,11 @@ const getUserId = async (init?: BaseOptions): Promise<
   if (isErr(result)) return result;
 
   const user = unwrapOk(result);
-  return "id" in user ? createOk(user.id) : createErr({
+  if ("id" in user) {
+    userId = user.id;
+    return createOk(user.id);
+  }
+  return createErr({
     name: "NotLoggedInError",
     message: "This script cannot be used without login",
   });
