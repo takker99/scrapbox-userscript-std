@@ -1,5 +1,5 @@
 import type { Result } from "option-t/plain_result";
-import type { Change, Socket } from "./wrap.ts";
+import type { Change } from "./emit.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
@@ -39,9 +39,7 @@ export const pin = (
     options,
   );
 
-export interface UnPinOptions {
-  socket?: Socket;
-}
+export interface UnPinOptions extends PushOptions {}
 /** 指定したページのピン留めを外す
  *
  * @param project ピン留めを外したいページのproject

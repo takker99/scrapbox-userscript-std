@@ -1,9 +1,10 @@
-import type { Change, DeletePageChange, PinChange } from "./wrap.ts";
+import type { Change, DeletePageChange, PinChange } from "./emit.ts";
 import { makeChanges } from "./makeChanges.ts";
 import type { BaseLine, Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
 import type { Result } from "option-t/plain_result";
+import type { Socket } from "socket.io-client";
 
 export type PatchOptions = PushOptions;
 
@@ -32,7 +33,7 @@ export const patch = (
     metadata: PatchMetadata,
   ) => string[] | undefined | Promise<string[] | undefined>,
   options?: PatchOptions,
-): Promise<Result<string, PushError>> =>
+): Promise<Result<string, PushError | Socket.DisconnectReason>> =>
   push(
     project,
     title,

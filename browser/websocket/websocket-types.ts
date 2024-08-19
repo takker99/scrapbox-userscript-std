@@ -108,66 +108,21 @@ export interface PageCommit {
 export interface PageCommitResponse {
   commitId: string;
 }
-
-export interface ErrorLike {
-  name: string;
-}
-
-export interface UnexpectedError {
-  name: "UnexpectedError";
-  value: unknown;
-}
-export interface TimeoutError {
-  name: "TimeoutError";
-  message: string;
-}
-
-export type PageCommitError =
-  | SocketIOError
-  | DuplicateTitleError
-  | NotFastForwardError;
-
-/* the error that occurs when the socket.io causes an error
-*
-* when this error occurs, wait for a while and retry the request
-*/
-export interface SocketIOError {
-  name: "SocketIOError";
-}
-/** the error that occurs when the title is already in use */
-export interface DuplicateTitleError {
-  name: "DuplicateTitleError";
-}
-/** the error caused when commitId is not latest */
-export interface NotFastForwardError {
-  name: "NotFastForwardError";
-}
-
-export const isPageCommitError = (error: ErrorLike): error is PageCommitError =>
-  pageCommitErrorNames.includes(error.name);
-
-const pageCommitErrorNames = [
-  "SocketIOError",
-  "DuplicateTitleError",
-  "NotFastForwardError",
-];
-
-export interface EventMap {
+export interface EmitEvents {
   "socket.io-request": (
     req: { method: "commit"; data: PageCommit } | {
       method: "room:join";
       data: JoinRoomRequest;
     },
-    success: PageCommitResponse | JoinRoomResponse,
-    failed: PageCommitError,
+    callback: (
+      res:
+        | { data: PageCommitResponse | JoinRoomResponse }
+        | { error: { name: string; message?: string } },
+    ) => void,
   ) => void;
-  cursor: (
-    req: Omit<MoveCursorData, "socketId">,
-    success: undefined,
-    failed: unknown,
-  ) => void;
+  cursor: (req: Omit<MoveCursorData, "socketId">) => void;
 }
-export interface ListenEventMap {
+export interface ListenEvents {
   "projectUpdatesStream:commit": ProjectUpdatesStreamCommit;
   "projectUpdatesStream:event": ProjectUpdatesStreamEvent;
   commit: CommitNotification;
@@ -189,16 +144,6 @@ export interface QuickSearchReplaceLink {
   from: string;
   to: string;
 }
-
-export type DataOf<Event extends keyof EventMap> = Parameters<
-  EventMap[Event]
->[0];
-export type SuccessResOf<Event extends keyof EventMap> = Parameters<
-  EventMap[Event]
->[1];
-export type FailedResOf<Event extends keyof EventMap> = Parameters<
-  EventMap[Event]
->[2];
 
 export interface MoveCursorData {
   user: {

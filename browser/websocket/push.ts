@@ -1,16 +1,12 @@
-import {
-  type Change,
-  type DeletePageChange,
-  type PageCommit,
-  type PageCommitError,
-  type PageCommitResponse,
-  type PinChange,
-  type Socket,
-  socketIO,
-  type TimeoutError,
-  wrap,
-} from "./wrap.ts";
+import type {
+  Change,
+  DeletePageChange,
+  PageCommit,
+  PinChange,
+} from "./websocket-types.ts";
 import { connect, disconnect } from "./socket.ts";
+import type { Socket } from "socket.io-client";
+import { emit } from "./emit.ts";
 import { pull } from "./pull.ts";
 import type {
   ErrorLike,
@@ -31,6 +27,10 @@ import {
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import type { TooLongURIError } from "../../rest/pages.ts";
+import type {
+  SocketIOServerDisconnectError,
+  UnexpectedRequestError,
+} from "./error.ts";
 
 export interface PushOptions {
   /** 外部からSocketを指定したいときに使う */
@@ -60,7 +60,8 @@ export interface UnexpectedError extends ErrorLike {
 
 export type PushError =
   | RetryError
-  | UnexpectedError
+  | SocketIOServerDisconnectError
+  | UnexpectedRequestError
   | NotFoundError
   | NotLoggedInError
   | Omit<NotLoggedInError, "details">
@@ -95,15 +96,19 @@ export const push = async (
     | [PinChange],
   options?: PushOptions,
 ): Promise<Result<string, PushError>> => {
-  const injectedSocket = options?.socket;
-  const socket = injectedSocket ?? await socketIO();
-  await connect(socket);
+  const result = await connect(options?.socket);
+  if (isErr(result)) {
+    return createErr({
+      name: "UnexpectedRequestError",
+      error: unwrapErr(result),
+    });
+  }
+  const socket = unwrapOk(result);
   const pullResult = await pull(project, title);
   if (isErr(pullResult)) return pullResult;
   let metadata = unwrapOk(pullResult);
 
   try {
-    const { request } = wrap(socket);
     let attempts = 0;
     let changes: Change[] | [DeletePageChange] | [PinChange] = [];
     let reason: "NotFastForwardError" | "DuplicateTitleError" | undefined;
@@ -130,14 +135,7 @@ export const push = async (
 
       // loop for push changes
       while (true) {
-        const result = (await request("socket.io-request", {
-          method: "commit",
-          data,
-        })) as Result<
-          PageCommitResponse,
-          UnexpectedError | TimeoutError | PageCommitError
-        >;
-
+        const result = await emit(socket, "commit", data);
         if (createOk(result)) {
           metadata.commitId = unwrapOk(result).commitId;
           // success
@@ -145,8 +143,11 @@ export const push = async (
         }
         const error = unwrapErr(result);
         const name = error.name;
-        if (name === "UnexpectedError") {
-          return createErr({ name, message: JSON.stringify(error) });
+        if (
+          name === "SocketIOServerDisconnectError" ||
+          name === "UnexpectedRequestError"
+        ) {
+          return createErr(error);
         }
         if (name === "TimeoutError" || name === "SocketIOError") {
           await delay(3000);
@@ -171,6 +172,6 @@ export const push = async (
       message: `Retrying exceeded the maxAttempts (${attempts}).`,
     });
   } finally {
-    if (!injectedSocket) await disconnect(socket);
+    if (!options?.socket) await disconnect(socket);
   }
 };

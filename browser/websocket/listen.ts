@@ -4,17 +4,16 @@ import type {
   NotLoggedInError,
   NotMemberError,
 } from "@cosense/types/rest";
-import {
-  type ProjectUpdatesStreamCommit,
-  type ProjectUpdatesStreamEvent,
-  type Socket,
-  socketIO,
-  wrap,
-} from "./wrap.ts";
+import type {
+  ProjectUpdatesStreamCommit,
+  ProjectUpdatesStreamEvent,
+} from "./emit.ts";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import { getProjectId } from "./pull.ts";
 import { connect, disconnect } from "./socket.ts";
+import type { Socket } from "socket.io-client";
+
 export type {
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
@@ -23,6 +22,14 @@ export type {
 export interface ListenStreamOptions {
   socket?: Socket;
 }
+
+export type ListenStreamError =
+  | NotFoundError
+  | NotLoggedInError
+  | NotMemberError
+  | NetworkError
+  | AbortError
+  | HTTPError;
 
 /** Streamを購読する
  *
@@ -37,12 +44,7 @@ export async function* listenStream(
 ): AsyncGenerator<
   Result<
     ProjectUpdatesStreamEvent | ProjectUpdatesStreamCommit,
-    | NotFoundError
-    | NotLoggedInError
-    | NotMemberError
-    | NetworkError
-    | AbortError
-    | HTTPError
+    ListenStreamError
   >,
   void,
   unknown
@@ -55,8 +57,9 @@ export async function* listenStream(
   const projectId = unwrapOk(result);
 
   const injectedSocket = options?.socket;
-  const socket = injectedSocket ?? await socketIO();
-  await connect(socket);
+  const result2 = await connect(injectedSocket);
+  if (isErr(result2)) throw new Error("Failed to connect to websocket");
+  const socket = unwrapOk(result2);
   const { request, response } = wrap(socket);
 
   try {
