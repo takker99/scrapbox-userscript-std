@@ -10,7 +10,7 @@
       "jsr:@std/async@1": "jsr:@std/async@1.0.3",
       "jsr:@std/async@^1.0.2": "jsr:@std/async@1.0.3",
       "jsr:@std/data-structures@^1.0.1": "jsr:@std/data-structures@1.0.1",
-      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.1",
+      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.2",
       "jsr:@std/fs@^1.0.1": "jsr:@std/fs@1.0.1",
       "jsr:@std/internal@^1.0.1": "jsr:@std/internal@1.0.1",
       "jsr:@std/path@^1.0.2": "jsr:@std/path@1.0.2",
@@ -40,8 +40,8 @@
       "@std/data-structures@1.0.1": {
         "integrity": "e4fa6bcc33839979ac118e2746f349cd7b57c58bd3036b5b82ac608771ee856e"
       },
-      "@std/encoding@1.0.1": {
-        "integrity": "5955c6c542ebb4ce6587c3b548dc71e07a6c27614f1976d1d3887b1196cf4e65"
+      "@std/encoding@1.0.2": {
+        "integrity": "7ed640c777e3275550e2cd937c440acdbebfdcd2d13ef67052f0536bf43e707f"
       },
       "@std/fs@1.0.1": {
         "integrity": "d6914ca2c21abe591f733b31dbe6331e446815e513e2451b3b9e472daddfefcb",
