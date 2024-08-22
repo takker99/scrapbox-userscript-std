@@ -2,9 +2,9 @@
   "version": "3",
   "packages": {
     "specifiers": {
-      "jsr:@core/unknownutil@^4.0.0": "jsr:@core/unknownutil@4.2.0",
+      "jsr:@core/unknownutil@^4.0.0": "jsr:@core/unknownutil@4.2.2",
       "jsr:@cosense/types@0.10": "jsr:@cosense/types@0.10.1",
-      "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.0.0",
+      "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.1.1",
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.2",
       "jsr:@std/assert@^1.0.2": "jsr:@std/assert@1.0.2",
       "jsr:@std/async@1": "jsr:@std/async@1.0.3",
@@ -19,14 +19,14 @@
       "npm:option-t@^49.1.0": "npm:option-t@49.1.0"
     },
     "jsr": {
-      "@core/unknownutil@4.2.0": {
-        "integrity": "cc0609f2e9fcfd68783c8c34d588261464114770d83047e93eaa1e13732aaedb"
+      "@core/unknownutil@4.2.2": {
+        "integrity": "3c93c9e17037cd3bf2eae0f00b4f3777b25f85399946a79ef2e25d90d3187a60"
       },
       "@cosense/types@0.10.1": {
         "integrity": "13d2488a02c7b0b035a265bc3299affbdab1ea5b607516379685965cd37b2058"
       },
-      "@progfay/scrapbox-parser@9.0.0": {
-        "integrity": "c559602926d6ddd0580ab0c945333d06ed6cbdd67d4c67557edce8b0bb4be978"
+      "@progfay/scrapbox-parser@9.1.1": {
+        "integrity": "71a6f828b7ecd89edc142f9831508561c330f924255ce34d2b835ee69cce424c"
       },
       "@std/assert@1.0.2": {
         "integrity": "ccacec332958126deaceb5c63ff8b4eaf9f5ed0eac9feccf124110435e59e49c",
