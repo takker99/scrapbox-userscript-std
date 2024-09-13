@@ -4,13 +4,13 @@
     "specifiers": {
       "jsr:@core/unknownutil@^4.0.0": "jsr:@core/unknownutil@4.3.0",
       "jsr:@cosense/types@0.10": "jsr:@cosense/types@0.10.1",
-      "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.1.1",
+      "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.1.5",
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.4",
       "jsr:@std/assert@^1.0.4": "jsr:@std/assert@1.0.4",
       "jsr:@std/async@1": "jsr:@std/async@1.0.5",
       "jsr:@std/async@^1.0.5": "jsr:@std/async@1.0.5",
       "jsr:@std/data-structures@^1.0.2": "jsr:@std/data-structures@1.0.2",
-      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.4",
+      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.5",
       "jsr:@std/fs@^1.0.3": "jsr:@std/fs@1.0.3",
       "jsr:@std/internal@^1.0.3": "jsr:@std/internal@1.0.3",
       "jsr:@std/path@^1.0.4": "jsr:@std/path@1.0.4",
@@ -25,11 +25,17 @@
       "@cosense/types@0.10.1": {
         "integrity": "13d2488a02c7b0b035a265bc3299affbdab1ea5b607516379685965cd37b2058"
       },
-      "@progfay/scrapbox-parser@9.1.1": {
-        "integrity": "71a6f828b7ecd89edc142f9831508561c330f924255ce34d2b835ee69cce424c"
+      "@progfay/scrapbox-parser@9.1.5": {
+        "integrity": "729a086b6675dd4a216875757c918c6bbea329d6e35e410516a16bbd6c468369"
       },
       "@std/assert@1.0.4": {
         "integrity": "d4c767ea578e5bc09c15b6e503376003e5b2d1f4c0cdf08524a92101ff4d7b96",
+        "dependencies": [
+          "jsr:@std/internal@^1.0.3"
+        ]
+      },
+      "@std/assert@1.0.5": {
+        "integrity": "e37da8e4033490ce613eec4ac1d78dba1faf5b02a3f6c573a28f15365b9b440f",
         "dependencies": [
           "jsr:@std/internal@^1.0.3"
         ]
@@ -40,8 +46,8 @@
       "@std/data-structures@1.0.2": {
         "integrity": "d586efced05ed91923514a192996d23673f32f695f7ebc37f0cc1e17928be600"
       },
-      "@std/encoding@1.0.4": {
-        "integrity": "2266cd516b32369e3dc5695717c96bf88343a1f761d6e6187a02a2bbe2af86ae"
+      "@std/encoding@1.0.5": {
+        "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
       },
       "@std/fs@1.0.3": {
         "integrity": "3cb839b1360b0a42d8b367c3093bfe4071798e6694fa44cf1963e04a8edba4fe",
