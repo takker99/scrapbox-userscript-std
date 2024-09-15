@@ -1,4 +1,4 @@
-import type { CommitNotification } from "./websocket-types.ts";
+import type { CommitNotification } from "./listen-events.ts";
 import type { BaseLine } from "@cosense/types/rest";
 import { getUnixTimeFromId } from "./id.ts";
 
