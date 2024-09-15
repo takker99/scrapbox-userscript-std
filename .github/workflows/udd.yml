@@ -1,42 +1,19 @@
-# ported from https://github.com/jsr-core/unknownutil/blob/v3.18.1/.github/workflows/udd.yml and modified a bit
-name: Update
-
-env:
-  DENO_VERSION: 1.x
+name: update
 
 on:
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  udd:
+  update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
+      - uses: hasundue/molt-action@v1
         with:
-          deno-version: ${{ env.DENO_VERSION }}
-      - name: Update dependencies
-        run: |
-          deno task update > ../output.txt
-        env:
-          NO_COLOR: 1
-      - name: Read ../output.txt
-        id: log
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ../output.txt
-      - uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: ":package: Update Deno dependencies"
-          title: ":package: Update Deno dependencies"
-          body: |
-            The output of `deno task update` is
-
-            ```
-            ${{ steps.log.outputs.content }}
-            ```
-          branch: update-deno-dependencies
-          author: GitHub <noreply@github.com>
-          delete-branch: true
+          commit-prefix: ":package:"

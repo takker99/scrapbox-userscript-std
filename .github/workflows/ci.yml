@@ -14,4 +14,4 @@ jobs:
         with:
           deno-version: ${{ env.DENO_VERSION }}
       - name: Check fmt & lint & type check & test
-        run: deno task check:dry
+        run: deno task check

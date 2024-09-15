@@ -2,12 +2,12 @@
   "name": "@cosense/std",
   "version": "0.0.0",
   "tasks": {
-    "check": "deno fmt && deno lint --fix && deno check --remote **/*.ts && deno test --allow-read",
-    "check:dry": "deno fmt --check && deno lint && deno check --remote **/*.ts && deno test --allow-read",
-    "update:check": "deno run --allow-env --allow-read --allow-write=.,'~/.local/share/deno-wasmbuild' --allow-run=git,deno --allow-net=deno.land,raw.githubusercontent.com,esm.sh,jsr.io,api.jsr.io,registry.npmjs.org jsr:@molt/cli@0.19",
-    "update": "deno task update:check --write",
-    "publish:check": "deno task check:dry && deno publish --dry-run --allow-dirty",
-    "publish": "deno run --allow-env --allow-run=deno --allow-read --allow-write=deno.jsonc jsr:@david/publish-on-tag@0.1.x"
+    "fix": "deno fmt && deno lint --fix && deno test --allow-read --doc --parallel --shuffle && deno publish --dry-run --allow-dirty",
+    "check": "deno fmt --check && deno lint && deno doc --lint mod.ts && deno test --allow-read --doc --parallel --shuffle && deno publish --dry-run",
+    "coverage": "deno test --allow-read=./ --parallel --shuffle --coverage && deno coverage --html",
+    // from https://github.com/jsr-core/unknownutil/blob/v4.2.2/deno.jsonc#L84-L85
+    "update": "deno run --allow-env --allow-read --allow-write=. --allow-run=git,deno --allow-net=jsr.io,registry.npmjs.org jsr:@molt/cli",
+    "update:commit": "deno task -q update --commit --prefix deps: --pre-commit=fix"
   },
   "imports": {
     "@core/unknownutil": "jsr:@core/unknownutil@^4.0.0",
