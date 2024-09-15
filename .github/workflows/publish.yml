@@ -7,21 +7,19 @@ env:
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 permissions:
   contents: read
-  id-token: write # The OIDC ID token is used for authentication with JSR.
-
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Deno
-        uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v1
         with:
           deno-version: ${{ env.DENO_VERSION }}
       - name: Publish on tag
-        run: deno task publish
+        run: deno run --allow-env --allow-run=deno --allow-read --allow-write=deno.jsonc jsr:@david/publish-on-tag@0.1.4
