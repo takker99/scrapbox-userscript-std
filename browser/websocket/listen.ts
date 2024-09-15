@@ -1,26 +1,21 @@
-import { createOk, isErr, type Result, unwrapOk } from "option-t/plain_result";
 import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
 } from "@cosense/types/rest";
-import type {
-  ProjectUpdatesStreamCommit,
-  ProjectUpdatesStreamEvent,
-} from "./emit.ts";
 import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
-import { getProjectId } from "./pull.ts";
-import { connect, disconnect } from "./socket.ts";
-import type { Socket } from "socket.io-client";
+import type { ScrapboxSocket } from "./socket.ts";
+import type { ListenEvents } from "./listen-events.ts";
 
 export type {
   ProjectUpdatesStreamCommit,
   ProjectUpdatesStreamEvent,
-} from "./websocket-types.ts";
+} from "./listen-events.ts";
 
 export interface ListenStreamOptions {
-  socket?: Socket;
+  signal?: AbortSignal;
+  once?: boolean;
 }
 
 export type ListenStreamError =
@@ -37,46 +32,21 @@ export type ListenStreamError =
  * @param events 購読したいevent。配列で指定する
  * @param options 使用したいSocketがあれば指定する
  */
-export async function* listenStream(
-  project: string,
-  events: ["commit" | "event", ...("commit" | "event")[]],
+export const listen = <EventName extends keyof ListenEvents>(
+  socket: ScrapboxSocket,
+  event: EventName,
+  listener: ListenEvents[EventName],
   options?: ListenStreamOptions,
-): AsyncGenerator<
-  Result<
-    ProjectUpdatesStreamEvent | ProjectUpdatesStreamCommit,
-    ListenStreamError
-  >,
-  void,
-  unknown
-> {
-  const result = await getProjectId(project);
-  if (isErr(result)) {
-    yield result;
-    return;
-  }
-  const projectId = unwrapOk(result);
+): void => {
+  if (options?.signal?.aborted) return;
 
-  const injectedSocket = options?.socket;
-  const result2 = await connect(injectedSocket);
-  if (isErr(result2)) throw new Error("Failed to connect to websocket");
-  const socket = unwrapOk(result2);
-  const { request, response } = wrap(socket);
+  // deno-lint-ignore no-explicit-any
+  (options?.once ? socket.once : socket.on)(event, listener as any);
 
-  try {
-    // 部屋に入って購読し始める
-    await request("socket.io-request", {
-      method: "room:join",
-      data: { projectId, pageId: null, projectUpdatesStream: true },
-    });
-
-    for await (
-      const streamEvent of response(
-        ...events.map((event) => `projectUpdatesStream:${event}` as const),
-      )
-    ) {
-      yield createOk(streamEvent);
-    }
-  } finally {
-    if (!injectedSocket) await disconnect(socket);
-  }
-}
+  options?.signal?.addEventListener?.(
+    "abort",
+    // deno-lint-ignore no-explicit-any
+    () => socket.off(event, listener as any),
+    { once: true },
+  );
+};

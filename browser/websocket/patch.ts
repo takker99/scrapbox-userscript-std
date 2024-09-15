@@ -1,4 +1,4 @@
-import type { Change, DeletePageChange, PinChange } from "./emit.ts";
+import type { Change, DeletePageChange, PinChange } from "./change.ts";
 import { makeChanges } from "./makeChanges.ts";
 import type { BaseLine, Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";

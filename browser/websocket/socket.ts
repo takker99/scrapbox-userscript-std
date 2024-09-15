@@ -1,14 +1,18 @@
 import { io, type Socket } from "socket.io-client";
 import { createErr, createOk, type Result } from "option-t/plain_result";
-import type { EmitEvents, ListenEvents } from "./websocket-types.ts";
+import type { ListenEvents } from "./listen-events.ts";
+import type { EmitEvents } from "./emit-events.ts";
+
+/** A pre-configured {@linkcode Socket} type for Scrapbox */
+export type ScrapboxSocket = Socket<ListenEvents, EmitEvents>;
 
 /** connect to websocket
  *
  * @param socket - The socket to be connected. If not provided, a new socket will be created
  * @returns A promise that resolves to a socket if connected successfully, or an error if failed
  */
-export const connect = (socket?: Socket<ListenEvents, EmitEvents>): Promise<
-  Result<Socket<ListenEvents, EmitEvents>, Socket.DisconnectReason>
+export const connect = (socket?: ScrapboxSocket): Promise<
+  Result<ScrapboxSocket, Socket.DisconnectReason>
 > => {
   if (socket?.connected) return Promise.resolve(createOk(socket));
   socket ??= io("https://scrapbox.io", {
@@ -17,7 +21,7 @@ export const connect = (socket?: Socket<ListenEvents, EmitEvents>): Promise<
   });
 
   const promise = new Promise<
-    Result<Socket<ListenEvents, EmitEvents>, Socket.DisconnectReason>
+    Result<ScrapboxSocket, Socket.DisconnectReason>
   >(
     (resolve) => {
       const onDisconnect = (reason: Socket.DisconnectReason) =>
@@ -38,7 +42,7 @@ export const connect = (socket?: Socket<ListenEvents, EmitEvents>): Promise<
  * @param socket - The socket to be disconnected
  */
 export const disconnect = (
-  socket: Socket<ListenEvents, EmitEvents>,
+  socket: ScrapboxSocket,
 ): Promise<
   Result<
     void,

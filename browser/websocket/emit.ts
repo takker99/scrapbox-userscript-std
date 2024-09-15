@@ -1,14 +1,11 @@
 import { createErr, createOk, type Result } from "option-t/plain_result";
 import type { Socket } from "socket.io-client";
 import type {
-  EmitEvents,
   JoinRoomRequest,
-  ListenEvents,
   MoveCursorData,
   PageCommit,
   PageCommitResponse,
-} from "./websocket-types.ts";
-export * from "./websocket-types.ts";
+} from "./emit-events.ts";
 import {
   isPageCommitError,
   type PageCommitError,
@@ -16,7 +13,8 @@ import {
   type TimeoutError,
   type UnexpectedRequestError,
 } from "./error.ts";
-import type { JoinRoomResponse } from "./websocket-types.ts";
+import type { JoinRoomResponse } from "./emit-events.ts";
+import type { ScrapboxSocket } from "./socket.ts";
 
 export interface WrapperdEmitEvents {
   commit: { req: PageCommit; res: PageCommitResponse; err: PageCommitError };
@@ -47,7 +45,7 @@ export interface EmitOptions {
  * @returns  A promise that resolves with the result of the emit operation.
  */
 export const emit = <EventName extends keyof WrapperdEmitEvents>(
-  socket: Socket<ListenEvents, EmitEvents>,
+  socket: ScrapboxSocket,
   event: EventName,
   data: WrapperdEmitEvents[EventName]["req"],
   options?: EmitOptions,

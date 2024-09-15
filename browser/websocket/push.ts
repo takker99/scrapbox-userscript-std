@@ -1,9 +1,5 @@
-import type {
-  Change,
-  DeletePageChange,
-  PageCommit,
-  PinChange,
-} from "./websocket-types.ts";
+import type { Change, DeletePageChange, PinChange } from "./change.ts";
+import type { PageCommit } from "./emit-events.ts";
 import { connect, disconnect } from "./socket.ts";
 import type { Socket } from "socket.io-client";
 import { emit } from "./emit.ts";

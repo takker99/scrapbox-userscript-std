@@ -1,5 +1,5 @@
 import type { Result } from "option-t/plain_result";
-import type { Change } from "./emit.ts";
+import type { Change } from "./change.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
