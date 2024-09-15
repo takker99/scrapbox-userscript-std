@@ -16,8 +16,8 @@ import {
   createErr,
   createOk,
   isErr,
-  type Result,
   isOk,
+  type Result,
   unwrapErr,
   unwrapOk,
 } from "option-t/plain_result";
