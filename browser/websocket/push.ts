@@ -17,6 +17,7 @@ import {
   createOk,
   isErr,
   type Result,
+  isOk,
   unwrapErr,
   unwrapOk,
 } from "option-t/plain_result";
@@ -132,7 +133,7 @@ export const push = async (
       // loop for push changes
       while (true) {
         const result = await emit(socket, "commit", data);
-        if (createOk(result)) {
+        if (isOk(result)) {
           metadata.commitId = unwrapOk(result).commitId;
           // success
           return createOk(metadata.commitId);
