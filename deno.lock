@@ -11,6 +11,7 @@
       "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.2",
       "jsr:@std/fs@^1.0.2": "jsr:@std/fs@1.0.2",
       "jsr:@std/internal@^1.0.2": "jsr:@std/internal@1.0.2",
+      "jsr:@std/internal@^1.0.3": "jsr:@std/internal@1.0.3",
       "jsr:@std/json@^1.0.0": "jsr:@std/json@1.0.0",
       "jsr:@std/path@^1.0.3": "jsr:@std/path@1.0.3",
       "jsr:@std/streams@^1.0.0": "jsr:@std/streams@1.0.2",
@@ -35,6 +36,12 @@
           "jsr:@std/internal@^1.0.2"
         ]
       },
+      "@std/assert@1.0.5": {
+        "integrity": "e37da8e4033490ce613eec4ac1d78dba1faf5b02a3f6c573a28f15365b9b440f",
+        "dependencies": [
+          "jsr:@std/internal@^1.0.3"
+        ]
+      },
       "@std/async@1.0.3": {
         "integrity": "6ed64678db43451683c6c176a21426a2ccd21ba0269ebb2c36133ede3f165792"
       },
@@ -49,6 +56,9 @@
       },
       "@std/internal@1.0.2": {
         "integrity": "f4cabe2021352e8bfc24e6569700df87bf070914fc38d4b23eddd20108ac4495"
+      },
+      "@std/internal@1.0.3": {
+        "integrity": "208e9b94a3d5649bd880e9ca38b885ab7651ab5b5303a56ed25de4755fb7b11e"
       },
       "@std/json@1.0.0": {
         "integrity": "985c1e544918d42e4e84072fc739ac4a19c3a5093292c99742ffcdd03fb6a268",
