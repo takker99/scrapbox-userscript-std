@@ -8,7 +8,7 @@
       "jsr:@std/assert@1": "jsr:@std/assert@1.0.3",
       "jsr:@std/assert@^1.0.3": "jsr:@std/assert@1.0.3",
       "jsr:@std/async@1": "jsr:@std/async@1.0.5",
-      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.2",
+      "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.5",
       "jsr:@std/fs@^1.0.2": "jsr:@std/fs@1.0.2",
       "jsr:@std/internal@^1.0.2": "jsr:@std/internal@1.0.2",
       "jsr:@std/internal@^1.0.3": "jsr:@std/internal@1.0.3",
@@ -45,8 +45,8 @@
       "@std/async@1.0.5": {
         "integrity": "31d68214bfbb31bd4c6022401d484e3964147c76c9220098baa703a39b6c2da6"
       },
-      "@std/encoding@1.0.2": {
-        "integrity": "7ed640c777e3275550e2cd937c440acdbebfdcd2d13ef67052f0536bf43e707f"
+      "@std/encoding@1.0.5": {
+        "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
       },
       "@std/fs@1.0.2": {
         "integrity": "af57555c7a224a6f147d5cced5404692974f7a628ced8eda67e0d22d92d474ec",
