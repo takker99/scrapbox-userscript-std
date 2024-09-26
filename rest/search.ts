@@ -132,14 +132,13 @@ export const searchForWatchList = async (
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const params = new URLSearchParams();
-  params.append("q", encodeURIComponent(query));
-  for (const projectId of projectIds) {
-    params.append("ids", projectId);
-  }
+  const params = new URLSearchParams([
+    ["q", encodeURIComponent(query)],
+    ...projectIds.map((projectId) => ["ids", projectId]),
+  ]);
 
   const req = new Request(
-    `https://${hostName}/api/projects/search/watch-list?${params.toString()}`,
+    `https://${hostName}/api/projects/search/watch-list?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 
