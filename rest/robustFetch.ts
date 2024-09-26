@@ -14,17 +14,24 @@ export interface AbortError {
 
 export type FetchError = NetworkError | AbortError;
 
+/**
+ * Represents a function that performs a network request using the Fetch API.
+ *
+ * @param input - The resource URL or a {@linkcode Request} object.
+ * @param init - An optional object containing request options.
+ * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
+ */
 export type RobustFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<Result<Response, FetchError>>;
 
 /**
- * Performs a network request using the Fetch API.
+ * A simple implementation of {@linkcode RobustFetch} that uses {@linkcode fetch}.
  *
- * @param input - The resource URL or a `Request` object.
+ * @param input - The resource URL or a {@linkcode Request} object.
  * @param init - An optional object containing request options.
- * @returns A promise that resolves to a `Result` object containing either a `Response` or an error.
+ * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
  */
 export const robustFetch: RobustFetch = async (input, init) => {
   const request = new Request(input, init);
