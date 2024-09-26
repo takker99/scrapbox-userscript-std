@@ -68,6 +68,28 @@ export type PushError =
   | NetworkError
   | AbortError;
 
+/**
+ * pushしたいcommitを作る関数
+ *
+ * {@linkcode push} で使う
+ *
+ * @param page ページのメタデータ
+ * @param attempts 何回目の試行か
+ * @param prev 前回のcommitの変更
+ * @param reason 再試行した場合、その理由が渡される
+ * @returns commits
+ */
+export type CommitMakeHandler = (
+  page: PushMetadata,
+  attempts: number,
+  prev: Change[] | [DeletePageChange] | [PinChange],
+  reason?: "NotFastForwardError" | "DuplicateTitleError",
+) =>
+  | Promise<Change[] | [DeletePageChange] | [PinChange]>
+  | Change[]
+  | [DeletePageChange]
+  | [PinChange];
+
 /** 特定のページのcommitをpushする
  *
  * serverからpush errorが返ってきた場合、エラーに応じてpushを再試行する
@@ -81,16 +103,7 @@ export type PushError =
 export const push = async (
   project: string,
   title: string,
-  makeCommit: (
-    page: PushMetadata,
-    attempts: number,
-    prev: Change[] | [DeletePageChange] | [PinChange],
-    reason?: "NotFastForwardError" | "DuplicateTitleError",
-  ) =>
-    | Promise<Change[] | [DeletePageChange] | [PinChange]>
-    | Change[]
-    | [DeletePageChange]
-    | [PinChange],
+  makeCommit: CommitMakeHandler,
   options?: PushOptions,
 ): Promise<Result<string, PushError>> => {
   const result = await connect(options?.socket);
