@@ -39,11 +39,11 @@ const getPage_toRequest: GetPage["toRequest"] = (
   options,
 ) => {
   const { sid, hostName, followRename, projects } = setDefaults(options ?? {});
-  const params = new URLSearchParams();
-  params.append("followRename", `${followRename ?? true}`);
-  for (const id of projects ?? []) {
-    params.append("projects", id);
-  }
+
+  const params = new URLSearchParams([
+    ["followRename", `${followRename ?? true}`],
+    ...(projects?.map?.((id) => ["projects", id]) ?? []),
+  ]);
 
   return new Request(
     `https://${hostName}/api/pages/${project}/${

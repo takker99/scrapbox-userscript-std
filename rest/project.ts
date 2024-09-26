@@ -130,13 +130,12 @@ export type ListProjectsError = NotLoggedInError | HTTPError;
 
 const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
   const { sid, hostName } = setDefaults(init ?? {});
-  const param = new URLSearchParams();
-  for (const id of projectIds) {
-    param.append("ids", id);
-  }
+  const params = new URLSearchParams(
+    projectIds.map((id) => ["ids", id]),
+  );
 
   return new Request(
-    `https://${hostName}/api/projects?${param.toString()}`,
+    `https://${hostName}/api/projects?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
