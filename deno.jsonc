@@ -21,7 +21,7 @@
     "@std/testing/snapshot": "jsr:@std/testing@1/snapshot",
     "@takker/md5": "jsr:@takker/md5@0.1",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
-    "option-t": "npm:option-t@^49.1.0",
+    "option-t": "npm:option-t@^50.0.0",
     "socket.io-client": "npm:socket.io-client@^4.7.5"
   },
   "exports": {

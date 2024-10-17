@@ -18,7 +18,7 @@
       "jsr:@std/streams@^1.0.0": "jsr:@std/streams@1.0.2",
       "jsr:@std/testing@1": "jsr:@std/testing@1.0.3",
       "jsr:@takker/md5@0.1": "jsr:@takker/md5@0.1.0",
-      "npm:option-t@^49.1.0": "npm:option-t@49.2.1",
+      "npm:option-t@^50.0.0": "npm:option-t@50.0.0",
       "npm:socket.io-client@^4.7.5": "npm:socket.io-client@4.8.0"
     },
     "jsr": {
@@ -114,8 +114,8 @@
         "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==",
         "dependencies": {}
       },
-      "option-t@49.2.1": {
-        "integrity": "sha512-ueUhVyOyiNJ7Bd0Qkv5HWaqfCX331ZoslSTYq7xhlu8pP+8YKcKzGHVGcDZOpjXlehyS0rPd9w8OXFRfL1d52Q==",
+      "option-t@50.0.0": {
+        "integrity": "sha512-zHw9Et+SfAx3Xtl9LagyAjyyzC3pNONEinTAOmZN2IKL0dYa6dthjzwuSRueJ2gLkaTiinQjRDGo/1mKSl70hg==",
         "dependencies": {}
       },
       "socket.io-client@4.8.0": {
@@ -156,7 +156,7 @@
       "jsr:@std/json@^1.0.0",
       "jsr:@std/testing@1",
       "jsr:@takker/md5@0.1",
-      "npm:option-t@^49.1.0",
+      "npm:option-t@^50.0.0",
       "npm:socket.io-client@^4.7.5"
     ]
   }
