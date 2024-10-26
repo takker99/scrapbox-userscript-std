@@ -20,7 +20,7 @@
       "jsr:@std/testing@1": "jsr:@std/testing@1.0.3",
       "jsr:@takker/md5@0.1": "jsr:@takker/md5@0.1.0",
       "npm:option-t@^50.0.0": "npm:option-t@50.0.0",
-      "npm:socket.io-client@^4.7.5": "npm:socket.io-client@4.8.0"
+      "npm:socket.io-client@^4.7.5": "npm:socket.io-client@4.8.1"
     },
     "jsr": {
       "@core/unknownutil@4.3.0": {
@@ -106,14 +106,14 @@
           "ms": "ms@2.1.3"
         }
       },
-      "engine.io-client@6.6.1": {
-        "integrity": "sha512-aYuoak7I+R83M/BBPIOs2to51BmFIpC1wZe6zZzMrT2llVsHy5cvcmdsJgP2Qz6smHu+sD9oexiSUAVd8OfBPw==",
+      "engine.io-client@6.6.2": {
+        "integrity": "sha512-TAr+NKeoVTjEVW8P3iHguO1LO6RlUz9O5Y8o7EY0fU+gY1NYqas7NN3slpFtbXEsLMHk0h90fJMfKjRkQ0qUIw==",
         "dependencies": {
           "@socket.io/component-emitter": "@socket.io/component-emitter@3.1.2",
           "debug": "debug@4.3.7",
           "engine.io-parser": "engine.io-parser@5.2.3",
           "ws": "ws@8.17.1",
-          "xmlhttprequest-ssl": "xmlhttprequest-ssl@2.1.1"
+          "xmlhttprequest-ssl": "xmlhttprequest-ssl@2.1.2"
         }
       },
       "engine.io-parser@5.2.3": {
@@ -128,12 +128,12 @@
         "integrity": "sha512-zHw9Et+SfAx3Xtl9LagyAjyyzC3pNONEinTAOmZN2IKL0dYa6dthjzwuSRueJ2gLkaTiinQjRDGo/1mKSl70hg==",
         "dependencies": {}
       },
-      "socket.io-client@4.8.0": {
-        "integrity": "sha512-C0jdhD5yQahMws9alf/yvtsMGTaIDBnZ8Rb5HU56svyq0l5LIrGzIDZZD5pHQlmzxLuU91Gz+VpQMKgCTNYtkw==",
+      "socket.io-client@4.8.1": {
+        "integrity": "sha512-hJVXfu3E28NmzGk8o1sHhN3om52tRvwYeidbj7xKy2eIIse5IoKX3USlS6Tqt3BHAtflLIkCQBkzVrEEfWUyYQ==",
         "dependencies": {
           "@socket.io/component-emitter": "@socket.io/component-emitter@3.1.2",
           "debug": "debug@4.3.7",
-          "engine.io-client": "engine.io-client@6.6.1",
+          "engine.io-client": "engine.io-client@6.6.2",
           "socket.io-parser": "socket.io-parser@4.2.4"
         }
       },
@@ -148,8 +148,8 @@
         "integrity": "sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==",
         "dependencies": {}
       },
-      "xmlhttprequest-ssl@2.1.1": {
-        "integrity": "sha512-ptjR8YSJIXoA3Mbv5po7RtSYHO6mZr8s7i5VGmEk7QY2pQWyT1o0N+W1gKbOyJPUCGXGnuw0wqe8f0L6Y0ny7g==",
+      "xmlhttprequest-ssl@2.1.2": {
+        "integrity": "sha512-TEU+nJVUUnA4CYJFLvK5X9AOeH4KvDvhIfm0vV1GaQRtchnG0hgK5p8hw/xjv8cunWYCsiPCSDzObPyhEwq3KQ==",
         "dependencies": {}
       }
     }
