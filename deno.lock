@@ -5,20 +5,20 @@
       "jsr:@core/unknownutil@^4.0.0": "jsr:@core/unknownutil@4.3.0",
       "jsr:@cosense/types@0.10": "jsr:@cosense/types@0.10.1",
       "jsr:@progfay/scrapbox-parser@9": "jsr:@progfay/scrapbox-parser@9.1.5",
-      "jsr:@std/assert@1": "jsr:@std/assert@1.0.6",
-      "jsr:@std/assert@^1.0.6": "jsr:@std/assert@1.0.6",
-      "jsr:@std/async@1": "jsr:@std/async@1.0.5",
-      "jsr:@std/async@^1.0.5": "jsr:@std/async@1.0.5",
+      "jsr:@std/assert@1": "jsr:@std/assert@1.0.7",
+      "jsr:@std/assert@^1.0.7": "jsr:@std/assert@1.0.7",
+      "jsr:@std/async@1": "jsr:@std/async@1.0.8",
+      "jsr:@std/async@^1.0.8": "jsr:@std/async@1.0.8",
       "jsr:@std/bytes@^1.0.2": "jsr:@std/bytes@1.0.2",
       "jsr:@std/data-structures@^1.0.4": "jsr:@std/data-structures@1.0.4",
       "jsr:@std/encoding@1": "jsr:@std/encoding@1.0.5",
-      "jsr:@std/fs@^1.0.4": "jsr:@std/fs@1.0.4",
-      "jsr:@std/internal@^1.0.4": "jsr:@std/internal@1.0.4",
+      "jsr:@std/fs@^1.0.5": "jsr:@std/fs@1.0.5",
       "jsr:@std/internal@^1.0.5": "jsr:@std/internal@1.0.5",
       "jsr:@std/json@^1.0.0": "jsr:@std/json@1.0.1",
-      "jsr:@std/path@^1.0.6": "jsr:@std/path@1.0.6",
+      "jsr:@std/path@^1.0.7": "jsr:@std/path@1.0.8",
+      "jsr:@std/path@^1.0.8": "jsr:@std/path@1.0.8",
       "jsr:@std/streams@^1.0.7": "jsr:@std/streams@1.0.7",
-      "jsr:@std/testing@1": "jsr:@std/testing@1.0.3",
+      "jsr:@std/testing@1": "jsr:@std/testing@1.0.4",
       "jsr:@takker/md5@0.1": "jsr:@takker/md5@0.1.0",
       "npm:option-t@^50.0.0": "npm:option-t@50.0.0",
       "npm:socket.io-client@^4.7.5": "npm:socket.io-client@4.8.1"
@@ -33,20 +33,11 @@
       "@progfay/scrapbox-parser@9.1.5": {
         "integrity": "729a086b6675dd4a216875757c918c6bbea329d6e35e410516a16bbd6c468369"
       },
-      "@std/assert@1.0.6": {
-        "integrity": "1904c05806a25d94fe791d6d883b685c9e2dcd60e4f9fc30f4fc5cf010c72207",
-        "dependencies": [
-          "jsr:@std/internal@^1.0.4"
-        ]
-      },
       "@std/assert@1.0.7": {
         "integrity": "64ce9fac879e0b9f3042a89b3c3f8ccfc9c984391af19e2087513a79d73e28c3",
         "dependencies": [
           "jsr:@std/internal@^1.0.5"
         ]
-      },
-      "@std/async@1.0.5": {
-        "integrity": "31d68214bfbb31bd4c6022401d484e3964147c76c9220098baa703a39b6c2da6"
       },
       "@std/async@1.0.6": {
         "integrity": "6d262156dd35c4a72ee1a2f8679be40264f370cfb92e2e13d4eca2ae05e16f34"
@@ -66,14 +57,11 @@
       "@std/encoding@1.0.5": {
         "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
       },
-      "@std/fs@1.0.4": {
-        "integrity": "2907d32d8d1d9e540588fd5fe0ec21ee638134bd51df327ad4e443aaef07123c",
+      "@std/fs@1.0.5": {
+        "integrity": "41806ad6823d0b5f275f9849a2640d87e4ef67c51ee1b8fb02426f55e02fd44e",
         "dependencies": [
-          "jsr:@std/path@^1.0.6"
+          "jsr:@std/path@^1.0.7"
         ]
-      },
-      "@std/internal@1.0.4": {
-        "integrity": "62e8e4911527e5e4f307741a795c0b0a9e6958d0b3790716ae71ce085f755422"
       },
       "@std/internal@1.0.5": {
         "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
@@ -84,8 +72,8 @@
           "jsr:@std/streams@^1.0.7"
         ]
       },
-      "@std/path@1.0.6": {
-        "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
+      "@std/path@1.0.8": {
+        "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
       },
       "@std/streams@1.0.7": {
         "integrity": "1a93917ca0c58c01b2bfb93647189229b1702677f169b6fb61ad6241cd2e499b",
@@ -93,15 +81,15 @@
           "jsr:@std/bytes@^1.0.2"
         ]
       },
-      "@std/testing@1.0.3": {
-        "integrity": "f98c2bee53860a5916727d7e7d3abe920dd6f9edace022e2d059f00d05c2cf42",
+      "@std/testing@1.0.4": {
+        "integrity": "ca1368d720b183f572d40c469bb9faf09643ddd77b54f8b44d36ae6b94940576",
         "dependencies": [
-          "jsr:@std/assert@^1.0.6",
-          "jsr:@std/async@^1.0.5",
+          "jsr:@std/assert@^1.0.7",
+          "jsr:@std/async@^1.0.8",
           "jsr:@std/data-structures@^1.0.4",
-          "jsr:@std/fs@^1.0.4",
-          "jsr:@std/internal@^1.0.4",
-          "jsr:@std/path@^1.0.6"
+          "jsr:@std/fs@^1.0.5",
+          "jsr:@std/internal@^1.0.5",
+          "jsr:@std/path@^1.0.8"
         ]
       },
       "@takker/md5@0.1.0": {
