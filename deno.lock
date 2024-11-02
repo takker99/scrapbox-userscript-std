@@ -54,6 +54,9 @@
       "@std/async@1.0.7": {
         "integrity": "f4fadc0124432e37cba11e8b3880164661a664de00a65118d976848f32f96290"
       },
+      "@std/async@1.0.8": {
+        "integrity": "c057c5211a0f1d12e7dcd111ab430091301b8d64b4250052a79d277383bc3ba7"
+      },
       "@std/bytes@1.0.2": {
         "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
       },
