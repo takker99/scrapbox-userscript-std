@@ -7,11 +7,34 @@ declare const scrapbox: Scrapbox;
  * - second key: listener
  * - value: encoded options
  */
-const listenerMap = new Map<
+const listenerMap = /* @__PURE__ */ new Map<
   keyof HTMLElementEventMap,
   Map<EventListener, Set<number>>
 >();
-const onceListenerMap = new Map<EventListener, Map<number, EventListener>>();
+const onceListenerMap = /* @__PURE__ */ new Map<
+  EventListener,
+  Map<number, EventListener>
+>();
+
+/** re-register event listeners when the layout changes */
+let reRegister: (() => void) | undefined = () => {
+  scrapbox.on("layout:changed", () => {
+    const textinput = textInput();
+    if (!textinput) return;
+    for (const [name, argMap] of listenerMap) {
+      for (const [listener, encodedOptions] of argMap) {
+        for (const encoded of encodedOptions) {
+          textinput.addEventListener(
+            name,
+            listener as EventListener,
+            decode(encoded),
+          );
+        }
+      }
+    }
+  });
+  reRegister = undefined;
+};
 
 /** `#text-input`に対してイベントリスナーを追加する
  *
@@ -30,6 +53,7 @@ export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
   ) => unknown,
   options?: boolean | AddEventListenerOptions,
 ): void => {
+  reRegister?.();
   const argMap = listenerMap.get(name) ?? new Map<EventListener, Set<number>>();
   const encodedOptions = argMap.get(listener as EventListener) ?? new Set();
   if (encodedOptions.has(encode(options))) return;
@@ -62,23 +86,6 @@ export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
   textinput.addEventListener<K>(name, listener, options);
 };
 
-// re-register event listeners when the layout changes
-scrapbox.on("layout:changed", () => {
-  const textinput = textInput();
-  if (!textinput) return;
-  for (const [name, argMap] of listenerMap) {
-    for (const [listener, encodedOptions] of argMap) {
-      for (const encoded of encodedOptions) {
-        textinput.addEventListener(
-          name,
-          listener as EventListener,
-          decode(encoded),
-        );
-      }
-    }
-  }
-});
-
 export const removeTextInputEventListener = <
   K extends keyof HTMLElementEventMap,
 >(
@@ -86,6 +93,7 @@ export const removeTextInputEventListener = <
   listener: (event: HTMLElementEventMap[K]) => unknown,
   options?: boolean | AddEventListenerOptions,
 ): void => {
+  reRegister?.();
   const argMap = listenerMap.get(name);
   if (!argMap) return;
   const encodedOptions = argMap.get(listener as EventListener);
