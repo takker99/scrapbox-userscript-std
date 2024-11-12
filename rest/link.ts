@@ -106,16 +106,19 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
  *
  * @param project データを取得したいproject
  */
-export const getLinks: GetLinks = async (project, options) => {
-  const res = await setDefaults(options ?? {}).fetch(
-    getLinks_toRequest(project, options),
-  );
-  if (isErr(res)) return res;
-  return getLinks_fromResponse(unwrapOk(res));
-};
+export const getLinks: GetLinks = /* @__PURE__ */ (() => {
+  const fn: GetLinks = async (project, options) => {
+    const res = await setDefaults(options ?? {}).fetch(
+      getLinks_toRequest(project, options),
+    );
+    if (isErr(res)) return res;
+    return getLinks_fromResponse(unwrapOk(res));
+  };
 
-getLinks.toRequest = getLinks_toRequest;
-getLinks.fromResponse = getLinks_fromResponse;
+  fn.toRequest = getLinks_toRequest;
+  fn.fromResponse = getLinks_fromResponse;
+  return fn;
+})();
 
 /** 指定したprojectの全てのリンクデータを取得する
  *

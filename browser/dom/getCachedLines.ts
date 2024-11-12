@@ -1,11 +1,14 @@
 import type { Line, Scrapbox } from "@cosense/types/userscript";
 declare const scrapbox: Scrapbox;
 
-let isLatestData = false;
-let lines: typeof scrapbox.Page.lines = null;
+let isLatestData = /* @__PURE__ */ false;
+let lines: Line[] | null = /* @__PURE__ */ null;
 
-scrapbox.addListener("lines:changed", () => isLatestData = false);
-scrapbox.addListener("layout:changed", () => isLatestData = false);
+let initialize: (() => void) | undefined = () => {
+  scrapbox.addListener("lines:changed", () => isLatestData = false);
+  scrapbox.addListener("layout:changed", () => isLatestData = false);
+  initialize = undefined;
+};
 
 /** scrapbox.Page.linesをcacheして取得する
  *
@@ -14,6 +17,7 @@ scrapbox.addListener("layout:changed", () => isLatestData = false);
  * @return `scrapbox.Page.lines`と同じ。常に最新のものが返される
  */
 export const getCachedLines = (): readonly Line[] | null => {
+  initialize?.();
   if (!isLatestData) {
     lines = scrapbox.Page.lines;
     isLatestData = true;

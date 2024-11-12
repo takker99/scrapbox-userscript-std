@@ -52,14 +52,17 @@ const getProfile_fromResponse: GetProfile["fromResponse"] = (response) =>
     async (res) => (await res.json()) as MemberUser | GuestUser,
   );
 
-export const getProfile: GetProfile = async (init) => {
-  const { fetch, ...rest } = setDefaults(init ?? {});
+export const getProfile: GetProfile = /* @__PURE__ */ (() => {
+  const fn: GetProfile = async (init) => {
+    const { fetch, ...rest } = setDefaults(init ?? {});
 
-  const resResult = await fetch(getProfile_toRequest(rest));
-  return isErr(resResult)
-    ? resResult
-    : getProfile_fromResponse(unwrapOk(resResult));
-};
+    const resResult = await fetch(getProfile_toRequest(rest));
+    return isErr(resResult)
+      ? resResult
+      : getProfile_fromResponse(unwrapOk(resResult));
+  };
 
-getProfile.toRequest = getProfile_toRequest;
-getProfile.fromResponse = getProfile_fromResponse;
+  fn.toRequest = getProfile_toRequest;
+  fn.fromResponse = getProfile_fromResponse;
+  return fn;
+})();
