@@ -83,21 +83,25 @@ const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
  * @param project project name to get
  * @param init connect.sid etc.
  */
-export const getProject: GetProject = async (
-  project,
-  init,
-) => {
-  const { fetch } = setDefaults(init ?? {});
+export const getProject: GetProject = /* @__PURE__ */ (() => {
+  const fn: GetProject = async (
+    project,
+    init,
+  ) => {
+    const { fetch } = setDefaults(init ?? {});
 
-  const req = getProject_toRequest(project, init);
-  const res = await fetch(req);
-  if (isErr(res)) return res;
+    const req = getProject_toRequest(project, init);
+    const res = await fetch(req);
+    if (isErr(res)) return res;
 
-  return getProject_fromResponse(unwrapOk(res));
-};
+    return getProject_fromResponse(unwrapOk(res));
+  };
 
-getProject.toRequest = getProject_toRequest;
-getProject.fromResponse = getProject_fromResponse;
+  fn.toRequest = getProject_toRequest;
+  fn.fromResponse = getProject_fromResponse;
+
+  return fn;
+})();
 
 export interface ListProjects {
   /** /api/project の要求を組み立てる
@@ -155,17 +159,21 @@ const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
  * @param projectIds project ids. This must have more than 1 id
  * @param init connect.sid etc.
  */
-export const listProjects: ListProjects = async (
-  projectIds,
-  init,
-) => {
-  const { fetch } = setDefaults(init ?? {});
+export const listProjects: ListProjects = /* @__PURE__ */ (() => {
+  const fn: ListProjects = async (
+    projectIds,
+    init,
+  ) => {
+    const { fetch } = setDefaults(init ?? {});
 
-  const res = await fetch(ListProject_toRequest(projectIds, init));
-  if (isErr(res)) return res;
+    const res = await fetch(ListProject_toRequest(projectIds, init));
+    if (isErr(res)) return res;
 
-  return ListProject_fromResponse(unwrapOk(res));
-};
+    return ListProject_fromResponse(unwrapOk(res));
+  };
 
-listProjects.toRequest = ListProject_toRequest;
-listProjects.fromResponse = ListProject_fromResponse;
+  fn.toRequest = ListProject_toRequest;
+  fn.fromResponse = ListProject_fromResponse;
+
+  return fn;
+})();

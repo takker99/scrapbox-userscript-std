@@ -92,16 +92,20 @@ export type CodeBlockError =
  * @param filename 取得したいコードブロックのファイル名
  * @param options オプション
  */
-export const getCodeBlock: GetCodeBlock = async (
-  project,
-  title,
-  filename,
-  options,
-) => {
-  const req = getCodeBlock_toRequest(project, title, filename, options);
-  const res = await setDefaults(options ?? {}).fetch(req);
-  return isErr(res) ? res : getCodeBlock_fromResponse(unwrapOk(res));
-};
+export const getCodeBlock: GetCodeBlock = /* @__PURE__ */ (() => {
+  const fn: GetCodeBlock = async (
+    project,
+    title,
+    filename,
+    options,
+  ) => {
+    const req = getCodeBlock_toRequest(project, title, filename, options);
+    const res = await setDefaults(options ?? {}).fetch(req);
+    return isErr(res) ? res : getCodeBlock_fromResponse(unwrapOk(res));
+  };
 
-getCodeBlock.toRequest = getCodeBlock_toRequest;
-getCodeBlock.fromResponse = getCodeBlock_fromResponse;
+  fn.toRequest = getCodeBlock_toRequest;
+  fn.fromResponse = getCodeBlock_fromResponse;
+
+  return fn;
+})();

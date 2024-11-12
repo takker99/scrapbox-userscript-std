@@ -97,18 +97,22 @@ export interface GetTable {
  * @param filename テーブルの名前
  * @param options オプション
  */
-export const getTable: GetTable = async (
-  project,
-  title,
-  filename,
-  options,
-) => {
-  const { fetch } = setDefaults(options ?? {});
-  const req = getTable_toRequest(project, title, filename, options);
-  const res = await fetch(req);
-  if (isErr(res)) return res;
-  return await getTable_fromResponse(unwrapOk(res));
-};
+export const getTable: GetTable = /* @__PURE__ */ (() => {
+  const fn: GetTable = async (
+    project,
+    title,
+    filename,
+    options,
+  ) => {
+    const { fetch } = setDefaults(options ?? {});
+    const req = getTable_toRequest(project, title, filename, options);
+    const res = await fetch(req);
+    if (isErr(res)) return res;
+    return await getTable_fromResponse(unwrapOk(res));
+  };
 
-getTable.toRequest = getTable_toRequest;
-getTable.fromResponse = getTable_fromResponse;
+  fn.toRequest = getTable_toRequest;
+  fn.fromResponse = getTable_fromResponse;
+
+  return fn;
+})();

@@ -121,20 +121,24 @@ export type PageError =
  * @param title 取得したいページのtitle 大文字小文字は問わない
  * @param options オプション
  */
-export const getPage: GetPage = async (
-  project,
-  title,
-  options,
-) =>
-  andThenAsyncForResult<Response, Page, PageError | FetchError>(
-    await setDefaults(options ?? {}).fetch(
-      getPage_toRequest(project, title, options),
-    ),
-    (input) => getPage_fromResponse(input),
-  );
+export const getPage: GetPage = /* @__PURE__ */ (() => {
+  const fn: GetPage = async (
+    project,
+    title,
+    options,
+  ) =>
+    andThenAsyncForResult<Response, Page, PageError | FetchError>(
+      await setDefaults(options ?? {}).fetch(
+        getPage_toRequest(project, title, options),
+      ),
+      (input) => getPage_fromResponse(input),
+    );
 
-getPage.toRequest = getPage_toRequest;
-getPage.fromResponse = getPage_fromResponse;
+  fn.toRequest = getPage_toRequest;
+  fn.fromResponse = getPage_fromResponse;
+
+  return fn;
+})();
 
 /** Options for `listPages()` */
 export interface ListPagesOption extends BaseOptions {
@@ -231,16 +235,20 @@ const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
  * @param project 一覧したいproject
  * @param options オプション 取得範囲や並び順を決める
  */
-export const listPages: ListPages = async (
-  project,
-  options?,
-) =>
-  andThenAsyncForResult<Response, PageList, ListPagesError | FetchError>(
-    await setDefaults(options ?? {})?.fetch(
-      listPages_toRequest(project, options),
-    ),
-    listPages_fromResponse,
-  );
+export const listPages: ListPages = /* @__PURE__ */ (() => {
+  const fn: ListPages = async (
+    project,
+    options?,
+  ) =>
+    andThenAsyncForResult<Response, PageList, ListPagesError | FetchError>(
+      await setDefaults(options ?? {})?.fetch(
+        listPages_toRequest(project, options),
+      ),
+      listPages_fromResponse,
+    );
 
-listPages.toRequest = listPages_toRequest;
-listPages.fromResponse = listPages_fromResponse;
+  fn.toRequest = listPages_toRequest;
+  fn.fromResponse = listPages_fromResponse;
+
+  return fn;
+})();
