@@ -33,7 +33,7 @@ export type ImportPagesError = HTTPError;
 export const importPages = async (
   project: string,
   data: ImportedData<boolean>,
-  init: ExtendedOptions,
+  init?: ExtendedOptions,
 ): Promise<
   Result<string, ImportPagesError | FetchError>
 > => {
