@@ -7,32 +7,32 @@ UNOFFICIAL standard module for Scrapbox UserScript
 
 ## Getting Started
 
-このライブラリは、Scrapboxのユーザースクリプト開発のための非公式な標準ライブラリです。
+This library serves as an unofficial standard library for developing Scrapbox userscripts.
 
-### インストール方法
+### Installation
 
-1. bundlerの設定
-このライブラリを使用するには、bundlerの設定が必要です。以下のいずれかの方法で設定してください：
+1. Bundler Configuration
+To use this library, you need to configure a bundler. You can set it up using one of the following methods:
 
 ```typescript
 // Using JSR
 import { ... } from "jsr:@cosense/std";
-// または特定の機能のみをインポート
+// Or import specific features
 import { ... } from "jsr:@cosense/std/rest";
 import { ... } from "jsr:@cosense/std/browser";
 ```
 
-2. 必要なモジュールのインポート
-必要な機能に応じて、以下のモジュールをインポートしてください：
-- REST API操作: `rest`モジュール
-- ブラウザ操作: `browser`モジュール
-- ユーティリティ: `title`, `parseAbsoluteLink`など
+2. Required Modules
+Import the modules based on your needs:
+- REST API operations: `rest` module
+- Browser operations: `browser` module
+- Utilities: `title`, `parseAbsoluteLink`, etc.
 
 ## Examples
 
-### 基本的な使用例
+### Basic Usage
 
-1. ページ情報の取得
+1. Retrieving Page Information
 ```typescript
 import { getPage } from "jsr:@cosense/std/rest";
 
@@ -40,7 +40,7 @@ const page = await getPage("projectName", "pageName");
 console.log(page.title);
 ```
 
-2. DOMの操作
+2. DOM Operations
 ```typescript
 import { getLines } from "jsr:@cosense/std/browser/dom";
 
@@ -48,7 +48,7 @@ const lines = getLines();
 console.log(lines.map(line => line.text));
 ```
 
-3. 外部リンクの解析
+3. External Link Analysis
 ```typescript
 import { parseAbsoluteLink } from "jsr:@cosense/std";
 import type { LinkNode } from "@progfay/scrapbox-parser";
@@ -65,7 +65,7 @@ if (parsed.type === "youtube") {
 }
 ```
 
-### 注意点
-- このライブラリを使用するには、必ずbundlerを通す必要があります
-- TypeScriptの型定義が利用可能です
-- より詳細な使用例は[Examples](https://github.com/takker99/scrapbox-userscript-std/tree/main/examples)を参照してください
+### Important Notes
+- You must use a bundler to use this library
+- TypeScript type definitions are available
+- For more detailed examples, refer to the [Examples](https://github.com/takker99/scrapbox-userscript-std/tree/main/examples) directory
