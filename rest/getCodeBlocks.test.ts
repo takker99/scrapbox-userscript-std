@@ -3,10 +3,17 @@ import { assertEquals } from "@std/assert";
 import { assertSnapshot } from "@std/testing/snapshot";
 import { getCodeBlocks } from "./getCodeBlocks.ts";
 
-// https://scrapbox.io/takker/コードブロック記法
+// Reference: https://scrapbox.io/takker/コードブロック記法
+// This test uses a sample page that demonstrates various code block syntax patterns
+// in Scrapbox. The page contains examples of:
+// - Named code blocks with file extensions
+// - Anonymous code blocks with language hints
+// - Indented code blocks
+// - Code blocks with forced language highlighting
+// - Literate programming style code blocks
 const project = "takker";
-const title = "コードブロック記法";
-const sample: BaseLine[] = [
+const title = "コードブロック記法"; // "Code Block Syntax"
+const sample: BaseLine[] = [ // Sample page content demonstrating various code block formats
   {
     "id": "63b7aeeb5defe7001ddae116",
     "text": "コードブロック記法",
@@ -228,10 +235,15 @@ const sample: BaseLine[] = [
 ];
 
 Deno.test("getCodeBlocks()", async (t) => {
+  // Test the basic functionality of getCodeBlocks
+  // This verifies that all code blocks are correctly extracted from the page
   await assertSnapshot(
     t,
     getCodeBlocks({ project, title, lines: sample }),
   );
+
+  // Test filtering code blocks by filename
+  // This ensures that we can retrieve specific code blocks by their filename
   await t.step("filename filter", async (st) => {
     const filename = "インデント.md";
     const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
@@ -244,6 +256,8 @@ Deno.test("getCodeBlocks()", async (t) => {
     await Promise.all(yet);
     await assertSnapshot(st, codeBlocks);
   });
+  // Test filtering code blocks by programming language
+  // This verifies that we can find all code blocks of a specific language
   await t.step("language name filter", async (st) => {
     const lang = "py";
     const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
@@ -256,6 +270,8 @@ Deno.test("getCodeBlocks()", async (t) => {
     await Promise.all(yet);
     await assertSnapshot(st, codeBlocks);
   });
+  // Test filtering code blocks by their title line ID
+  // This ensures we can find code blocks starting at a specific line in the page
   await t.step("title line ID filter", async (st) => {
     const titleLineId = "63b7b1261280f00000c9bc34";
     const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
