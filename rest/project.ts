@@ -21,21 +21,27 @@ import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProject {
-  /** /api/project/:project の要求を組み立てる
+  /** Constructs a request for the /api/project/:project endpoint
    *
-   * @param project project name to get
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves detailed information about a specific project,
+   * which can be either a MemberProject or NotMemberProject depending on the user's access level.
+   *
+   * @param project The project name to retrieve information for
+   * @param init Options including connect.sid (session ID) and other configuration
+   * @return The constructed request object
    */
   toRequest: (
     project: string,
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Extracts project JSON data from the API response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * Processes the API response and extracts the project information.
+   * Handles various error cases including NotFoundError, NotMemberError, and NotLoggedInError.
+   *
+   * @param res The API response object
+   * @return A Result containing either project data or an error
    */
   fromResponse: (
     res: Response,
@@ -104,21 +110,27 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
 })();
 
 export interface ListProjects {
-  /** /api/project の要求を組み立てる
+  /** Constructs a request for the /api/projects endpoint
    *
-   * @param projectIds project ids. This must have more than 1 id
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves information for multiple projects in a single request.
+   * The endpoint requires at least one project ID to be provided.
+   *
+   * @param projectIds Array of project IDs to retrieve information for (must contain at least one ID)
+   * @param init Options including connect.sid (session ID) and other configuration
+   * @return The constructed request object
    */
   toRequest: (
     projectIds: ProjectId[],
     init?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Extracts projects JSON data from the API response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * Processes the API response and extracts information for multiple projects.
+   * Handles authentication errors (NotLoggedInError) and other HTTP errors.
+   *
+   * @param res The API response object
+   * @return A Result containing either project data or an error
    */
   fromResponse: (
     res: Response,
