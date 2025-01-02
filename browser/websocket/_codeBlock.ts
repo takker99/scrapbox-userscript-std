@@ -1,16 +1,30 @@
 import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 
-/** コードブロックのタイトル行の情報を保持しておくためのinterface */
+/** Interface for storing code block title line information
+ * 
+ * In Scrapbox, code blocks start with a title line that defines:
+ * - The code's filename or language identifier
+ * - Optional language specification in parentheses
+ * - Indentation level for nested blocks
+ */
 export interface CodeTitle {
   filename: string;
   lang: string;
   indent: number;
 }
 
-/** コードブロックのタイトル行から各種プロパティを抽出する
+/** Extract properties from a code block title line
  *
- * @param lineText {string} 行テキスト
- * @return `lineText`がコードタイトル行であれば`CodeTitle`を、そうでなければ`null`を返す
+ * This function parses a line of text to determine if it's a valid code block title.
+ * Valid formats include:
+ * - `code:filename.ext` - Language determined by extension
+ * - `code:filename(lang)` - Explicit language specification
+ * - `code:lang` - Direct language specification without filename
+ *
+ * @param lineText {string} The line text to parse
+ * @return {CodeTitle | null} Returns a CodeTitle object if the line is a valid code block title,
+ *                           null otherwise. The CodeTitle includes the filename, language,
+ *                           and indentation level.
  */
 export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {
   const matched = lineText.match(/^(\s*)code:(.+?)(\(.+\)){0,1}\s*$/);
@@ -23,7 +37,8 @@ export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {
       // `code:ext`
       lang = filename;
     } else if (ext[1] === "") {
-      // `code:foo.`の形式はコードブロックとして成り立たないので排除する
+      // Reject "code:foo." format as it's invalid (trailing dot without extension)
+      // This ensures code blocks have either a valid extension or no extension at all
       return null;
     } else {
       // `code:foo.ext`
@@ -39,7 +54,12 @@ export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {
   };
 };
 
-/** コードブロック本文のインデント数を計算する */
+/** Calculate the indentation level for code block content
+ * 
+ * The content of a code block is indented one level deeper than its title line.
+ * This function determines the correct indentation by analyzing the title line's
+ * whitespace and adding one additional level.
+ */
 export function countBodyIndent(
   codeBlock: Pick<TinyCodeBlock, "titleLine">,
 ): number {
