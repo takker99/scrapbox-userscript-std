@@ -22,16 +22,16 @@ export type ReplaceLinksError =
   | NotMemberError
   | HTTPError;
 
-/** 指定したproject内の全てのリンクを書き換える
+/** Replaces all links within the specified project
  *
- * リンクと同一のタイトルは書き換わらないので注意
- * - タイトルも書き換えたいときは/browser/mod.tsの`patch()`などで書き換えること
+ * Important: This function only replaces links, not page titles.
+ * - If you need to replace page titles as well, use `patch()` from /browser/mod.ts
  *
- * @param project これで指定したproject内の全てのリンクが置換対象となる
- * @param from 置換前のリンク
- * @param to 置換後のリンク
- * @param init connect.sidなど
- * @return 置換されたリンクがあったページの数
+ * @param project The project name where all links will be replaced
+ * @param from The original link text to be replaced
+ * @param to The new link text to replace with
+ * @param init Options including connect.sid (session ID) and other configuration
+ * @return The number of pages where links were replaced
  */
 export const replaceLinks = async (
   project: string,
@@ -71,7 +71,7 @@ export const replaceLinks = async (
         ])) ?? error,
     ),
     async (res) => {
-      // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
+      // message should contain a string like "2 pages have been successfully updated!"
       const { message } = (await res.json()) as { message: string };
       return parseInt(message.match(/\d+/)?.[0] ?? "0");
     },
