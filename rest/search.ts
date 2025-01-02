@@ -10,8 +10,8 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  type createErrorResponse,
-  type createSuccessResponse,
+  createErrorResponse,
+  createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";

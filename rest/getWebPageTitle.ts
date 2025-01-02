@@ -8,7 +8,7 @@ import { parseHTTPError } from "./parseHTTPError.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  createErrorResponse,
+  type createErrorResponse,
   createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";

@@ -2,8 +2,8 @@ import type { GuestUser, MemberUser } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  type createErrorResponse,
-  type createSuccessResponse,
+  createErrorResponse,
+  createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
