@@ -18,7 +18,7 @@ import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
-/** 不正なfollowingIdを渡されたときに発生するエラー */
+/** Error that occurs when an invalid followingId is provided for pagination */
 export interface InvalidFollowingIdError extends ErrorLike {
   name: "InvalidFollowingIdError";
 }
@@ -102,9 +102,40 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
       })),
   );
 
-/** 指定したprojectのリンクデータを取得する
+/** Retrieve link data from a specified Scrapbox project
  *
- * @param project データを取得したいproject
+ * This function fetches link data from a project, supporting pagination through
+ * the followingId parameter. It returns both the link data and the next
+ * followingId for subsequent requests.
+ *
+ * @param project The project to retrieve link data from
+ * @param options Configuration options including:
+ *                - sid: Scrapbox session ID for authentication
+ *                - hostName: Custom Scrapbox host name
+ *                - followingId: ID for pagination (get next set of links)
+ * @returns A Result containing either:
+ *          - Ok: GetLinksResult with pages and next followingId
+ *          - Err: One of several possible errors:
+ *            - NotFoundError: Project not found
+ *            - NotLoggedInError: Authentication required
+ *            - InvalidFollowingIdError: Invalid pagination ID
+ *            - HTTPError: Network or server errors
+ *
+ * @example
+ * ```typescript
+ * // Get first page of links
+ * const result = await getLinks("project-name");
+ * if (isErr(result)) {
+ *   console.error("Failed to get links:", result.err);
+ *   return;
+ * }
+ * const { pages, followingId } = result.val;
+ * 
+ * // Get next page if available
+ * if (followingId) {
+ *   const nextResult = await getLinks("project-name", { followingId });
+ * }
+ * ```
  */
 export const getLinks: GetLinks = /* @__PURE__ */ (() => {
   const fn: GetLinks = async (project, options) => {
@@ -120,12 +151,28 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
   return fn;
 })();
 
-/** 指定したprojectの全てのリンクデータを取得する
+/** Retrieve all link data from a specified project in bulk
  *
- * responseで返ってきたリンクデータの塊ごとに返す
+ * This async generator yields arrays of link data, automatically handling
+ * pagination. Each yield returns a batch of links as received from the API.
  *
- * @param project データを取得したいproject
- * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
+ * @param project The project to retrieve link data from
+ * @param options Configuration options for authentication and host name
+ * @returns An AsyncGenerator that yields either:
+ *          - Ok: Array of SearchedTitle objects (batch of links)
+ *          - Err: Error if authentication fails or other issues occur
+ *
+ * @example
+ * ```typescript
+ * for await (const result of readLinksBulk("project-name")) {
+ *   if (isErr(result)) {
+ *     console.error("Failed to get links:", result.err);
+ *     break;
+ *   }
+ *   const links = result.val; // Array of links in this batch
+ *   console.log(`Got ${links.length} links`);
+ * }
+ * ```
  */
 export async function* readLinksBulk(
   project: string,
@@ -149,10 +196,29 @@ export async function* readLinksBulk(
   } while (followingId);
 }
 
-/** 指定したprojectの全てのリンクデータを取得し、一つづつ返す
+/** Retrieve all link data from a specified project one by one
  *
- * @param project データを取得したいproject
- * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
+ * This async generator yields individual link entries, automatically handling
+ * pagination. Unlike readLinksBulk, this yields one SearchedTitle at a time,
+ * making it ideal for processing links individually.
+ *
+ * @param project The project to retrieve link data from
+ * @param options Configuration options for authentication and host name
+ * @returns An AsyncGenerator that yields either:
+ *          - Ok: Individual SearchedTitle object (single link)
+ *          - Err: Error if authentication fails or other issues occur
+ *
+ * @example
+ * ```typescript
+ * for await (const result of readLinks("project-name")) {
+ *   if (isErr(result)) {
+ *     console.error("Failed to get link:", result.err);
+ *     break;
+ *   }
+ *   const link = result.val; // Single link entry
+ *   console.log("Processing link:", link.title);
+ * }
+ * ```
  */
 export async function* readLinks(
   project: string,
