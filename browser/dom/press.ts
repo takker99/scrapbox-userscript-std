@@ -9,13 +9,14 @@ export interface PressOptions {
   noModifiedKeys?: boolean;
 }
 
-/** JavaScriptから任意のキー押下eventを発行する
+/** Dispatches a keyboard event programmatically via JavaScript
  *
- * Scrapboxにキー入力命令を送る際に使う。
- * この関数はキー入力eventで呼び出されたscrapboxのevent listenerの処理が終わるまで同期的にブロックされるようだ
+ * Used to send keyboard input commands to Scrapbox.
+ * Note: This function appears to block synchronously until Scrapbox's event listeners
+ * finish processing the keyboard event.
  *
- * @param key 押したいキーの名前
- * @param pressOptions options
+ * @param key The name of the key to simulate pressing
+ * @param pressOptions Additional options for the key press (modifiers, etc.)
  */
 export const press = (
   key: KeyName,
@@ -127,7 +128,7 @@ const KEYCODE_MAP = {
   F10: 122,
   F11: 123,
   F12: 124,
-  // 記号
+  // Symbols and special characters
   ":": 186,
   "*": 186,
   ";": 187,
@@ -148,5 +149,5 @@ const KEYCODE_MAP = {
   "}": 221,
   "^": 222,
   "~": 222,
-  "_": 226, // Shiftなしの226は\で、\と区別がつかない
+  "_": 226, // Note: Without Shift, keyCode 226 represents '\' and cannot be distinguished from the backslash key
 };
