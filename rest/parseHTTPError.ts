@@ -8,13 +8,12 @@ import type {
   NotPrivilegeError,
   SessionError,
 } from "@cosense/types/rest";
-import type { Maybe } from "option-t/maybe";
 import { isArrayOf } from "@core/unknownutil/is/array-of";
 import { isLiteralOneOf } from "@core/unknownutil/is/literal-one-of";
 import { isRecord } from "@core/unknownutil/is/record";
 import { isString } from "@core/unknownutil/is/string";
-
-import type { HTTPError } from "./responseIntoResult.ts";
+import type { TargetedResponse as _TargetedResponse } from "./targeted_response.ts";
+import type { createErrorResponse as _createErrorResponse } from "./utils.ts";
 
 export interface RESTfullAPIErrorMap {
   BadRequestError: BadRequestError;
@@ -27,20 +26,22 @@ export interface RESTfullAPIErrorMap {
   NotPrivilegeError: NotPrivilegeError;
 }
 
-/** 失敗した要求からエラー情報を取り出す */
+/** Extract error information from a failed request */
 export const parseHTTPError = async <
   ErrorNames extends keyof RESTfullAPIErrorMap,
+  T = unknown,
+  E = unknown,
 >(
-  error: HTTPError,
+  response: Response,
   errorNames: ErrorNames[],
-): Promise<Maybe<RESTfullAPIErrorMap[ErrorNames]>> => {
-  const res = error.response.clone();
+): Promise<RESTfullAPIErrorMap[ErrorNames] | undefined> => {
+  const res = response.clone();
   const isErrorNames = isLiteralOneOf(errorNames);
   try {
     const json: unknown = await res.json();
-    if (!isRecord(json)) return;
+    if (!isRecord(json)) return undefined;
     if (res.status === 422) {
-      if (!isString(json.message)) return;
+      if (!isString(json.message)) return undefined;
       for (
         const name of [
           "NoQueryError",
@@ -48,19 +49,23 @@ export const parseHTTPError = async <
         ] as (keyof RESTfullAPIErrorMap)[]
       ) {
         if (!(errorNames as string[]).includes(name)) continue;
-        return {
+        const error = {
           name,
           message: json.message,
         } as unknown as RESTfullAPIErrorMap[ErrorNames];
+        Object.assign(response, { error });
+        return error;
       }
     }
-    if (!isErrorNames(json.name)) return;
-    if (!isString(json.message)) return;
+    if (!isErrorNames(json.name)) return undefined;
+    if (!isString(json.message)) return undefined;
     if (json.name === "NotLoggedInError") {
-      if (!isRecord(json.detals)) return;
-      if (!isString(json.detals.project)) return;
-      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) return;
-      return {
+      if (!isRecord(json.detals)) return undefined;
+      if (!isString(json.detals.project)) return undefined;
+      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) {
+        return undefined;
+      }
+      const error = {
         name: json.name,
         message: json.message,
         details: {
@@ -68,14 +73,18 @@ export const parseHTTPError = async <
           loginStrategies: json.detals.loginStrategies,
         },
       } as unknown as RESTfullAPIErrorMap[ErrorNames];
+      Object.assign(response, { error });
+      return error;
     }
-    return {
+    const error = {
       name: json.name,
       message: json.message,
     } as unknown as RESTfullAPIErrorMap[ErrorNames];
+    Object.assign(response, { error });
+    return error;
   } catch (e: unknown) {
-    if (e instanceof SyntaxError) return;
-    // JSONのparse error以外はそのまま投げる
+    if (e instanceof SyntaxError) return undefined;
+    // Re-throw non-JSON parse errors
     throw e;
   }
 };

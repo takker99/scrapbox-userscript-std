@@ -115,8 +115,11 @@ export const push = async (
   }
   const socket = unwrapOk(result);
   const pullResult = await pull(project, title);
-  if (isErr(pullResult)) return pullResult;
-  let metadata = unwrapOk(pullResult);
+  if (!pullResult.ok) {
+    const error = await pullResult.json() as PushError;
+    return createErr(error);
+  }
+  let metadata = await pullResult.json() as PushMetadata;
 
   try {
     let attempts = 0;
@@ -167,8 +170,11 @@ export const push = async (
         if (name === "NotFastForwardError") {
           await delay(1000);
           const pullResult = await pull(project, title);
-          if (isErr(pullResult)) return pullResult;
-          metadata = unwrapOk(pullResult);
+          if (!pullResult.ok) {
+            const error = await pullResult.json() as PushError;
+            return createErr(error);
+          }
+          metadata = await pullResult.json() as PushMetadata;
         }
         reason = name;
         // go back to the diff loop

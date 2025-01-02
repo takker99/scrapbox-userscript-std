@@ -1,10 +1,3 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   MemberProject,
   NotFoundError,
@@ -16,14 +9,19 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import {
+  type createErrorResponse as _createErrorResponse,
+  type createSuccessResponse as _createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProject {
-  /** /api/project/:project の要求を組み立てる
+  /** Build request for /api/project/:project
    *
-   * @param project project name to get
+   * @param project Project name to get
    * @param init connect.sid etc.
    * @return request
    */
@@ -32,20 +30,28 @@ export interface GetProject {
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Get project JSON data from response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * @param res Response object
+   * @return Project JSON data
    */
   fromResponse: (
     res: Response,
-  ) => Promise<Result<MemberProject | NotMemberProject, ProjectError>>;
+  ) => Promise<
+    TargetedResponse<
+      200 | 400 | 404,
+      MemberProject | NotMemberProject | ProjectError
+    >
+  >;
 
   (
     project: string,
     options?: BaseOptions,
   ): Promise<
-    Result<MemberProject | NotMemberProject, ProjectError | FetchError>
+    TargetedResponse<
+      200 | 400 | 404,
+      MemberProject | NotMemberProject | ProjectError | FetchError
+    >
   >;
 }
 
@@ -54,6 +60,7 @@ export type ProjectError =
   | NotMemberError
   | NotLoggedInError
   | HTTPError;
+import type { HTTPError } from "./errors.ts";
 
 const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
   const { sid, hostName } = setDefaults(init ?? {});
@@ -64,19 +71,20 @@ const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
   );
 };
 
-const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
-  mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(res),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<MemberProject | NotMemberProject>,
-  );
+const getProject_fromResponse: GetProject["fromResponse"] = async (res) => {
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    MemberProject | NotMemberProject | ProjectError
+  >(res);
+
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  return response;
+};
 
 /** get the project information
  *
@@ -91,10 +99,8 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
     const { fetch } = setDefaults(init ?? {});
 
     const req = getProject_toRequest(project, init);
-    const res = await fetch(req);
-    if (isErr(res)) return res;
-
-    return getProject_fromResponse(unwrapOk(res));
+    const response = await fetch(req);
+    return getProject_fromResponse(response);
   };
 
   fn.toRequest = getProject_toRequest;
@@ -104,9 +110,9 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
 })();
 
 export interface ListProjects {
-  /** /api/project の要求を組み立てる
+  /** Build request for /api/project
    *
-   * @param projectIds project ids. This must have more than 1 id
+   * @param projectIds Project IDs (must have more than 1 ID)
    * @param init connect.sid etc.
    * @return request
    */
@@ -115,19 +121,26 @@ export interface ListProjects {
     init?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Get projects JSON data from response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * @param res Response object
+   * @return Projects JSON data
    */
   fromResponse: (
     res: Response,
-  ) => Promise<Result<ProjectResponse, ListProjectsError>>;
+  ) => Promise<
+    TargetedResponse<200 | 400 | 404, ProjectResponse | ListProjectsError>
+  >;
 
   (
     projectIds: ProjectId[],
     init?: BaseOptions,
-  ): Promise<Result<ProjectResponse, ListProjectsError | FetchError>>;
+  ): Promise<
+    TargetedResponse<
+      200 | 400 | 404,
+      ProjectResponse | ListProjectsError | FetchError
+    >
+  >;
 }
 
 export type ListProjectsError = NotLoggedInError | HTTPError;
@@ -144,15 +157,16 @@ const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
   );
 };
 
-const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
-  mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(res),
-      async (error) =>
-        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
-    ),
-    (res) => res.json() as Promise<ProjectResponse>,
-  );
+const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) => {
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    ProjectResponse | ListProjectsError
+  >(res);
+
+  await parseHTTPError(response, ["NotLoggedInError"]);
+
+  return response;
+};
 
 /** list the projects' information
  *
@@ -166,10 +180,8 @@ export const listProjects: ListProjects = /* @__PURE__ */ (() => {
   ) => {
     const { fetch } = setDefaults(init ?? {});
 
-    const res = await fetch(ListProject_toRequest(projectIds, init));
-    if (isErr(res)) return res;
-
-    return ListProject_fromResponse(unwrapOk(res));
+    const response = await fetch(ListProject_toRequest(projectIds, init));
+    return ListProject_fromResponse(response);
   };
 
   fn.toRequest = ListProject_toRequest;

@@ -10,15 +10,14 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  andThenAsyncForResult,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-} from "option-t/plain_result";
-import { unwrapOrForMaybe } from "option-t/maybe";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
-import type { FetchError } from "./robustFetch.ts";
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
+import type { HTTPError } from "./errors.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */
 export interface GetPageOption extends BaseOptions {
@@ -53,39 +52,25 @@ const getPage_toRequest: GetPage["toRequest"] = (
   );
 };
 
-const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
-  mapErrAsyncForResult(
-    await mapAsyncForResult(
-      responseIntoResult(res),
-      (res) => res.json() as Promise<Page>,
-    ),
-    async (
-      error,
-    ) => {
-      if (error.response.status === 414) {
-        return {
-          name: "TooLongURIError",
-          message: "project ids may be too much.",
-        };
-      }
+const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
+  const response = createTargetedResponse<200 | 400 | 404, Page>(res);
 
-      return unwrapOrForMaybe<PageError>(
-        await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-        ]),
-        error,
-      );
-    },
-  );
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+    "TooLongURIError",
+  ]);
+
+  return response;
+};
 
 export interface GetPage {
-  /** /api/pages/:project/:title の要求を組み立てる
+  /** Build request for /api/pages/:project/:title
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param options オプション
+   * @param project Project name to get page from
+   * @param title Page title (case insensitive)
+   * @param options Additional options
    * @return request
    */
   toRequest: (
@@ -94,18 +79,25 @@ export interface GetPage {
     options?: GetPageOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Get page JSON data from response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res Response object
+   * @return Page JSON data
    */
-  fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, Page>>;
 
   (
     project: string,
     title: string,
     options?: GetPageOption,
-  ): Promise<Result<Page, PageError | FetchError>>;
+  ): Promise<
+    TargetedResponse<
+      200 | 400 | 404 | 408 | 500,
+      Page | NetworkError | AbortError
+    >
+  >;
 }
 
 export type PageError =
@@ -126,13 +118,12 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
     project,
     title,
     options,
-  ) =>
-    andThenAsyncForResult<Response, Page, PageError | FetchError>(
-      await setDefaults(options ?? {}).fetch(
-        getPage_toRequest(project, title, options),
-      ),
-      (input) => getPage_fromResponse(input),
+  ) => {
+    const response = await setDefaults(options ?? {}).fetch(
+      getPage_toRequest(project, title, options),
     );
+    return getPage_fromResponse(response);
+  };
 
   fn.toRequest = getPage_toRequest;
   fn.fromResponse = getPage_fromResponse;
@@ -168,10 +159,10 @@ export interface ListPagesOption extends BaseOptions {
 }
 
 export interface ListPages {
-  /** /api/pages/:project の要求を組み立てる
+  /** Build request for /api/pages/:project
    *
-   * @param project 取得したいページのproject名
-   * @param options オプション
+   * @param project Project name to list pages from
+   * @param options Additional options
    * @return request
    */
   toRequest: (
@@ -179,17 +170,24 @@ export interface ListPages {
     options?: ListPagesOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Get page list JSON data from response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res Response object
+   * @return Page list JSON data
    */
-  fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, PageList>>;
 
   (
     project: string,
     options?: ListPagesOption,
-  ): Promise<Result<PageList, ListPagesError | FetchError>>;
+  ): Promise<
+    TargetedResponse<
+      200 | 400 | 404 | 408 | 500,
+      PageList | NetworkError | AbortError
+    >
+  >;
 }
 
 export type ListPagesError =
@@ -213,22 +211,17 @@ const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
   );
 };
 
-const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
-  mapErrAsyncForResult(
-    await mapAsyncForResult(
-      responseIntoResult(res),
-      (res) => res.json() as Promise<PageList>,
-    ),
-    async (error) =>
-      unwrapOrForMaybe<ListPagesError>(
-        await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-        ]),
-        error,
-      ),
-  );
+const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
+  const response = createTargetedResponse<200 | 400 | 404, PageList>(res);
+
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  return response;
+};
 
 /** 指定したprojectのページを一覧する
  *
@@ -239,13 +232,12 @@ export const listPages: ListPages = /* @__PURE__ */ (() => {
   const fn: ListPages = async (
     project,
     options?,
-  ) =>
-    andThenAsyncForResult<Response, PageList, ListPagesError | FetchError>(
-      await setDefaults(options ?? {})?.fetch(
-        listPages_toRequest(project, options),
-      ),
-      listPages_fromResponse,
+  ) => {
+    const response = await setDefaults(options ?? {})?.fetch(
+      listPages_toRequest(project, options),
     );
+    return listPages_fromResponse(response);
+  };
 
   fn.toRequest = listPages_toRequest;
   fn.fromResponse = listPages_fromResponse;

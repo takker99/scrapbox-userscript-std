@@ -1,6 +1,7 @@
-import { createOk, mapForResult, type Result } from "option-t/plain_result";
 import { getProfile } from "./profile.ts";
-import type { HTTPError } from "./responseIntoResult.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createErrorResponse, createSuccessResponse } from "./utils.ts";
+import type { HTTPError } from "./errors.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 import type { ExtendedOptions } from "./options.ts";
 
@@ -16,11 +17,29 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  */
 export const getCSRFToken = async (
   init?: ExtendedOptions,
-): Promise<Result<string, NetworkError | AbortError | HTTPError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404 | 0 | 499,
+    { csrfToken: string } | NetworkError | AbortError | HTTPError
+  >
+> => {
   // deno-lint-ignore no-explicit-any
   const csrf = init?.csrf ?? (globalThis as any)._csrf;
-  return csrf ? createOk(csrf) : mapForResult(
-    await getProfile(init),
-    (user) => user.csrfToken,
-  );
+  if (csrf) {
+    return createSuccessResponse({ csrfToken: csrf });
+  }
+
+  const profile = await getProfile(init);
+  if (!profile.ok) return profile;
+
+  const data = await profile.json();
+  if (!("csrfToken" in data)) {
+    return createErrorResponse(400, {
+      name: "HTTPError",
+      message: "Invalid response format",
+      status: 400,
+      statusText: "Bad Request",
+    });
+  }
+  return createSuccessResponse({ csrfToken: data.csrfToken });
 };

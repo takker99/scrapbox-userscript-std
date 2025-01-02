@@ -1,15 +1,13 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type { NotLoggedInError } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import {
+  type createErrorResponse as _createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
@@ -29,7 +27,12 @@ export type GyazoTokenError = NotLoggedInError | HTTPError;
  */
 export const getGyazoToken = async (
   init?: GetGyazoTokenOptions,
-): Promise<Result<string | undefined, GyazoTokenError | FetchError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404,
+    string | undefined | GyazoTokenError | FetchError
+  >
+> => {
   const { fetch, sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
   const req = new Request(
     `https://${hostName}/api/login/gyazo/oauth-upload/token${
@@ -39,14 +42,16 @@ export const getGyazoToken = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
-
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
-    ),
-    (res) => res.json().then((json) => json.token as string | undefined),
+  const response = createTargetedResponse<200 | 400 | 404, GyazoTokenError>(
+    res,
   );
+
+  await parseHTTPError(response, ["NotLoggedInError"]);
+
+  if (response.ok) {
+    const json = await response.json();
+    return createSuccessResponse(json.token as string | undefined);
+  }
+
+  return response;
 };

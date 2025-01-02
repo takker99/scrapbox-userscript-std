@@ -6,15 +6,13 @@ import type {
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
@@ -34,24 +32,29 @@ const getTable_toRequest: GetTable["toRequest"] = (
   );
 };
 
-const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
-  mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(res),
-      async (error) =>
-        error.response.status === 404
-          ? {
-            // responseが空文字の時があるので、自前で組み立てる
-            name: "NotFoundError",
-            message: "Table not found.",
-          }
-          : (await parseHTTPError(error, [
-            "NotLoggedInError",
-            "NotMemberError",
-          ])) ?? error,
-    ),
-    (res) => res.text(),
-  );
+const getTable_fromResponse: GetTable["fromResponse"] = async (res) => {
+  const response = createTargetedResponse<200 | 400 | 404, TableError>(res);
+
+  if (response.status === 404) {
+    // Build our own error message since the response might be empty
+    return createErrorResponse(404, {
+      name: "NotFoundError",
+      message: "Table not found.",
+    });
+  }
+
+  await parseHTTPError(response, [
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  if (response.ok) {
+    const text = await response.text();
+    return createSuccessResponse(text);
+  }
+
+  return response;
+};
 
 export type TableError =
   | NotFoundError
@@ -80,14 +83,18 @@ export interface GetTable {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<Result<string, TableError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, string | TableError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<Result<string, TableError | FetchError>>;
+  ): Promise<
+    TargetedResponse<200 | 400 | 404, string | TableError | FetchError>
+  >;
 }
 
 /** 指定したテーブルをCSV形式で得る
@@ -107,8 +114,7 @@ export const getTable: GetTable = /* @__PURE__ */ (() => {
     const { fetch } = setDefaults(options ?? {});
     const req = getTable_toRequest(project, title, filename, options);
     const res = await fetch(req);
-    if (isErr(res)) return res;
-    return await getTable_fromResponse(unwrapOk(res));
+    return getTable_fromResponse(res);
   };
 
   fn.toRequest = getTable_toRequest;
