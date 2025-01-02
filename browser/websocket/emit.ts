@@ -63,8 +63,12 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     return Promise.resolve(createOk<void>(undefined));
   }
 
-  // [socket.io-request](https://github.com/shokai/socket.io-request)で処理されているイベント
-  // 同様の実装をすればいい
+  // This event is processed using the socket.io-request protocol
+  // (see: https://github.com/shokai/socket.io-request)
+  // We implement a similar request-response pattern here:
+  // 1. Send event with payload
+  // 2. Wait for response with timeout
+  // 3. Handle success/error responses
   const { resolve, promise, reject } = Promise.withResolvers<
     Result<
       WrapperdEmitEvents[EventName]["res"],
@@ -80,7 +84,8 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     clearTimeout(timeoutId);
   };
   const onDisconnect = (reason: Socket.DisconnectReason) => {
-    // "commit"および"room:join"で"io client disconnect"が発生することはない
+    // "io client disconnect" should never occur during "commit" or "room:join" operations
+    // This is an unexpected state that indicates a client-side connection issue
     if (reason === "io client disconnect") {
       dispose();
       reject(new Error("io client disconnect"));

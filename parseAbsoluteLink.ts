@@ -18,7 +18,11 @@ export interface AbsoluteLinkNode {
   raw: string;
 }
 
-/** Youtube埋め込み */
+/** YouTube Embed Node
+ * Represents a YouTube video embed with detailed information about the video
+ * and its URL parameters. Supports various YouTube URL formats including
+ * youtube.com, youtu.be, and YouTube Shorts.
+ */
 export interface YoutubeNode {
   type: "youtube";
   videoId: string;
@@ -28,7 +32,11 @@ export interface YoutubeNode {
   raw: string;
 }
 
-/** Youtube List埋め込み */
+/** YouTube Playlist Embed Node
+ * Represents a YouTube playlist embed. This type is specifically for
+ * playlist URLs that contain a list parameter, allowing for embedding
+ * entire playlists rather than single videos.
+ */
 export interface YoutubeListNode {
   type: "youtube";
   listId: string;
@@ -38,7 +46,10 @@ export interface YoutubeListNode {
   raw: string;
 }
 
-/** Vimeo埋め込み */
+/** Vimeo Embed Node
+ * Represents a Vimeo video embed. Extracts and stores the video ID
+ * from Vimeo URLs for proper embedding in Scrapbox pages.
+ */
 export interface VimeoNode {
   type: "vimeo";
   videoId: string;
@@ -46,7 +57,11 @@ export interface VimeoNode {
   raw: string;
 }
 
-/** Spotify埋め込み */
+/** Spotify Embed Node
+ * Represents various types of Spotify content embeds including tracks,
+ * artists, playlists, albums, episodes, and shows. Supports all major
+ * Spotify content types for rich media integration.
+ */
 export interface SpotifyNode {
   type: "spotify";
   videoId: string;
@@ -55,7 +70,11 @@ export interface SpotifyNode {
   raw: string;
 }
 
-/** Anchor FM埋め込み */
+/** Anchor FM Embed Node
+ * Represents an Anchor FM podcast episode embed. Extracts the episode ID
+ * from Anchor FM URLs to enable podcast episode playback directly within
+ * Scrapbox pages.
+ */
 export interface AnchorFMNode {
   type: "anchor-fm";
   videoId: string;
@@ -63,14 +82,22 @@ export interface AnchorFMNode {
   raw: string;
 }
 
-/** 動画埋め込み */
+/** Generic Video Embed Node
+ * Represents a direct video file embed (mp4 or webm formats).
+ * Used for embedding video files that aren't from specific platforms
+ * like YouTube or Vimeo.
+ */
 export interface VideoNode {
   type: "video";
   href: VideoURL;
   raw: string;
 }
 
-/** 音声埋め込み */
+/** Generic Audio Embed Node
+ * Represents a direct audio file embed supporting common formats
+ * (mp3, ogg, wav, aac). Used for embedding audio content that
+ * isn't from specific platforms like Spotify.
+ */
 export interface AudioNode {
   type: "audio";
   content: string;
@@ -78,10 +105,26 @@ export interface AudioNode {
   raw: string;
 }
 
-/** scrapbox-parserで解析した外部リンク記法を、埋め込み形式ごとに細かく解析する
+/** Parse external link syntax from scrapbox-parser into specific embed types
  *
- * @param link scrapbox-parserで解析した外部リンク記法のobject
- * @return 解析した記法のobject
+ * This function analyzes external links that were initially parsed by
+ * scrapbox-parser and categorizes them into specific embed types based on
+ * their URLs. It supports various media platforms and file types:
+ *
+ * - YouTube videos and playlists
+ * - Vimeo videos
+ * - Spotify content (tracks, artists, playlists, etc.)
+ * - Anchor FM podcast episodes
+ * - Direct video files (mp4, webm)
+ * - Direct audio files (mp3, ogg, wav, aac)
+ * - Regular absolute links (fallback)
+ *
+ * The function automatically detects the appropriate embed type and returns
+ * a strongly-typed object containing all necessary information for rendering
+ * the embed in Scrapbox.
+ *
+ * @param link - Link node object from scrapbox-parser with absolute path type
+ * @return - Parsed link object with specific embed type and metadata
  */
 export const parseAbsoluteLink = (
   link: LinkNode & { pathType: "absolute" },

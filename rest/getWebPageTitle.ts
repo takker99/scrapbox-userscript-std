@@ -22,11 +22,38 @@ export type WebPageTitleError =
   | BadRequestError
   | HTTPError;
 
-/** 指定したURLのweb pageのtitleをscrapboxのserver経由で取得する
+/** Retrieve the title of a web page through Scrapbox's server
  *
- * @param url 取得したいURL
- * @param init connect.sidなど
- * @return web pageのtilte
+ * This function fetches the title of a web page by making a request through
+ * Scrapbox's server. This approach helps handle various edge cases and
+ * authentication requirements that might be needed to access certain pages.
+ *
+ * @param url The URL of the web page to fetch the title from. Can be either
+ *           a string or URL object.
+ * @param init Optional configuration including:
+ *             - sid: Scrapbox session ID for authentication
+ *             - hostName: Custom Scrapbox host name
+ *             - fetch: Custom fetch implementation
+ * @returns A Result containing either:
+ *          - Ok: The page title as a string
+ *          - Err: One of several possible errors:
+ *            - SessionError: Authentication issues
+ *            - InvalidURLError: Malformed or invalid URL
+ *            - BadRequestError: API request issues
+ *            - HTTPError: Network or server errors
+ *
+ * @example
+ * ```typescript
+ * const result = await getWebPageTitle("https://example.com");
+ * if (isErr(result)) {
+ *   console.error("Failed to get page title:", result.err);
+ *   return;
+ * }
+ * const title = result.val;
+ * console.log("Page title:", title);
+ * ```
+ *
+ * Note: The function includes a 3000ms timeout for the API request.
  */
 export const getWebPageTitle = async (
   url: string | URL,

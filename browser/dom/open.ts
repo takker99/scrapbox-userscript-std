@@ -10,22 +10,22 @@ export interface OpenOptions {
   /** line id */
   id?: string;
 
-  /** ページに追記するテキスト */
+  /** Text to append to the page content */
   body?: string;
 
-  /** 新しいタブで開くかどうか
+  /** Whether to open the page in a new tab
    *
-   * @default 同じタブで開く
+   * @default false (opens in the same tab)
    */
   newTab?: boolean;
 
-  /** 同じタブでページを開く場合、ページを再読込するかどうか
+  /** Whether to reload the page when opening in the same tab
    *
-   * @default 同じprojectの場合は再読み込みせず、違うprojectの場合は再読込する
+   * @default false for same project (no reload), true for different project (force reload)
    */
   reload?: boolean;
 
-  /** リンク先へスクロールする機能を使うために必要な情報 */
+  /** Context information required for the auto-scroll feature when navigating to linked content */
   context?: Omit<PageTransitionContext, "to">;
 }
 

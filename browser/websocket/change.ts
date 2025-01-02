@@ -48,15 +48,31 @@ export interface TitleChange {
   title: string;
 }
 export interface FilesChange {
-  /** file id */
+  /** Array of file IDs
+   * 
+   * These IDs reference files that have been uploaded to the page.
+   * Files can include images, documents, or other attachments.
+   */
   files: string[];
 }
 export interface HelpFeelsChange {
-  /** Helpfeel記法の先頭の`? `をとったもの */
+  /** Array of Helpfeel entries without the leading "? " prefix
+   * 
+   * Helpfeel is a Scrapbox notation for creating help/documentation entries.
+   * Example: "? How to use" becomes "How to use" in this array.
+   * These entries are used to build the page's help documentation.
+   */
   helpfeels: string[];
 }
 export interface infoboxDefinitionChange {
-  /** `table:infobox`または`table:cosense`の各行をtrimしたもの */
+  /** Array of trimmed lines from infobox tables
+   * 
+   * Contains lines from tables marked with either:
+   * - `table:infobox`: Standard information box format
+   * - `table:cosense`: Custom information box format
+   * Each line is trimmed of leading/trailing whitespace.
+   * These tables provide structured metadata for the page.
+   */
   infoboxDefinition: string[];
 }
 export interface PinChange {

@@ -2,35 +2,48 @@ import { findMetadata, getHelpfeels } from "./findMetadata.ts";
 import { assertEquals } from "@std/assert";
 import { assertSnapshot } from "@std/testing/snapshot";
 
-const text = `てすと
-[ふつうの]リンク
-　しかし\`これは[リンク]\`ではない
+// Test data for metadata extraction from a Scrapbox page
+// This sample includes various Scrapbox syntax elements:
+// - Regular links: [link-text]
+// - Code blocks (links inside should be ignored)
+// - Helpfeel notation: lines starting with "?"
+// - Infobox tables
+// - Hashtags
+// - Project internal links: [/project/page]
+// - Image links
+const text = `test page
+[normal]link
+ but \`this [link]\` is not a link
 
 code:code
- コードブロック中の[リンク]や画像[https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg]は無視される
+ Links [link] and images [https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg] in code blocks should be ignored
 
 
-   ? 助けてhelpfeel!!
+   ? Help needed with setup!!
 
    table:infobox
-    名前	[scrapbox.icon]
-    住所	[リンク2]を入れること
-    電話番号	#をつけてもリンクにならないよ
-    自分の強み	3個くらい列挙
+    Name	[scrapbox.icon]
+    Address	Add [link2] here
+    Phone	Adding # won't make it a link
+    Strengths	List about 3 items
 
-#hashtag もつけるといいぞ？
-[/forum-jp]のようなリンクは対象外
- [/help-jp/]もだめ
- [/icons/なるほど.icon][takker.icon]
-[/help-jp/外部リンク]
+#hashtag is recommended
+[/forum-jp] links should be excluded
+ [/help-jp/] too
+ [/icons/example.icon][takker.icon]
+[/help-jp/external-link]
 
-サムネを用意
+Prepare thumbnail
 [https://scrapbox.io/files/65f29c24974fd8002333b160.svg]
 
 [https://scrapbox.io/files/65e7f4413bc95600258481fb.svg https://scrapbox.io/files/65e7f82e03949c0024a367d0.svg]`;
 
+// Test findMetadata function's ability to extract various metadata from a page
 Deno.test("findMetadata()", (t) => assertSnapshot(t, findMetadata(text)));
+
+// Test Helpfeel extraction (lines starting with "?")
+// These are used for collecting questions and help requests in Scrapbox
 Deno.test("getHelpfeels()", () =>
   assertEquals(getHelpfeels(text.split("\n").map((text) => ({ text }))), [
-    "助けてhelpfeel!!",
+    "Help needed with setup!!",
   ]));

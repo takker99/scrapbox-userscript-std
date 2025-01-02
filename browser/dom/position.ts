@@ -1,5 +1,9 @@
-/** editor上の位置情報 */
+/** Position information within the Scrapbox editor
+ * Represents the cursor or selection position using line and character coordinates
+ */
 export interface Position {
-  /** 行数 */ line: number;
-  /** 何文字目の後ろにいるか */ char: number;
+  /** Line number (1-based index) */ line: number;
+  /** Character position within the line (0-based index)
+   * Represents the number of characters before the cursor position
+   */ char: number;
 }

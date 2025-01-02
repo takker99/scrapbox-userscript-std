@@ -3,20 +3,20 @@ import type { Position } from "./position.ts";
 import type { Page } from "./page.d.ts";
 
 export interface SetPositionOptions {
-  /** カーソルが画面外に移動したとき、カーソルが見える位置までページをスクロールするかどうか
+  /** Whether to auto-scroll the page when the cursor moves outside the viewport
    *
    * @default true
    */
   scrollInView?: boolean;
 
-  /** カーソル移動イベントの発生箇所？
+  /** Source of the cursor movement event
    *
-   * コード内だと、"mouse"が指定されていた場合があった。詳細は不明
+   * "mouse" indicates the cursor was moved by mouse interaction
    */
   source?: "mouse";
 }
 
-/** カーソル操作クラス */
+/** Class for managing cursor operations in the Scrapbox editor */
 export declare class Cursor extends BaseStore<
   { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined
 > {
@@ -24,81 +24,81 @@ export declare class Cursor extends BaseStore<
 
   public startedWithTouch: boolean;
 
-  /** カーソルの位置を初期化し、editorからカーソルを外す */
+  /** Reset cursor position and remove cursor focus from the editor */
   clear(): void;
 
-  /** カーソルの位置を取得する */
+  /** Get the current cursor position */
   getPosition(): Position;
 
-  /** カーソルが表示されているか調べる */
+  /** Check if the cursor is currently visible */
   getVisible(): boolean;
 
-  /** カーソルを指定した位置に動かす */
+  /** Move the cursor to the specified position */
   setPosition(
     position: Position,
     option?: SetPositionOptions,
   ): void;
 
-  /** popup menuを表示する */
+  /** Show the editor's popup menu */
   showEditPopupMenu(): void;
 
-  /** popup menuを消す */
+  /** Hide the editor's popup menu */
   hidePopupMenu(): void;
 
-  /** #text-inputにカーソルをfocusし、同時にカーソルを表示する
+  /** Focus the cursor on #text-input and make it visible
    *
-   * このとき、`event: "focusTextInput"`が発行される
+   * This action triggers the `event: "focusTextInput"` event
    */
   focus(): void;
 
-  /** #text-inputにfocusがあたっているか返す
+  /** Check if #text-input has focus
    *
-   * `this.focusTextarea`と同値
+   * Returns the same value as `this.focusTextarea`
    */
   get hasFocus(): boolean;
 
-  /** #text-inputからfocusを外す。カーソルの表示状態は変えない */
+  /** Remove focus from #text-input without changing cursor visibility */
   blur(): void;
 
-  /** カーソルの位置が行や列の外に出ていた場合に、存在する行と列の中に納める */
+  /** Adjust cursor position to stay within valid line and column boundaries */
   fixPosition(): void;
 
-  /** カーソルが行頭にいてかつ表示されていたら`true` */
+  /** Returns `true` if the cursor is visible and at the start of a line */
   isAtLineHead(): boolean;
 
-  /** カーソルが行末にいてかつ表示されていたら`true` */
+  /** Returns `true` if the cursor is visible and at the end of a line */
   isAtLineTail(): boolean;
 
-  /** カーソルを表示する
+  /** Make the cursor visible
    *
-   * #text-inputのfocus状態は変えない
+   * Does not change the focus state of #text-input
    */
   show(): void;
 
-  /** カーソルを非表示にする
+  /** Hide the cursor
    *
-   * touch deviceの場合は、#text-inputからfocusを外す
+   * On touch devices, this also removes focus from #text-input
    */
   hide(): void;
 
-  /** カーソル操作コマンド
+  /** Cursor movement commands
    *
    * | Command | Description |
    * | ------ | ----------- |
-   * | go-up | 1行上に動かす |
-   * | go-down | 1行下に動かす |
-   * | go-left | 1文字左に動かす |
-   * | go-right | 1文字右に動かす |
-   * | go-forward | Emacs key bindingsで使われているコマンド。go-rightとほぼ同じ |
-   * | go-backward | Emacs key bindingsで使われているコマンド。go-leftとほぼ同じ |
-   * | go-top | タイトル行の行頭に飛ぶ |
-   * | go-bottom | 最後の行の行末に飛ぶ |
-   * | go-word-head | 1単語右に動かす |
-   * | go-word-tail | 1単語左に動かす |
-   * | go-line-head | 行頭に飛ぶ |
-   * | go-line-tail | 行末に飛ぶ |
-   * | go-pagedown | 1ページ分下の行に飛ぶ |
-   * | go-pageup | 1ページ分上の行に飛ぶ |
+   * | go-up | Move cursor up one line |
+   * | go-down | Move cursor down one line |
+   * | go-left | Move cursor left one character |
+   * | go-right | Move cursor right one character |
+   * | go-forward | Move cursor forward (similar to go-right, used in Emacs key bindings) |
+   * | go-backward | Move cursor backward (similar to go-left, used in Emacs key bindings) |
+   * | go-top | Jump to the beginning of the title line |
+   * | go-bottom | Jump to the end of the last line |
+   * | go-word-head | Move cursor to the start of the next word |
+   * | go-word-tail | Move cursor to the end of the previous word |
+   * | go-line-head | Jump to the start of the current line |
+   * | go-line-tail | Jump to the end of the current line |
+   * | go-pagedown | Move cursor down one page |
+   * | go-pageup | Move cursor up one page |
    */
   goByAction(
     action:
@@ -118,10 +118,10 @@ export declare class Cursor extends BaseStore<
       | "go-pageup",
   ): void;
 
-  /** 現在のページ本文を取得する */
+  /** Get the content of the current page */
   get lines(): BaseLine[];
 
-  /** 現在のページデータを取得する */
+  /** Get the current page data */
   get page(): Page;
 
   private goUp(): void;
@@ -134,28 +134,28 @@ export declare class Cursor extends BaseStore<
   private goForward(init?: { scrollInView: boolean }): void;
   private goLeft(): void;
   private goRight(): void;
-  /** タイトルの先頭文字に飛ぶ */
+  /** Jump to the first character of the title */
   private goTop(): void;
-  /** 最後の行の末尾に飛ぶ */
+  /** Jump to the end of the last line */
   private goBottom(): void;
   private goWordHead(): void;
   private getWordHead(): Position;
   private goWordTail(): void;
   private getWordTail(): Position;
-  /** インデントの後ろに飛ぶ
+  /** Jump to the position after indentation
    *
-   * インデントの後ろかインデントの中にいるときは行頭に飛ぶ
+   * If cursor is already after or within indentation, jump to line start
    */
   private goLineHead(): void;
-  /** 行末に飛ぶ */
+  /** Jump to the end of the current line */
   private goLineTail(): void;
 
   private sync(): void;
   private syncNow(): void;
   private updateTemporalHorizontalPoint(): number;
-  /** scrollされたときに発火される
+  /** Fired when the page is scrolled
    *
-   * このとき`event: "source"`が発行される
+   * Triggers the `event: "source"` event
    */
   private emitScroll(): void;
 

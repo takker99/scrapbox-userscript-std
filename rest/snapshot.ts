@@ -19,7 +19,7 @@ import {
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./mod.ts";
 
-/** 不正な`timestampId`を渡されたときに発生するエラー */
+/** Error that occurs when an invalid `timestampId` is provided */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
   name: "InvalidPageSnapshotIdError";
 }

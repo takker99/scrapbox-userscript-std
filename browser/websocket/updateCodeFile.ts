@@ -7,47 +7,113 @@ import { countBodyIndent } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import type { Result } from "option-t/plain_result";
 
-/** コードブロックの上書きに使う情報のinterface */
+/** Interface for specifying code block content and metadata for updates
+ * 
+ * This interface is used when you want to update or create a code block in a Scrapbox page.
+ * It contains all necessary information about the code block, including its filename,
+ * content, and optional language specification for syntax highlighting.
+ */
 export interface SimpleCodeFile {
-  /** ファイル名 */
+  /** The filename to be displayed in the code block's title
+   * This will appear as "code:filename" in the Scrapbox page
+   */
   filename: string;
 
-  /** コードブロックの中身（文字列のみ） */
+  /** The actual content of the code block
+   * Can be provided either as a single string (will be split by newlines)
+   * or as an array of strings (each element represents one line)
+   */
   content: string | string[];
 
-  /** コードブロック内の強調表示に使う言語名（省略時はfilenameに含まれる拡張子を使用する） */
+  /** Optional language name for syntax highlighting
+   * If omitted, the file extension from the filename will be used
+   * Example: for "main.py", Python highlighting will be used automatically
+   */
   lang?: string;
 }
 
-/** updateCodeFile()に使われているオプション */
+/** Configuration options for updateCodeFile() function
+ * 
+ * These options control how code blocks are created, updated, and formatted
+ * in the Scrapbox page. They extend the standard PushOptions with additional
+ * settings specific to code block management.
+ */
 export interface UpdateCodeFileOptions extends PushOptions {
   /**
-   * 指定したファイルが存在しなかった時、新しいコードブロックをページのどの位置に配置するか
+   * Specifies where to place a new code block when the target file doesn't exist
    *
-   * - `"notInsert"`（既定）：存在しなかった場合は何もしない
-   * - `"top"`：ページ上部（タイトル行の真下）
-   * - `"bottom"`：ページ下部
+   * - `"notInsert"` (default): Take no action if the file doesn't exist
+   * - `"top"`: Insert at the top of the page (immediately after the title line)
+   * - `"bottom"`: Insert at the bottom of the page
+   *
+   * This option is particularly useful when you want to ensure code blocks
+   * are created in a consistent location across multiple pages.
    */
   insertPositionIfNotExist?: "top" | "bottom" | "notInsert";
 
-  /** `true`の場合、コードブロック作成時に空行承り太郎（ページ末尾に必ず空行を設ける機能）を有効する（既定は`true`） */
+  /** Controls automatic empty line insertion at the end of the page
+   * 
+   * When `true` (default), automatically adds an empty line after the code block
+   * This helps maintain consistent page formatting and improves readability by:
+   * - Ensuring visual separation between content blocks
+   * - Making it easier to add new content after the code block
+   * - Maintaining consistent spacing across all pages
+   */
   isInsertEmptyLineInTail?: boolean;
 
-  /** `true`でデバッグ出力ON */
+  /** Enable debug output for troubleshooting
+   * 
+   * When `true`, logs detailed information about the update process:
+   * - Original code block content and structure
+   * - New code being inserted or updated
+   * - Generated commit operations
+   * 
+   * Useful for understanding how the code block is being modified
+   * and diagnosing any unexpected behavior.
+   */
   debug?: boolean;
 }
 
-/** REST API経由で取得できるようなコードファイルの中身をまるごと書き換える
+/** Update or create code blocks in a Scrapbox page via REST API
  *
- * ファイルが存在していなかった場合、既定では何も書き換えない \
+ * This function provides a comprehensive way to manage code blocks in Scrapbox pages.
+ * It can handle various scenarios including:
+ * - Updating existing code blocks
+ * - Creating new code blocks (when configured via options)
+ * - Handling multiple code blocks with the same name
+ * - Preserving indentation and block structure
  *
- * 対象と同じ名前のコードブロックが同じページの複数の行にまたがっていた場合も全て書き換える \
- * その際、書き換え後のコードをそれぞれのコードブロックへ分散させるが、それっぽく分けるだけで見た目などは保証しないので注意
+ * Key Features:
+ * 1. Safe by default: Does nothing if the target file doesn't exist (configurable)
+ * 2. Handles multiple blocks: Can update all code blocks with the same name
+ * 3. Maintains structure: Preserves indentation and block formatting
+ * 4. Smart distribution: When updating multiple blocks, distributes content logically
  *
- * @param codeFile 書き換え後のコードファイルの中身
- * @param project 書き換えたいページのプロジェクト名（Project urlの設定で使われている方）
- * @param title 書き換えたいページのタイトル
- * @param options その他の設定
+ * Important Notes:
+ * - When multiple code blocks with the same name exist, the new content will be
+ *   distributed across them. While the function attempts to maintain a logical
+ *   distribution, the exact visual layout is not guaranteed.
+ * - The function uses diff generation to create minimal changes, helping to
+ *   preserve the page's history and avoid unnecessary updates.
+ *
+ * @param codeFile - New content and metadata for the code file
+ * @param project - Project name as used in the project URL settings
+ * @param title - Title of the page to update
+ * @param options - Additional configuration options (see UpdateCodeFileOptions)
+ *
+ * @example
+ * ```typescript
+ * await updateCodeFile(
+ *   {
+ *     filename: "example.ts",
+ *     content: "console.log('Hello');",
+ *     lang: "typescript"
+ *   },
+ *   "myproject",
+ *   "MyPage",
+ *   { insertPositionIfNotExist: "bottom" }
+ * );
+ * ```
  */
 export const updateCodeFile = (
   codeFile: SimpleCodeFile,
@@ -96,8 +162,17 @@ export const updateCodeFile = (
   );
 };
 
-/** TinyCodeBlocksの配列からコード本文をフラットな配列に格納して返す \
- * その際、コードブロックの左側に存在していたインデントは削除する
+/** Convert an array of TinyCodeBlocks into a flat array of code lines
+ * 
+ * This helper function processes multiple code blocks and:
+ * 1. Combines all code block contents into a single array
+ * 2. Removes leading indentation from each line
+ * 3. Preserves line IDs and other metadata
+ * 
+ * The resulting flat array is used for efficient diff generation
+ * when comparing old and new code content. Removing indentation
+ * ensures accurate content comparison regardless of the block's
+ * position in the page.
  */
 const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): BaseLine[] => {
   return codeBlocks.map((block) => {
@@ -108,7 +183,20 @@ const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): BaseLine[] => {
   }).flat();
 };
 
-/** コードブロックの差分からコミットデータを作成する */
+/** Generate commit operations from code block differences
+ * 
+ * This function analyzes the differences between old and new code content
+ * to create a sequence of commit operations that will transform the old
+ * content into the new content. It handles:
+ * 
+ * 1. Line additions (with proper indentation)
+ * 2. Line deletions
+ * 3. Line modifications
+ * 4. Empty line management
+ * 
+ * The function maintains proper indentation for each code block and
+ * ensures consistent formatting across the entire page.
+ */
 function* makeCommits(
   _codeBlocks: readonly TinyCodeBlock[],
   codeFile: SimpleCodeFile,
@@ -214,7 +302,7 @@ function* makeCommits(
     lineNo++;
   }
   if (isInsertBottom && isInsertEmptyLineInTail) {
-    // 空行承り太郎
+    // Insert an empty line at the end for consistent page formatting
     yield {
       _insert: "_end",
       lines: {

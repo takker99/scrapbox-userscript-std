@@ -11,10 +11,13 @@ import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProfile {
-  /** /api/users/me の要求を組み立てる
+  /** Constructs a request for the /api/users/me endpoint
    *
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves the current user's profile information,
+   * which can be either a MemberUser or GuestUser profile.
+   *
+   * @param init Options including connect.sid (session ID) and other configuration
+   * @return The constructed request object
    */
   toRequest: (init?: BaseOptions) => Request;
 

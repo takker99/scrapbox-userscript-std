@@ -13,19 +13,44 @@ import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
-  /** Gyazo Teamsのチーム名
+  /** The team name for Gyazo Teams
    *
-   * Gyazo Teamsでuploadしたいときに使う
+   * Specify this parameter when you want to upload images to a Gyazo Teams workspace.
+   * If not provided, the image will be uploaded to your personal Gyazo account.
+   * 
+   * @example
+   * ```typescript
+   * const token = await getGyazoToken({ gyazoTeamsName: "my-team" });
+   * ```
    */
   gyazoTeamsName?: string;
 }
 
 export type GyazoTokenError = NotLoggedInError | HTTPError;
 
-/** Gyazo OAuth uploadで使うaccess tokenを取得する
+/** Retrieve an OAuth access token for uploading images to Gyazo
  *
- * @param init connect.sidなど
- * @return access token
+ * This function obtains an OAuth access token that can be used to upload images
+ * to Gyazo or Gyazo Teams. The token is obtained through Scrapbox's API, which
+ * handles the OAuth flow with Gyazo.
+ *
+ * @param init Optional configuration including:
+ *             - sid: Scrapbox session ID for authentication
+ *             - hostName: Custom Scrapbox host name
+ *             - gyazoTeamsName: Target Gyazo Teams workspace
+ * @returns A Result containing either:
+ *          - Ok: The access token string, or undefined if no token is available
+ *          - Err: NotLoggedInError if not authenticated, or HTTPError for other failures
+ *
+ * @example
+ * ```typescript
+ * const result = await getGyazoToken();
+ * if (isErr(result)) {
+ *   console.error("Failed to get Gyazo token:", result.err);
+ *   return;
+ * }
+ * const token = result.val;
+ * ```
  */
 export const getGyazoToken = async (
   init?: GetGyazoTokenOptions,

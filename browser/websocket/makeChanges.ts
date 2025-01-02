@@ -9,27 +9,41 @@ export function* makeChanges(
   after: string[],
   userId: string,
 ): Generator<Change, void, unknown> {
-  // 改行文字が入るのを防ぐ
+  // Prevent newline characters from being included in the text
+  // This ensures consistent line handling across different platforms
   const after_ = after.flatMap((text) => text.split("\n"));
-  // 本文の差分を先に返す
+
+  // First, yield changes in the main content
+  // Content changes must be processed before metadata to maintain consistency
   for (const change of diffToChanges(before.lines, after_, { userId })) {
     yield change;
   }
 
-  // titleの差分を入れる
-  // 空ページの場合もタイトル変更commitを入れる
+  // Handle title changes
+  // Note: We always include title change commits for new pages (persistent=false)
+  // to ensure proper page initialization
   if (before.lines[0].text !== after_[0] || !before.persistent) {
     yield { title: after_[0] };
   }
 
-  // descriptionsの差分を入れる
+  // Process changes in page descriptions
+  // Descriptions are the first 5 lines after the title (lines 1-5)
+  // These lines provide a summary or additional context for the page
   const leftDescriptions = before.lines.slice(1, 6).map((line) => line.text);
   const rightDescriptions = after_.slice(1, 6);
   if (leftDescriptions.join("") !== rightDescriptions.join("")) {
     yield { descriptions: rightDescriptions };
   }
 
-  // 各種メタデータの差分を入れる
+  // Process changes in various metadata
+  // Metadata includes:
+  // - links: References to other pages
+  // - projectLinks: Links to other Scrapbox projects
+  // - icons: Page icons or thumbnails
+  // - image: Main page image
+  // - files: Attached files
+  // - helpfeels: Questions or help requests (lines starting with "?")
+  // - infoboxDefinition: Structured data definitions
   const [
     links,
     projectLinks,

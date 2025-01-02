@@ -20,14 +20,14 @@ export const getLineId = <T extends HTMLElement>(
 ): string | undefined => {
   if (isUndefined(value)) return undefined;
 
-  // 行番号のとき
+  // When value is a line number
   if (isNumber(value)) return getBaseLine(value)?.id;
-  // 行IDのとき
+  // When value is a line ID
   if (isString(value)) return value.startsWith("L") ? value.slice(1) : value;
 
-  // 行のDOMだったとき
+  // When value is a line DOM element
   if (value.classList.contains("line")) return value.id.slice(1);
-  // 行の子要素だったとき
+  // When value is a child element of a line
   const line = value.closest(".line");
   if (line) return line.id.slice(1);
 
@@ -45,9 +45,9 @@ export const getLineNo = <T extends HTMLElement>(
 ): number | undefined => {
   if (isUndefined(value)) return undefined;
 
-  // 行番号のとき
+  // When value is a line number
   if (isNumber(value)) return value;
-  // 行ID or DOMのとき
+  // When value is a line ID or DOM element
   const id = getLineId(value);
   return id ? takeInternalLines().findIndex((line) => line.id === id) : -1;
 };
@@ -57,9 +57,9 @@ export const getLine = <T extends HTMLElement>(
 ): Line | undefined => {
   if (isUndefined(value)) return undefined;
 
-  // 行番号のとき
+  // When value is a line number
   if (isNumber(value)) return getLines()[value];
-  // 行ID or DOMのとき
+  // When value is a line ID or DOM element
   const id = getLineId(value);
   return id ? getLines().find((line) => line.id === id) : undefined;
 };
@@ -69,9 +69,9 @@ export const getBaseLine = <T extends HTMLElement>(
 ): BaseLine | undefined => {
   if (isUndefined(value)) return undefined;
 
-  // 行番号のとき
+  // When value is a line number
   if (isNumber(value)) return takeInternalLines()[value];
-  // 行ID or DOMのとき
+  // When value is a line ID or DOM element
   const id = getLineId(value);
   return id ? takeInternalLines().find((line) => line.id === id) : undefined;
 };
@@ -102,22 +102,22 @@ export const getText = <T extends HTMLElement>(
 ): string | undefined => {
   if (isUndefined(value)) return undefined;
 
-  // 数字と文字列は行として扱う
+  // Treat numbers and strings as line references
   if (isNumber(value) || isString(value)) return getBaseLine(value)?.text;
   if (!(value instanceof HTMLElement)) return;
   if (isLineDOM(value)) return getBaseLine(value)?.text;
-  // 文字のDOMだったとき
+  // When value is a character DOM element
   if (value.classList.contains("char-index")) {
     return value.textContent ?? undefined;
   }
-  // div.linesを含む(複数のdiv.lineを含む)場合は全ての文字列を返す
+  // When the element contains div.lines (which contains multiple div.line elements), return all text content concatenated
   if (
     value.classList.contains("line") ||
     value.getElementsByClassName("lines")?.[0]
   ) {
     return takeInternalLines().map(({ text }) => text).join("\n");
   }
-  //中に含まれている文字の列番号を全て取得し、それに対応する文字列を返す
+  // Get all character indices contained within the element and return the corresponding text
   const chars = [] as number[];
   const line = getBaseLine(value);
   if (isUndefined(line)) return;
@@ -183,9 +183,9 @@ export const getIndentCount = <T extends HTMLElement>(
   if (isUndefined(text)) return undefined;
   return Text.getIndentCount(text);
 };
-/** 指定した行の配下にある行の数を返す
+/** Get the number of indented lines under the specified line
  *
- * @param value 指定したい行の行番号か行IDかDOM
+ * @param value Line reference (can be line number, line ID, or DOM element)
  */
 export const getIndentLineCount = <T extends HTMLElement>(
   value?: number | string | T,

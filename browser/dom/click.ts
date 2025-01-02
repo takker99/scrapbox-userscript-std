@@ -30,8 +30,8 @@ export const click = async (
   element.dispatchEvent(new MouseEvent("mouseup", mouseOptions));
   element.dispatchEvent(new MouseEvent("click", mouseOptions));
 
-  // ScrapboxのReactの処理が終わるまで少し待つ
-  // 待ち時間は感覚で決めた
+  // Wait for Scrapbox's React event handlers to complete
+  // Note: 10ms delay is determined empirically to ensure reliable event processing
   await delay(10);
 };
 
@@ -72,7 +72,7 @@ export const holdDown = async (
   element.dispatchEvent(new TouchEvent("touchend", mouseOptions));
   element.dispatchEvent(new MouseEvent("click", mouseOptions));
 
-  // ScrapboxのReactの処理が終わるまで少し待つ
-  // 待ち時間は感覚で決めた
+  // Wait for Scrapbox's React event handlers to complete
+  // Note: 10ms delay is determined empirically to ensure reliable event processing
   await delay(10);
 };

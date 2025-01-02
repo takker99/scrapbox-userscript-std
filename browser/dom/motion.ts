@@ -15,11 +15,11 @@ import { isHeightViewable } from "./isHeightViewable.ts";
 import { range } from "../../range.ts";
 
 /** @deprecated
- * カーソル行の行末を長押ししてfocusを得る
+ * Long press at the end of cursor line to gain focus
  *
- * mobile版scrapbox用
+ * This function is specifically for mobile version of Scrapbox
  *
- * @param [holding=1000] 長押しする時間(ミリ秒単位)
+ * @param [holding=1000] Duration of long press in milliseconds
  */
 export const focusEnd = async (holding = 1000): Promise<void> => {
   const target = getLineDOM(caret().position.line)
@@ -125,12 +125,12 @@ const _goLine = async (target: HTMLDivElement | undefined) => {
   await click(target, { X: right + 1, Y: top + height / 2 });
 };
 
-/** 任意の文字に移動する
+/** Move cursor to a specific character position
  *
- * クリックで移動できない文字に移動しようとすると失敗するので注意
+ * Note: This operation will fail if attempting to move to characters that cannot be clicked in the UI
  *
- * @param line 移動したい文字がある行
- * @param pos 移動したい文字の列
+ * @param line Target line (can be line number, line ID, or line DOM element)
+ * @param pos Character position (column) in the target line
  */
 export const goChar = async (
   line: string | number | HTMLElement,
@@ -148,9 +148,9 @@ export const goChar = async (
   await click(charDOM, { X: left, Y: top });
 };
 
-/** 画面に収まる最大行数を計算する
+/** Calculate the maximum number of lines that can fit in the viewport
  *
- * 行の高さは最後の行を基準とする
+ * Uses the height of the last line as a reference for calculation
  */
 const getVisibleLineCount = (): number => {
   const clientHeight = getTailLineDOM()?.clientHeight;

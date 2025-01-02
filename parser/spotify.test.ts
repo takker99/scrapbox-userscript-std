@@ -1,7 +1,18 @@
 import { parseSpotify } from "./spotify.ts";
 import { assertSnapshot } from "@std/testing/snapshot";
 
+/** Tests for the parseSpotify function which extracts IDs from Spotify URLs
+ * These tests verify that the function correctly handles various Spotify URL formats
+ * and returns undefined for non-Spotify URLs
+ */
 Deno.test("spotify links", async (t) => {
+  /** Test valid Spotify URLs for different content types
+   * - Track URLs: /track/{id}
+   * - Album URLs: /album/{id}
+   * - Episode URLs: /episode/{id} (podcasts)
+   * - Playlist URLs: /playlist/{id}
+   * Each URL may optionally include query parameters
+   */
   await t.step("is", async (t) => {
     await assertSnapshot(
       t,
@@ -25,6 +36,13 @@ Deno.test("spotify links", async (t) => {
     );
   });
 
+  /** Test invalid URLs and non-Spotify content
+   * Verifies that the function returns undefined for:
+   * - URLs from other services (e.g., Gyazo)
+   * - Plain text that looks like URLs
+   * - URLs with similar patterns but from different domains
+   * - Generic URLs
+   */
   await t.step("is not", async (t) => {
     await assertSnapshot(
       t,

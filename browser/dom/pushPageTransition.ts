@@ -1,33 +1,37 @@
 import { toTitleLc } from "../../title.ts";
 
-/** ページリンク */
+/** Represents a link to a Scrapbox page */
 export interface Link {
-  /** リンク先のproject name */
+  /** The project name of the linked page */
   project: string;
 
-  /** リンク先のpage title */
+  /** The title of the linked page */
   title: string;
 }
 
-/** ページから別のページに遷移するときの状態を表す */
+/** Represents the state of a page-to-page navigation
+ * Used to track navigation between two specific pages within Scrapbox
+ */
 export interface PageTransitionContextLink {
   type: "page";
 
-  /** 遷移元ページのリンク */
+  /** Link to the source/origin page */
   from: Link;
 
-  /** 遷移先ページのリンク */
+  /** Link to the destination/target page */
   to: Link;
 }
 
-/** 全文検索結果から別のページに遷移するときの状態を表す */
+/** Represents the state when navigating from search results to a specific page
+ * Used to track navigation that originates from a full-text search
+ */
 export interface PageTransitionContextQuery {
   type: "search";
 
-  /** 全文検索での検索語句 */
+  /** The search query used in the full-text search */
   query: string;
 
-  /** 遷移先ページのリンク */
+  /** Link to the destination/target page */
   to: Link;
 }
 
@@ -35,9 +39,12 @@ export type PageTransitionContext =
   | PageTransitionContextLink
   | PageTransitionContextQuery;
 
-/** ページ遷移状態を登録し、次回のページ遷移時にリンク先へスクロールする
+/** Registers the page transition state and enables automatic scrolling to the linked content
+ * This function stores navigation context in localStorage, which is used to determine
+ * where to scroll on the next page load. This is particularly useful for maintaining
+ * context when users navigate between related pages or from search results.
  *
- * @param context 遷移状態
+ * @param context The transition state containing source and destination information
  */
 export const pushPageTransition = (context: PageTransitionContext): void => {
   const pageTransitionContext: Record<string, unknown> = JSON.parse(
