@@ -6,14 +6,7 @@ import type {
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { FetchError } from "./mod.ts";
 
@@ -33,21 +26,28 @@ const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
   );
 };
 
-const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
-  mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(res),
-      async (res) =>
-        res.response.status === 404 &&
-          res.response.headers.get("Content-Type")?.includes?.("text/plain")
-          ? { name: "NotFoundError", message: "Code block is not found" }
-          : (await parseHTTPError(res, [
-            "NotLoggedInError",
-            "NotMemberError",
-          ])) ?? res,
-    ),
-    (res) => res.text(),
-  );
+const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) => {
+  const response = ScrapboxResponse.from<string, CodeBlockError>(res);
+
+  if (response.status === 404 && response.headers.get("Content-Type")?.includes?.("text/plain")) {
+    return ScrapboxResponse.error({
+      name: "NotFoundError",
+      message: "Code block is not found",
+    });
+  }
+
+  await parseHTTPError(response, [
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  if (response.ok) {
+    const text = await response.text();
+    return ScrapboxResponse.ok(text);
+  }
+
+  return response;
+};
 
 export interface GetCodeBlock {
   /** /api/code/:project/:title/:filename の要求を組み立てる
@@ -70,14 +70,14 @@ export interface GetCodeBlock {
    * @param res 応答
    * @return コード
    */
-  fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
+  fromResponse: (res: Response) => Promise<ScrapboxResponse<string, CodeBlockError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<Result<string, CodeBlockError | FetchError>>;
+  ): Promise<ScrapboxResponse<string, CodeBlockError | FetchError>>;
 }
 export type CodeBlockError =
   | NotFoundError
@@ -101,7 +101,7 @@ export const getCodeBlock: GetCodeBlock = /* @__PURE__ */ (() => {
   ) => {
     const req = getCodeBlock_toRequest(project, title, filename, options);
     const res = await setDefaults(options ?? {}).fetch(req);
-    return isErr(res) ? res : getCodeBlock_fromResponse(unwrapOk(res));
+    return getCodeBlock_fromResponse(res);
   };
 
   fn.toRequest = getCodeBlock_toRequest;

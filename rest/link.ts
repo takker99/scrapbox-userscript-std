@@ -1,11 +1,3 @@
-import {
-  createOk,
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   ErrorLike,
   NotFoundError,
@@ -14,7 +6,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
@@ -49,7 +41,7 @@ export interface GetLinks {
   (
     project: string,
     options?: GetLinksOptions,
-  ): Promise<Result<GetLinksResult, LinksError | FetchError>>;
+  ): Promise<ScrapboxResponse<GetLinksResult, LinksError | FetchError>>;
 
   /** Create a request to `GET /api/pages/:project/search/titles`
    *
@@ -66,7 +58,7 @@ export interface GetLinks {
    */
   fromResponse: (
     response: Response,
-  ) => Promise<Result<GetLinksResult, LinksError>>;
+  ) => Promise<ScrapboxResponse<GetLinksResult, LinksError>>;
 }
 
 const getLinks_toRequest: GetLinks["toRequest"] = (project, options) => {
@@ -80,27 +72,27 @@ const getLinks_toRequest: GetLinks["toRequest"] = (project, options) => {
   );
 };
 
-const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
-  mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(response),
-      async (error) =>
-        error.response.status === 422
-          ? {
-            name: "InvalidFollowingIdError",
-            message: await error.response.text(),
-          } as InvalidFollowingIdError
-          : (await parseHTTPError(error, [
-            "NotFoundError",
-            "NotLoggedInError",
-          ])) ?? error,
-    ),
-    (res) =>
-      res.json().then((pages: SearchedTitle[]) => ({
-        pages,
-        followingId: res.headers.get("X-following-id") ?? "",
-      })),
-  );
+const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) => {
+  const res = ScrapboxResponse.from<GetLinksResult, LinksError>(response);
+
+  if (res.status === 422) {
+    return ScrapboxResponse.error({
+      name: "InvalidFollowingIdError",
+      message: await response.text(),
+    } as InvalidFollowingIdError);
+  }
+
+  await parseHTTPError(res, [
+    "NotFoundError",
+    "NotLoggedInError",
+  ]);
+
+  const pages = await res.json() as SearchedTitle[];
+  return ScrapboxResponse.ok({
+    pages,
+    followingId: response.headers.get("X-following-id") ?? "",
+  });
+};
 
 /** 指定したprojectのリンクデータを取得する
  *
@@ -108,11 +100,10 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
  */
 export const getLinks: GetLinks = /* @__PURE__ */ (() => {
   const fn: GetLinks = async (project, options) => {
-    const res = await setDefaults(options ?? {}).fetch(
+    const response = await setDefaults(options ?? {}).fetch(
       getLinks_toRequest(project, options),
     );
-    if (isErr(res)) return res;
-    return getLinks_fromResponse(unwrapOk(res));
+    return getLinks_fromResponse(response);
   };
 
   fn.toRequest = getLinks_toRequest;
@@ -131,21 +122,20 @@ export async function* readLinksBulk(
   project: string,
   options?: BaseOptions,
 ): AsyncGenerator<
-  Result<SearchedTitle[], LinksError | FetchError>,
+  ScrapboxResponse<SearchedTitle[], LinksError | FetchError>,
   void,
   unknown
 > {
   let followingId: string | undefined;
   do {
     const result = await getLinks(project, { followingId, ...options });
-    if (isErr(result)) {
+    if (!result.ok) {
       yield result;
       return;
     }
-    const res = unwrapOk(result);
 
-    yield createOk(res.pages);
-    followingId = res.followingId;
+    yield ScrapboxResponse.ok(result.data.pages);
+    followingId = result.data.followingId;
   } while (followingId);
 }
 
@@ -158,17 +148,17 @@ export async function* readLinks(
   project: string,
   options?: BaseOptions,
 ): AsyncGenerator<
-  Result<SearchedTitle, LinksError | FetchError>,
+  ScrapboxResponse<SearchedTitle, LinksError | FetchError>,
   void,
   unknown
 > {
   for await (const result of readLinksBulk(project, options)) {
-    if (isErr(result)) {
+    if (!result.ok) {
       yield result;
       return;
     }
-    for (const page of unwrapOk(result)) {
-      yield createOk(page);
+    for (const page of result.data) {
+      yield ScrapboxResponse.ok(page);
     }
   }
 }

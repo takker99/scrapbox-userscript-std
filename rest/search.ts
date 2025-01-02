@@ -1,10 +1,3 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   NoQueryError,
   NotFoundError,
@@ -15,7 +8,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
@@ -36,7 +29,7 @@ export const searchForPages = async (
   query: string,
   project: string,
   init?: BaseOptions,
-): Promise<Result<SearchResult, SearchForPagesError | FetchError>> => {
+): Promise<ScrapboxResponse<SearchResult, SearchForPagesError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const req = new Request(
@@ -47,21 +40,16 @@ export const searchForPages = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<SearchResult, SearchForPagesError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-          "NoQueryError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<SearchResult>,
-  );
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+    "NoQueryError",
+  ]);
+
+  return response;
 };
 
 export type SearchForJoinedProjectsError =
@@ -78,7 +66,7 @@ export const searchForJoinedProjects = async (
   query: string,
   init?: BaseOptions,
 ): Promise<
-  Result<
+  ScrapboxResponse<
     ProjectSearchResult,
     SearchForJoinedProjectsError | FetchError
   >
@@ -93,19 +81,14 @@ export const searchForJoinedProjects = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<ProjectSearchResult, SearchForJoinedProjectsError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotLoggedInError",
-          "NoQueryError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<ProjectSearchResult>,
-  );
+  await parseHTTPError(response, [
+    "NotLoggedInError",
+    "NoQueryError",
+  ]);
+
+  return response;
 };
 
 export type SearchForWatchListError = SearchForJoinedProjectsError;
@@ -125,7 +108,7 @@ export const searchForWatchList = async (
   projectIds: string[],
   init?: BaseOptions,
 ): Promise<
-  Result<
+  ScrapboxResponse<
     ProjectSearchResult,
     SearchForWatchListError | FetchError
   >
@@ -143,17 +126,12 @@ export const searchForWatchList = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<ProjectSearchResult, SearchForWatchListError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotLoggedInError",
-          "NoQueryError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<ProjectSearchResult>,
-  );
+  await parseHTTPError(response, [
+    "NotLoggedInError",
+    "NoQueryError",
+  ]);
+
+  return response;
 };

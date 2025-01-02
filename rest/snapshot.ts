@@ -9,14 +9,7 @@ import type {
 import { cookie } from "./auth.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import type { FetchError } from "./mod.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */
@@ -40,7 +33,7 @@ export const getSnapshot = async (
   pageId: string,
   timestampId: string,
   options?: BaseOptions,
-): Promise<Result<PageSnapshotResult, SnapshotError | FetchError>> => {
+): Promise<ScrapboxResponse<PageSnapshotResult, SnapshotError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
   const req = new Request(
@@ -49,25 +42,22 @@ export const getSnapshot = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<PageSnapshotResult, SnapshotError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        error.response.status === 422
-          ? {
-            name: "InvalidPageSnapshotIdError",
-            message: await error.response.text(),
-          }
-          : (await parseHTTPError(error, [
-            "NotFoundError",
-            "NotLoggedInError",
-            "NotMemberError",
-          ])) ?? error,
-    ),
-    (res) => res.json() as Promise<PageSnapshotResult>,
-  );
+  if (response.status === 422) {
+    return ScrapboxResponse.error({
+      name: "InvalidPageSnapshotIdError",
+      message: await response.text(),
+    });
+  }
+
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  return response;
 };
 
 export type SnapshotTimestampIdsError =
@@ -90,7 +80,7 @@ export const getTimestampIds = async (
   pageId: string,
   options?: BaseOptions,
 ): Promise<
-  Result<PageSnapshotList, SnapshotTimestampIdsError | FetchError>
+  ScrapboxResponse<PageSnapshotList, SnapshotTimestampIdsError | FetchError>
 > => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
@@ -100,18 +90,13 @@ export const getTimestampIds = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<PageSnapshotList, SnapshotTimestampIdsError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<PageSnapshotList>,
-  );
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  return response;
 };

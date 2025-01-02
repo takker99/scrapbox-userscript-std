@@ -1,10 +1,3 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   BadRequestError,
   InvalidURLError,
@@ -12,7 +5,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
@@ -31,11 +24,11 @@ export type WebPageTitleError =
 export const getWebPageTitle = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<Result<string, WebPageTitleError | FetchError>> => {
+): Promise<ScrapboxResponse<string, WebPageTitleError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const csrfResult = await getCSRFToken(init);
-  if (isErr(csrfResult)) return csrfResult;
+  const csrfToken = await getCSRFToken(init);
+  if (!csrfToken.ok) return csrfToken;
 
   const req = new Request(
     `https://${hostName}/api/embed-text/url?url=${
@@ -45,7 +38,7 @@ export const getWebPageTitle = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
+        "X-CSRF-TOKEN": csrfToken.data,
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ timeout: 3000 }),
@@ -53,21 +46,18 @@ export const getWebPageTitle = async (
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<string, WebPageTitleError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "SessionError",
-          "BadRequestError",
-          "InvalidURLError",
-        ])) ?? error,
-    ),
-    async (res) => {
-      const { title } = (await res.json()) as { title: string };
-      return title;
-    },
-  );
+  await parseHTTPError(response, [
+    "SessionError",
+    "BadRequestError",
+    "InvalidURLError",
+  ]);
+
+  if (response.ok) {
+    const { title } = await response.json() as { title: string };
+    return ScrapboxResponse.ok(title);
+  }
+
+  return response;
 };

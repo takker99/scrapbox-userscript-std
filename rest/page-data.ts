@@ -1,11 +1,3 @@
-import {
-  createOk,
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   ExportedData,
   ImportedData,
@@ -15,7 +7,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import {
   type BaseOptions,
   type ExtendedOptions,
@@ -35,9 +27,9 @@ export const importPages = async (
   data: ImportedData<boolean>,
   init?: ExtendedOptions,
 ): Promise<
-  Result<string, ImportPagesError | FetchError>
+  ScrapboxResponse<string, ImportPagesError | FetchError>
 > => {
-  if (data.pages.length === 0) return createOk("No pages to import.");
+  if (data.pages.length === 0) return ScrapboxResponse.ok("No pages to import.");
 
   const { sid, hostName, fetch } = setDefaults(init ?? {});
   const formData = new FormData();
@@ -49,8 +41,8 @@ export const importPages = async (
   );
   formData.append("name", "undefined");
 
-  const csrfResult = await getCSRFToken(init);
-  if (isErr(csrfResult)) return csrfResult;
+  const csrfToken = await getCSRFToken(init);
+  if (!csrfToken.ok) return csrfToken;
 
   const req = new Request(
     `https://${hostName}/api/page-data/import/${project}.json`,
@@ -59,19 +51,21 @@ export const importPages = async (
       headers: {
         ...(sid ? { Cookie: cookie(sid) } : {}),
         Accept: "application/json, text/plain, */*",
-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
+        "X-CSRF-TOKEN": csrfToken.data,
       },
       body: formData,
     },
   );
 
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<string, ImportPagesError>(res);
 
-  return mapAsyncForResult(
-    responseIntoResult(unwrapOk(res)),
-    async (res) => (await res.json()).message as string,
-  );
+  if (response.ok) {
+    const json = await response.json();
+    return ScrapboxResponse.ok(json.message as string);
+  }
+
+  return response;
 };
 
 export type ExportPagesError =
@@ -93,7 +87,7 @@ export const exportPages = async <withMetadata extends true | false>(
   project: string,
   init: ExportInit<withMetadata>,
 ): Promise<
-  Result<ExportedData<withMetadata>, ExportPagesError | FetchError>
+  ScrapboxResponse<ExportedData<withMetadata>, ExportPagesError | FetchError>
 > => {
   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
 
@@ -102,18 +96,13 @@ export const exportPages = async <withMetadata extends true | false>(
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
   const res = await fetch(req);
-  if (isErr(res)) return res;
+  const response = ScrapboxResponse.from<ExportedData<withMetadata>, ExportPagesError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(res)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotPrivilegeError",
-        ])) ?? error,
-    ),
-    (res) => res.json() as Promise<ExportedData<withMetadata>>,
-  );
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotPrivilegeError",
+  ]);
+
+  return response;
 };

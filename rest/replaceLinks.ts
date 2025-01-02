@@ -1,10 +1,3 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
 import type {
   NotFoundError,
   NotLoggedInError,
@@ -12,7 +5,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import { ScrapboxResponse } from "./response.ts";
 import type { FetchError } from "./robustFetch.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
 
@@ -38,11 +31,11 @@ export const replaceLinks = async (
   from: string,
   to: string,
   init?: ExtendedOptions,
-): Promise<Result<number, ReplaceLinksError | FetchError>> => {
+): Promise<ScrapboxResponse<number, ReplaceLinksError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
-  const csrfResult = await getCSRFToken(init);
-  if (isErr(csrfResult)) return csrfResult;
+  const csrfToken = await getCSRFToken(init);
+  if (!csrfToken.ok) return csrfToken;
 
   const req = new Request(
     `https://${hostName}/api/pages/${project}/replace/links`,
@@ -50,30 +43,27 @@ export const replaceLinks = async (
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
+        "X-CSRF-TOKEN": csrfToken.data,
         ...(sid ? { Cookie: cookie(sid) } : {}),
       },
       body: JSON.stringify({ from, to }),
     },
   );
 
-  const resResult = await fetch(req);
-  if (isErr(resResult)) return resResult;
+  const res = await fetch(req);
+  const response = ScrapboxResponse.from<number, ReplaceLinksError>(res);
 
-  return mapAsyncForResult(
-    await mapErrAsyncForResult(
-      responseIntoResult(unwrapOk(resResult)),
-      async (error) =>
-        (await parseHTTPError(error, [
-          "NotFoundError",
-          "NotLoggedInError",
-          "NotMemberError",
-        ])) ?? error,
-    ),
-    async (res) => {
-      // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
-      const { message } = (await res.json()) as { message: string };
-      return parseInt(message.match(/\d+/)?.[0] ?? "0");
-    },
-  );
+  await parseHTTPError(response, [
+    "NotFoundError",
+    "NotLoggedInError",
+    "NotMemberError",
+  ]);
+
+  if (response.ok) {
+    // The message contains text like "2 pages have been successfully updated!"
+    const { message } = await response.json() as { message: string };
+    return ScrapboxResponse.ok(parseInt(message.match(/\d+/)?.[0] ?? "0"));
+  }
+
+  return response;
 };

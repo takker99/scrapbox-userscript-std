@@ -1,4 +1,4 @@
-import { createErr, createOk, type Result } from "option-t/plain_result";
+import { ScrapboxResponse } from "./response.ts";
 
 export interface NetworkError {
   name: "NetworkError";
@@ -19,38 +19,39 @@ export type FetchError = NetworkError | AbortError;
  *
  * @param input - The resource URL or a {@linkcode Request} object.
  * @param init - An optional object containing request options.
- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
+ * @returns A promise that resolves to a {@linkcode ScrapboxResponse} object.
  */
 export type RobustFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
-) => Promise<Result<Response, FetchError>>;
+) => Promise<ScrapboxResponse<Response, FetchError>>;
 
 /**
  * A simple implementation of {@linkcode RobustFetch} that uses {@linkcode fetch}.
  *
  * @param input - The resource URL or a {@linkcode Request} object.
  * @param init - An optional object containing request options.
- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
+ * @returns A promise that resolves to a {@linkcode ScrapboxResponse} object.
  */
 export const robustFetch: RobustFetch = async (input, init) => {
   const request = new Request(input, init);
   try {
-    return createOk(await globalThis.fetch(request));
+    const response = await globalThis.fetch(request);
+    return ScrapboxResponse.from(response);
   } catch (e: unknown) {
     if (e instanceof DOMException && e.name === "AbortError") {
-      return createErr({
+      return ScrapboxResponse.error({
         name: "AbortError",
         message: e.message,
         request,
-      });
+      }, { status: 499 }); // Use 499 for client closed request
     }
     if (e instanceof TypeError) {
-      return createErr({
+      return ScrapboxResponse.error({
         name: "NetworkError",
         message: e.message,
         request,
-      });
+      }, { status: 0 }); // Use 0 for network errors
     }
     throw e;
   }
