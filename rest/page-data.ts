@@ -25,10 +25,15 @@ import type { FetchError } from "./mod.ts";
 
 export type ImportPagesError = HTTPError;
 
-/** projectにページをインポートする
+/** Import pages into a Scrapbox project
  *
- * @param project - インポート先のprojectの名前
- * @param data - インポートするページデータ
+ * Imports multiple pages into a specified project. The pages are provided as a structured
+ * data object that follows the ImportedData format.
+ *
+ * @param project - Name of the target project to import pages into
+ * @param data - Page data to import, following the ImportedData format
+ * @param init - Optional configuration for the import operation
+ * @returns A Result containing either a success message or an error
  */
 export const importPages = async (
   project: string,
@@ -80,14 +85,25 @@ export type ExportPagesError =
   | NotLoggedInError
   | HTTPError;
 
-/** `exportPages`の認証情報 */
+/** Configuration options for the exportPages function
+ *
+ * Extends BaseOptions with metadata control for page exports.
+ */
 export interface ExportInit<withMetadata extends true | false>
   extends BaseOptions {
   /** whether to includes metadata */ metadata: withMetadata;
 }
-/** projectの全ページをエクスポートする
+/** Export all pages from a Scrapbox project
  *
- * @param project exportしたいproject
+ * Retrieves all pages from the specified project, optionally including metadata.
+ * Requires appropriate authentication for private projects.
+ *
+ * @param project - Name of the project to export
+ * @param init - Configuration options including metadata preference
+ * @returns A Result containing either the exported data or an error
+ * @throws NotFoundError if the project doesn't exist
+ * @throws NotPrivilegeError if the user lacks permission
+ * @throws NotLoggedInError if authentication is required but not provided
  */
 export const exportPages = async <withMetadata extends true | false>(
   project: string,
