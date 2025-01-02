@@ -1,0 +1,2170 @@
+From 74b49ca50adc9311ac5dfb3a2b6412c9d45f3aa0 Mon Sep 17 00:00:00 2001
+From: Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.com>
+Date: Thu, 2 Jan 2025 07:16:09 +0000
+Subject: [PATCH] refactor(rest): redesign REST API to use ScrapboxResponse
+
+BREAKING CHANGE: Replace option-t Result with ScrapboxResponse
+
+- Remove option-t dependency
+- Add ScrapboxResponse class extending web standard Response
+- Improve type safety with status-based type switching
+- Allow direct access to Response.body and headers
+- Add migration guide for v0.30.0
+
+This change follows the implementation pattern from @takker/gyazo@0.4.0
+and prepares for release as version 0.30.0.
+
+Resolves #213
+---
+ docs/migration-guide-0.30.0.md | 139 +++++++++++++++++++++++++++++++++
+ rest/auth.ts                   |  12 +--
+ rest/getCodeBlock.ts           |  52 ++++++------
+ rest/getGyazoToken.ts          |  29 +++----
+ rest/getTweetInfo.ts           |  52 +++++-------
+ rest/getWebPageTitle.ts        |  46 +++++------
+ rest/link.ts                   |  78 ++++++++----------
+ rest/page-data.ts              |  55 ++++++-------
+ rest/pages.ts                  | 136 ++++++++++++++------------------
+ rest/parseHTTPError.ts         |  50 ++++++------
+ rest/profile.ts                |  35 +++------
+ rest/project.ts                |  89 +++++++++------------
+ rest/replaceLinks.ts           |  50 +++++-------
+ rest/response.ts               | 105 +++++++++++++++++++++++++
+ rest/robustFetch.ts            |  19 ++---
+ rest/search.ts                 |  82 +++++++------------
+ rest/snapshot.ts               |  67 ++++++----------
+ rest/table.ts                  |  57 +++++++-------
+ rest/uploadToGCS.ts            | 130 +++++++++++++-----------------
+ 19 files changed, 682 insertions(+), 601 deletions(-)
+ create mode 100644 docs/migration-guide-0.30.0.md
+ create mode 100644 rest/response.ts
+
+diff --git a/docs/migration-guide-0.30.0.md b/docs/migration-guide-0.30.0.md
+new file mode 100644
+index 0000000..cddf75c
+--- /dev/null
++++ b/docs/migration-guide-0.30.0.md
+@@ -0,0 +1,139 @@
++# Migration Guide to v0.30.0
++
++## Breaking Changes
++
++### REST API Changes
++
++The REST API has been completely redesigned to improve type safety, reduce dependencies, and better align with web standards. The main changes are:
++
++1. Removal of `option-t` dependency
++   - All `Result` types from `option-t/plain_result` have been replaced with `ScrapboxResponse`
++   - No more `unwrapOk`, `isErr`, or other option-t utilities
++
++2. New `ScrapboxResponse` class
++   - Extends the web standard `Response` class
++   - Direct access to `body`, `headers`, and other standard Response properties
++   - Type-safe error handling based on HTTP status codes
++   - Built-in JSON parsing with proper typing for success/error cases
++
++### Before and After Examples
++
++#### Before (v0.29.x):
++```typescript
++import { isErr, unwrapOk } from "option-t/plain_result";
++
++const result = await getProfile();
++if (isErr(result)) {
++  console.error("Failed:", result);
++  return;
++}
++const profile = unwrapOk(result);
++console.log("Name:", profile.name);
++```
++
++#### After (v0.30.0):
++```typescript
++const response = await getProfile();
++if (!response.ok) {
++  console.error("Failed:", response.error);
++  return;
++}
++console.log("Name:", response.data.name);
++```
++
++### Key Benefits
++
++1. **Simpler Error Handling**
++   - HTTP status codes determine error types
++   - No need to unwrap results manually
++   - Type-safe error objects with proper typing
++
++2. **Web Standard Compatibility**
++   - Works with standard web APIs without conversion
++   - Direct access to Response properties
++   - Compatible with standard fetch patterns
++
++3. **Better Type Safety**
++   - Response types change based on HTTP status
++   - Proper typing for both success and error cases
++   - No runtime overhead for type checking
++
++### Migration Steps
++
++1. Replace `option-t` imports:
++   ```diff
++   - import { isErr, unwrapOk } from "option-t/plain_result";
++   ```
++
++2. Update error checking:
++   ```diff
++   - if (isErr(result)) {
++   -   console.error(result);
++   + if (!response.ok) {
++   +   console.error(response.error);
++   ```
++
++3. Access response data:
++   ```diff
++   - const data = unwrapOk(result);
++   + const data = response.data;
++   ```
++
++4. For direct Response access:
++   ```typescript
++   // Access headers
++   const contentType = response.headers.get("content-type");
++   
++   // Access raw body
++   const text = await response.text();
++   
++   // Parse JSON with type safety
++   const json = await response.json();
++   ```
++
++### Common Patterns
++
++1. **Status-based Error Handling**:
++```typescript
++const response = await getSnapshot(project, pageId, timestampId);
++
++if (response.status === 422) {
++  // Handle invalid snapshot ID
++  console.error("Invalid snapshot:", response.error);
++  return;
++}
++
++if (!response.ok) {
++  // Handle other errors
++  console.error("Failed:", response.error);
++  return;
++}
++
++// Use the data
++console.log(response.data);
++```
++
++2. **Type-safe JSON Parsing**:
++```typescript
++const response = await getTweetInfo(tweetUrl);
++if (response.ok) {
++  const tweet = response.data;  // Properly typed as TweetInfo
++  console.log(tweet.text);
++}
++```
++
++3. **Working with Headers**:
++```typescript
++const response = await uploadToGCS(file, projectId);
++if (!response.ok && response.headers.get("Content-Type")?.includes("/xml")) {
++  console.error("GCS Error:", await response.text());
++  return;
++}
++```
++
++### Need Help?
++
++If you encounter any issues during migration, please:
++1. Check the examples in this guide
++2. Review the [API documentation](https://jsr.io/@takker/scrapbox-userscript-std)
++3. Open an issue on GitHub if you need further assistance
+diff --git a/rest/auth.ts b/rest/auth.ts
+index 65df74c..40285e9 100644
+--- a/rest/auth.ts
++++ b/rest/auth.ts
+@@ -1,5 +1,5 @@
+-import { createOk, mapForResult, type Result } from "option-t/plain_result";
+ import { getProfile } from "./profile.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { HTTPError } from "./responseIntoResult.ts";
+ import type { AbortError, NetworkError } from "./robustFetch.ts";
+ import type { ExtendedOptions } from "./options.ts";
+@@ -16,11 +16,11 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
+  */
+ export const getCSRFToken = async (
+   init?: ExtendedOptions,
+-): Promise<Result<string, NetworkError | AbortError | HTTPError>> => {
++): Promise<ScrapboxResponse<string, NetworkError | AbortError | HTTPError>> => {
+   // deno-lint-ignore no-explicit-any
+   const csrf = init?.csrf ?? (globalThis as any)._csrf;
+-  return csrf ? createOk(csrf) : mapForResult(
+-    await getProfile(init),
+-    (user) => user.csrfToken,
+-  );
++  if (csrf) return ScrapboxResponse.ok(csrf);
++
++  const profile = await getProfile(init);
++  return profile.ok ? ScrapboxResponse.ok(profile.data.csrfToken) : profile;
+ };
+diff --git a/rest/getCodeBlock.ts b/rest/getCodeBlock.ts
+index 42a25f4..0a61a6a 100644
+--- a/rest/getCodeBlock.ts
++++ b/rest/getCodeBlock.ts
+@@ -6,14 +6,7 @@ import type {
+ import { cookie } from "./auth.ts";
+ import { encodeTitleURI } from "../title.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -33,21 +26,28 @@ const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
+   );
+ };
+ 
+-const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
+-  mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(res),
+-      async (res) =>
+-        res.response.status === 404 &&
+-          res.response.headers.get("Content-Type")?.includes?.("text/plain")
+-          ? { name: "NotFoundError", message: "Code block is not found" }
+-          : (await parseHTTPError(res, [
+-            "NotLoggedInError",
+-            "NotMemberError",
+-          ])) ?? res,
+-    ),
+-    (res) => res.text(),
+-  );
++const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<string, CodeBlockError>(res);
++
++  if (response.status === 404 && response.headers.get("Content-Type")?.includes?.("text/plain")) {
++    return ScrapboxResponse.error({
++      name: "NotFoundError",
++      message: "Code block is not found",
++    });
++  }
++
++  await parseHTTPError(response, [
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  if (response.ok) {
++    const text = await response.text();
++    return ScrapboxResponse.ok(text);
++  }
++
++  return response;
++};
+ 
+ export interface GetCodeBlock {
+   /** /api/code/:project/:title/:filename の要求を組み立てる
+@@ -70,14 +70,14 @@ export interface GetCodeBlock {
+    * @param res 応答
+    * @return コード
+    */
+-  fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
++  fromResponse: (res: Response) => Promise<ScrapboxResponse<string, CodeBlockError>>;
+ 
+   (
+     project: string,
+     title: string,
+     filename: string,
+     options?: BaseOptions,
+-  ): Promise<Result<string, CodeBlockError | FetchError>>;
++  ): Promise<ScrapboxResponse<string, CodeBlockError | FetchError>>;
+ }
+ export type CodeBlockError =
+   | NotFoundError
+@@ -101,7 +101,7 @@ export const getCodeBlock: GetCodeBlock = /* @__PURE__ */ (() => {
+   ) => {
+     const req = getCodeBlock_toRequest(project, title, filename, options);
+     const res = await setDefaults(options ?? {}).fetch(req);
+-    return isErr(res) ? res : getCodeBlock_fromResponse(unwrapOk(res));
++    return getCodeBlock_fromResponse(res);
+   };
+ 
+   fn.toRequest = getCodeBlock_toRequest;
+diff --git a/rest/getGyazoToken.ts b/rest/getGyazoToken.ts
+index b9bbac2..1d0f3d6 100644
+--- a/rest/getGyazoToken.ts
++++ b/rest/getGyazoToken.ts
+@@ -1,14 +1,7 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type { NotLoggedInError } from "@cosense/types/rest";
+ import { cookie } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -29,7 +22,7 @@ export type GyazoTokenError = NotLoggedInError | HTTPError;
+  */
+ export const getGyazoToken = async (
+   init?: GetGyazoTokenOptions,
+-): Promise<Result<string | undefined, GyazoTokenError | FetchError>> => {
++): Promise<ScrapboxResponse<string | undefined, GyazoTokenError | FetchError>> => {
+   const { fetch, sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
+   const req = new Request(
+     `https://${hostName}/api/login/gyazo/oauth-upload/token${
+@@ -39,14 +32,14 @@ export const getGyazoToken = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<string | undefined, GyazoTokenError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
+-    ),
+-    (res) => res.json().then((json) => json.token as string | undefined),
+-  );
++  await parseHTTPError(response, ["NotLoggedInError"]);
++
++  if (response.ok) {
++    const json = await response.json();
++    return ScrapboxResponse.ok(json.token as string | undefined);
++  }
++
++  return response;
+ };
+diff --git a/rest/getTweetInfo.ts b/rest/getTweetInfo.ts
+index 48408d9..c14e5a7 100644
+--- a/rest/getTweetInfo.ts
++++ b/rest/getTweetInfo.ts
+@@ -1,10 +1,3 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   BadRequestError,
+   InvalidURLError,
+@@ -13,7 +6,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie, getCSRFToken } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { type ExtendedOptions, setDefaults } from "./options.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -32,11 +25,11 @@ export type TweetInfoError =
+ export const getTweetInfo = async (
+   url: string | URL,
+   init?: ExtendedOptions,
+-): Promise<Result<TweetInfo, TweetInfoError | FetchError>> => {
++): Promise<ScrapboxResponse<TweetInfo, TweetInfoError | FetchError>> => {
+   const { sid, hostName, fetch } = setDefaults(init ?? {});
+ 
+-  const csrfResult = await getCSRFToken(init);
+-  if (isErr(csrfResult)) return csrfResult;
++  const csrfToken = await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
+ 
+   const req = new Request(
+     `https://${hostName}/api/embed-text/twitter?url=${
+@@ -46,7 +39,7 @@ export const getTweetInfo = async (
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json;charset=utf-8",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+       },
+       body: JSON.stringify({ timeout: 3000 }),
+@@ -54,25 +47,20 @@ export const getTweetInfo = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<TweetInfo, TweetInfoError>(res);
+ 
+-  return mapErrAsyncForResult(
+-    await mapAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      (res) => res.json() as Promise<TweetInfo>,
+-    ),
+-    async (res) => {
+-      if (res.response.status === 422) {
+-        return {
+-          name: "InvalidURLError",
+-          message: (await res.response.json()).message as string,
+-        };
+-      }
+-      const parsed = await parseHTTPError(res, [
+-        "SessionError",
+-        "BadRequestError",
+-      ]);
+-      return parsed ?? res;
+-    },
+-  );
++  if (response.status === 422) {
++    const json = await response.json();
++    return ScrapboxResponse.error({
++      name: "InvalidURLError",
++      message: json.message as string,
++    });
++  }
++
++  await parseHTTPError(response, [
++    "SessionError",
++    "BadRequestError",
++  ]);
++
++  return response;
+ };
+diff --git a/rest/getWebPageTitle.ts b/rest/getWebPageTitle.ts
+index c523aff..f01afad 100644
+--- a/rest/getWebPageTitle.ts
++++ b/rest/getWebPageTitle.ts
+@@ -1,10 +1,3 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   BadRequestError,
+   InvalidURLError,
+@@ -12,7 +5,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie, getCSRFToken } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { type ExtendedOptions, setDefaults } from "./options.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -31,11 +24,11 @@ export type WebPageTitleError =
+ export const getWebPageTitle = async (
+   url: string | URL,
+   init?: ExtendedOptions,
+-): Promise<Result<string, WebPageTitleError | FetchError>> => {
++): Promise<ScrapboxResponse<string, WebPageTitleError | FetchError>> => {
+   const { sid, hostName, fetch } = setDefaults(init ?? {});
+ 
+-  const csrfResult = await getCSRFToken(init);
+-  if (isErr(csrfResult)) return csrfResult;
++  const csrfToken = await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
+ 
+   const req = new Request(
+     `https://${hostName}/api/embed-text/url?url=${
+@@ -45,7 +38,7 @@ export const getWebPageTitle = async (
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json;charset=utf-8",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+       },
+       body: JSON.stringify({ timeout: 3000 }),
+@@ -53,21 +46,18 @@ export const getWebPageTitle = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<string, WebPageTitleError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "SessionError",
+-          "BadRequestError",
+-          "InvalidURLError",
+-        ])) ?? error,
+-    ),
+-    async (res) => {
+-      const { title } = (await res.json()) as { title: string };
+-      return title;
+-    },
+-  );
++  await parseHTTPError(response, [
++    "SessionError",
++    "BadRequestError",
++    "InvalidURLError",
++  ]);
++
++  if (response.ok) {
++    const { title } = await response.json() as { title: string };
++    return ScrapboxResponse.ok(title);
++  }
++
++  return response;
+ };
+diff --git a/rest/link.ts b/rest/link.ts
+index 49cbbd3..3463e1c 100644
+--- a/rest/link.ts
++++ b/rest/link.ts
+@@ -1,11 +1,3 @@
+-import {
+-  createOk,
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   ErrorLike,
+   NotFoundError,
+@@ -14,7 +6,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -49,7 +41,7 @@ export interface GetLinks {
+   (
+     project: string,
+     options?: GetLinksOptions,
+-  ): Promise<Result<GetLinksResult, LinksError | FetchError>>;
++  ): Promise<ScrapboxResponse<GetLinksResult, LinksError | FetchError>>;
+ 
+   /** Create a request to `GET /api/pages/:project/search/titles`
+    *
+@@ -66,7 +58,7 @@ export interface GetLinks {
+    */
+   fromResponse: (
+     response: Response,
+-  ) => Promise<Result<GetLinksResult, LinksError>>;
++  ) => Promise<ScrapboxResponse<GetLinksResult, LinksError>>;
+ }
+ 
+ const getLinks_toRequest: GetLinks["toRequest"] = (project, options) => {
+@@ -80,27 +72,27 @@ const getLinks_toRequest: GetLinks["toRequest"] = (project, options) => {
+   );
+ };
+ 
+-const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
+-  mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(response),
+-      async (error) =>
+-        error.response.status === 422
+-          ? {
+-            name: "InvalidFollowingIdError",
+-            message: await error.response.text(),
+-          } as InvalidFollowingIdError
+-          : (await parseHTTPError(error, [
+-            "NotFoundError",
+-            "NotLoggedInError",
+-          ])) ?? error,
+-    ),
+-    (res) =>
+-      res.json().then((pages: SearchedTitle[]) => ({
+-        pages,
+-        followingId: res.headers.get("X-following-id") ?? "",
+-      })),
+-  );
++const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) => {
++  const res = ScrapboxResponse.from<GetLinksResult, LinksError>(response);
++
++  if (res.status === 422) {
++    return ScrapboxResponse.error({
++      name: "InvalidFollowingIdError",
++      message: await response.text(),
++    } as InvalidFollowingIdError);
++  }
++
++  await parseHTTPError(res, [
++    "NotFoundError",
++    "NotLoggedInError",
++  ]);
++
++  const pages = await res.json() as SearchedTitle[];
++  return ScrapboxResponse.ok({
++    pages,
++    followingId: response.headers.get("X-following-id") ?? "",
++  });
++};
+ 
+ /** 指定したprojectのリンクデータを取得する
+  *
+@@ -108,11 +100,10 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
+  */
+ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
+   const fn: GetLinks = async (project, options) => {
+-    const res = await setDefaults(options ?? {}).fetch(
++    const response = await setDefaults(options ?? {}).fetch(
+       getLinks_toRequest(project, options),
+     );
+-    if (isErr(res)) return res;
+-    return getLinks_fromResponse(unwrapOk(res));
++    return getLinks_fromResponse(response);
+   };
+ 
+   fn.toRequest = getLinks_toRequest;
+@@ -131,21 +122,20 @@ export async function* readLinksBulk(
+   project: string,
+   options?: BaseOptions,
+ ): AsyncGenerator<
+-  Result<SearchedTitle[], LinksError | FetchError>,
++  ScrapboxResponse<SearchedTitle[], LinksError | FetchError>,
+   void,
+   unknown
+ > {
+   let followingId: string | undefined;
+   do {
+     const result = await getLinks(project, { followingId, ...options });
+-    if (isErr(result)) {
++    if (!result.ok) {
+       yield result;
+       return;
+     }
+-    const res = unwrapOk(result);
+ 
+-    yield createOk(res.pages);
+-    followingId = res.followingId;
++    yield ScrapboxResponse.ok(result.data.pages);
++    followingId = result.data.followingId;
+   } while (followingId);
+ }
+ 
+@@ -158,17 +148,17 @@ export async function* readLinks(
+   project: string,
+   options?: BaseOptions,
+ ): AsyncGenerator<
+-  Result<SearchedTitle, LinksError | FetchError>,
++  ScrapboxResponse<SearchedTitle, LinksError | FetchError>,
+   void,
+   unknown
+ > {
+   for await (const result of readLinksBulk(project, options)) {
+-    if (isErr(result)) {
++    if (!result.ok) {
+       yield result;
+       return;
+     }
+-    for (const page of unwrapOk(result)) {
+-      yield createOk(page);
++    for (const page of result.data) {
++      yield ScrapboxResponse.ok(page);
+     }
+   }
+ }
+diff --git a/rest/page-data.ts b/rest/page-data.ts
+index 13d43e2..a82e1e3 100644
+--- a/rest/page-data.ts
++++ b/rest/page-data.ts
+@@ -1,11 +1,3 @@
+-import {
+-  createOk,
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   ExportedData,
+   ImportedData,
+@@ -15,7 +7,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie, getCSRFToken } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import {
+   type BaseOptions,
+   type ExtendedOptions,
+@@ -35,9 +27,9 @@ export const importPages = async (
+   data: ImportedData<boolean>,
+   init?: ExtendedOptions,
+ ): Promise<
+-  Result<string, ImportPagesError | FetchError>
++  ScrapboxResponse<string, ImportPagesError | FetchError>
+ > => {
+-  if (data.pages.length === 0) return createOk("No pages to import.");
++  if (data.pages.length === 0) return ScrapboxResponse.ok("No pages to import.");
+ 
+   const { sid, hostName, fetch } = setDefaults(init ?? {});
+   const formData = new FormData();
+@@ -49,8 +41,8 @@ export const importPages = async (
+   );
+   formData.append("name", "undefined");
+ 
+-  const csrfResult = await getCSRFToken(init);
+-  if (isErr(csrfResult)) return csrfResult;
++  const csrfToken = await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
+ 
+   const req = new Request(
+     `https://${hostName}/api/page-data/import/${project}.json`,
+@@ -59,19 +51,21 @@ export const importPages = async (
+       headers: {
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+         Accept: "application/json, text/plain, */*",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+       },
+       body: formData,
+     },
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<string, ImportPagesError>(res);
+ 
+-  return mapAsyncForResult(
+-    responseIntoResult(unwrapOk(res)),
+-    async (res) => (await res.json()).message as string,
+-  );
++  if (response.ok) {
++    const json = await response.json();
++    return ScrapboxResponse.ok(json.message as string);
++  }
++
++  return response;
+ };
+ 
+ export type ExportPagesError =
+@@ -93,7 +87,7 @@ export const exportPages = async <withMetadata extends true | false>(
+   project: string,
+   init: ExportInit<withMetadata>,
+ ): Promise<
+-  Result<ExportedData<withMetadata>, ExportPagesError | FetchError>
++  ScrapboxResponse<ExportedData<withMetadata>, ExportPagesError | FetchError>
+ > => {
+   const { sid, hostName, fetch, metadata } = setDefaults(init ?? {});
+ 
+@@ -102,18 +96,13 @@ export const exportPages = async <withMetadata extends true | false>(
+     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
+   );
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<ExportedData<withMetadata>, ExportPagesError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotPrivilegeError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<ExportedData<withMetadata>>,
+-  );
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotPrivilegeError",
++  ]);
++
++  return response;
+ };
+diff --git a/rest/pages.ts b/rest/pages.ts
+index bc86592..01df0b1 100644
+--- a/rest/pages.ts
++++ b/rest/pages.ts
+@@ -10,14 +10,7 @@ import { cookie } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+ import { encodeTitleURI } from "../title.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+-import {
+-  andThenAsyncForResult,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-} from "option-t/plain_result";
+-import { unwrapOrForMaybe } from "option-t/maybe";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { FetchError } from "./robustFetch.ts";
+ 
+ /** Options for `getPage()` */
+@@ -53,39 +46,31 @@ const getPage_toRequest: GetPage["toRequest"] = (
+   );
+ };
+ 
+-const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
+-  mapErrAsyncForResult(
+-    await mapAsyncForResult(
+-      responseIntoResult(res),
+-      (res) => res.json() as Promise<Page>,
+-    ),
+-    async (
+-      error,
+-    ) => {
+-      if (error.response.status === 414) {
+-        return {
+-          name: "TooLongURIError",
+-          message: "project ids may be too much.",
+-        };
+-      }
+-
+-      return unwrapOrForMaybe<PageError>(
+-        await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-        ]),
+-        error,
+-      );
+-    },
+-  );
++const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<Page, PageError>(res);
++  
++  if (response.status === 414) {
++    return ScrapboxResponse.error({
++      name: "TooLongURIError",
++      message: "project ids may be too much.",
++    });
++  }
++
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  return response;
++};
+ 
+ export interface GetPage {
+-  /** /api/pages/:project/:title の要求を組み立てる
++  /** Build request for /api/pages/:project/:title
+    *
+-   * @param project 取得したいページのproject名
+-   * @param title 取得したいページのtitle 大文字小文字は問わない
+-   * @param options オプション
++   * @param project Project name to get page from
++   * @param title Page title (case insensitive)
++   * @param options Additional options
+    * @return request
+    */
+   toRequest: (
+@@ -94,18 +79,18 @@ export interface GetPage {
+     options?: GetPageOption,
+   ) => Request;
+ 
+-  /** 帰ってきた応答からページのJSONデータを取得する
++  /** Get page JSON data from response
+    *
+-   * @param res 応答
+-   * @return ページのJSONデータ
++   * @param res Response object
++   * @return Page JSON data
+    */
+-  fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
++  fromResponse: (res: Response) => Promise<ScrapboxResponse<Page, PageError>>;
+ 
+   (
+     project: string,
+     title: string,
+     options?: GetPageOption,
+-  ): Promise<Result<Page, PageError | FetchError>>;
++  ): Promise<ScrapboxResponse<Page, PageError | FetchError>>;
+ }
+ 
+ export type PageError =
+@@ -126,13 +111,12 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
+     project,
+     title,
+     options,
+-  ) =>
+-    andThenAsyncForResult<Response, Page, PageError | FetchError>(
+-      await setDefaults(options ?? {}).fetch(
+-        getPage_toRequest(project, title, options),
+-      ),
+-      (input) => getPage_fromResponse(input),
++  ) => {
++    const response = await setDefaults(options ?? {}).fetch(
++      getPage_toRequest(project, title, options),
+     );
++    return getPage_fromResponse(response);
++  };
+ 
+   fn.toRequest = getPage_toRequest;
+   fn.fromResponse = getPage_fromResponse;
+@@ -168,10 +152,10 @@ export interface ListPagesOption extends BaseOptions {
+ }
+ 
+ export interface ListPages {
+-  /** /api/pages/:project の要求を組み立てる
++  /** Build request for /api/pages/:project
+    *
+-   * @param project 取得したいページのproject名
+-   * @param options オプション
++   * @param project Project name to list pages from
++   * @param options Additional options
+    * @return request
+    */
+   toRequest: (
+@@ -179,17 +163,17 @@ export interface ListPages {
+     options?: ListPagesOption,
+   ) => Request;
+ 
+-  /** 帰ってきた応答からページのJSONデータを取得する
++  /** Get page list JSON data from response
+    *
+-   * @param res 応答
+-   * @return ページのJSONデータ
++   * @param res Response object
++   * @return Page list JSON data
+    */
+-  fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
++  fromResponse: (res: Response) => Promise<ScrapboxResponse<PageList, ListPagesError>>;
+ 
+   (
+     project: string,
+     options?: ListPagesOption,
+-  ): Promise<Result<PageList, ListPagesError | FetchError>>;
++  ): Promise<ScrapboxResponse<PageList, ListPagesError | FetchError>>;
+ }
+ 
+ export type ListPagesError =
+@@ -213,22 +197,17 @@ const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
+   );
+ };
+ 
+-const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
+-  mapErrAsyncForResult(
+-    await mapAsyncForResult(
+-      responseIntoResult(res),
+-      (res) => res.json() as Promise<PageList>,
+-    ),
+-    async (error) =>
+-      unwrapOrForMaybe<ListPagesError>(
+-        await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-        ]),
+-        error,
+-      ),
+-  );
++const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<PageList, ListPagesError>(res);
++  
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  return response;
++};
+ 
+ /** 指定したprojectのページを一覧する
+  *
+@@ -239,13 +218,12 @@ export const listPages: ListPages = /* @__PURE__ */ (() => {
+   const fn: ListPages = async (
+     project,
+     options?,
+-  ) =>
+-    andThenAsyncForResult<Response, PageList, ListPagesError | FetchError>(
+-      await setDefaults(options ?? {})?.fetch(
+-        listPages_toRequest(project, options),
+-      ),
+-      listPages_fromResponse,
++  ) => {
++    const response = await setDefaults(options ?? {})?.fetch(
++      listPages_toRequest(project, options),
+     );
++    return listPages_fromResponse(response);
++  };
+ 
+   fn.toRequest = listPages_toRequest;
+   fn.fromResponse = listPages_fromResponse;
+diff --git a/rest/parseHTTPError.ts b/rest/parseHTTPError.ts
+index 003ed9b..54f8a44 100644
+--- a/rest/parseHTTPError.ts
++++ b/rest/parseHTTPError.ts
+@@ -8,13 +8,11 @@ import type {
+   NotPrivilegeError,
+   SessionError,
+ } from "@cosense/types/rest";
+-import type { Maybe } from "option-t/maybe";
+ import { isArrayOf } from "@core/unknownutil/is/array-of";
+ import { isLiteralOneOf } from "@core/unknownutil/is/literal-one-of";
+ import { isRecord } from "@core/unknownutil/is/record";
+ import { isString } from "@core/unknownutil/is/string";
+-
+-import type { HTTPError } from "./responseIntoResult.ts";
++import type { ScrapboxResponse } from "./response.ts";
+ 
+ export interface RESTfullAPIErrorMap {
+   BadRequestError: BadRequestError;
+@@ -27,20 +25,22 @@ export interface RESTfullAPIErrorMap {
+   NotPrivilegeError: NotPrivilegeError;
+ }
+ 
+-/** 失敗した要求からエラー情報を取り出す */
++/** Extract error information from a failed request */
+ export const parseHTTPError = async <
+   ErrorNames extends keyof RESTfullAPIErrorMap,
++  T = unknown,
++  E = unknown,
+ >(
+-  error: HTTPError,
++  response: ScrapboxResponse<T, E>,
+   errorNames: ErrorNames[],
+-): Promise<Maybe<RESTfullAPIErrorMap[ErrorNames]>> => {
+-  const res = error.response.clone();
++): Promise<RESTfullAPIErrorMap[ErrorNames] | undefined> => {
++  const res = response.clone();
+   const isErrorNames = isLiteralOneOf(errorNames);
+   try {
+     const json: unknown = await res.json();
+-    if (!isRecord(json)) return;
++    if (!isRecord(json)) return undefined;
+     if (res.status === 422) {
+-      if (!isString(json.message)) return;
++      if (!isString(json.message)) return undefined;
+       for (
+         const name of [
+           "NoQueryError",
+@@ -48,34 +48,40 @@ export const parseHTTPError = async <
+         ] as (keyof RESTfullAPIErrorMap)[]
+       ) {
+         if (!(errorNames as string[]).includes(name)) continue;
+-        return {
++        const error = {
+           name,
+           message: json.message,
+-        } as unknown as RESTfullAPIErrorMap[ErrorNames];
++        } as RESTfullAPIErrorMap[ErrorNames];
++        Object.assign(response, { error });
++        return error;
+       }
+     }
+-    if (!isErrorNames(json.name)) return;
+-    if (!isString(json.message)) return;
++    if (!isErrorNames(json.name)) return undefined;
++    if (!isString(json.message)) return undefined;
+     if (json.name === "NotLoggedInError") {
+-      if (!isRecord(json.detals)) return;
+-      if (!isString(json.detals.project)) return;
+-      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) return;
+-      return {
++      if (!isRecord(json.detals)) return undefined;
++      if (!isString(json.detals.project)) return undefined;
++      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) return undefined;
++      const error = {
+         name: json.name,
+         message: json.message,
+         details: {
+           project: json.detals.project,
+           loginStrategies: json.detals.loginStrategies,
+         },
+-      } as unknown as RESTfullAPIErrorMap[ErrorNames];
++      } as RESTfullAPIErrorMap[ErrorNames];
++      Object.assign(response, { error });
++      return error;
+     }
+-    return {
++    const error = {
+       name: json.name,
+       message: json.message,
+-    } as unknown as RESTfullAPIErrorMap[ErrorNames];
++    } as RESTfullAPIErrorMap[ErrorNames];
++    Object.assign(response, { error });
++    return error;
+   } catch (e: unknown) {
+-    if (e instanceof SyntaxError) return;
+-    // JSONのparse error以外はそのまま投げる
++    if (e instanceof SyntaxError) return undefined;
++    // Re-throw non-JSON parse errors
+     throw e;
+   }
+ };
+diff --git a/rest/profile.ts b/rest/profile.ts
+index 6e29310..dd684b0 100644
+--- a/rest/profile.ts
++++ b/rest/profile.ts
+@@ -1,36 +1,30 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type { GuestUser, MemberUser } from "@cosense/types/rest";
+ import { cookie } from "./auth.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { FetchError } from "./robustFetch.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ 
+ export interface GetProfile {
+-  /** /api/users/me の要求を組み立てる
++  /** Build request for /api/users/me
+    *
+    * @param init connect.sid etc.
+    * @return request
+    */
+   toRequest: (init?: BaseOptions) => Request;
+ 
+-  /** get the user profile from the given response
++  /** Get user profile from response
+    *
+-   * @param res response
+-   * @return user profile
++   * @param res Response object
++   * @return User profile
+    */
+   fromResponse: (
+     res: Response,
+   ) => Promise<
+-    Result<MemberUser | GuestUser, ProfileError>
++    ScrapboxResponse<MemberUser | GuestUser, ProfileError>
+   >;
+ 
+   (init?: BaseOptions): Promise<
+-    Result<MemberUser | GuestUser, ProfileError | FetchError>
++    ScrapboxResponse<MemberUser | GuestUser, ProfileError | FetchError>
+   >;
+ }
+ 
+@@ -46,20 +40,17 @@ const getProfile_toRequest: GetProfile["toRequest"] = (
+   );
+ };
+ 
+-const getProfile_fromResponse: GetProfile["fromResponse"] = (response) =>
+-  mapAsyncForResult(
+-    responseIntoResult(response),
+-    async (res) => (await res.json()) as MemberUser | GuestUser,
+-  );
++const getProfile_fromResponse: GetProfile["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<MemberUser | GuestUser, ProfileError>(res);
++  return response;
++};
+ 
+ export const getProfile: GetProfile = /* @__PURE__ */ (() => {
+   const fn: GetProfile = async (init) => {
+     const { fetch, ...rest } = setDefaults(init ?? {});
+ 
+-    const resResult = await fetch(getProfile_toRequest(rest));
+-    return isErr(resResult)
+-      ? resResult
+-      : getProfile_fromResponse(unwrapOk(resResult));
++    const response = await fetch(getProfile_toRequest(rest));
++    return getProfile_fromResponse(response);
+   };
+ 
+   fn.toRequest = getProfile_toRequest;
+diff --git a/rest/project.ts b/rest/project.ts
+index 24de85d..b840414 100644
+--- a/rest/project.ts
++++ b/rest/project.ts
+@@ -1,10 +1,3 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   MemberProject,
+   NotFoundError,
+@@ -16,14 +9,14 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { FetchError } from "./robustFetch.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ 
+ export interface GetProject {
+-  /** /api/project/:project の要求を組み立てる
++  /** Build request for /api/project/:project
+    *
+-   * @param project project name to get
++   * @param project Project name to get
+    * @param init connect.sid etc.
+    * @return request
+    */
+@@ -32,20 +25,20 @@ export interface GetProject {
+     options?: BaseOptions,
+   ) => Request;
+ 
+-  /** 帰ってきた応答からprojectのJSONデータを取得する
++  /** Get project JSON data from response
+    *
+-   * @param res 応答
+-   * @return projectのJSONデータ
++   * @param res Response object
++   * @return Project JSON data
+    */
+   fromResponse: (
+     res: Response,
+-  ) => Promise<Result<MemberProject | NotMemberProject, ProjectError>>;
++  ) => Promise<ScrapboxResponse<MemberProject | NotMemberProject, ProjectError>>;
+ 
+   (
+     project: string,
+     options?: BaseOptions,
+   ): Promise<
+-    Result<MemberProject | NotMemberProject, ProjectError | FetchError>
++    ScrapboxResponse<MemberProject | NotMemberProject, ProjectError | FetchError>
+   >;
+ }
+ 
+@@ -64,19 +57,17 @@ const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
+   );
+ };
+ 
+-const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
+-  mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(res),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<MemberProject | NotMemberProject>,
+-  );
++const getProject_fromResponse: GetProject["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<MemberProject | NotMemberProject, ProjectError>(res);
++  
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  return response;
++};
+ 
+ /** get the project information
+  *
+@@ -91,10 +82,8 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
+     const { fetch } = setDefaults(init ?? {});
+ 
+     const req = getProject_toRequest(project, init);
+-    const res = await fetch(req);
+-    if (isErr(res)) return res;
+-
+-    return getProject_fromResponse(unwrapOk(res));
++    const response = await fetch(req);
++    return getProject_fromResponse(response);
+   };
+ 
+   fn.toRequest = getProject_toRequest;
+@@ -104,9 +93,9 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
+ })();
+ 
+ export interface ListProjects {
+-  /** /api/project の要求を組み立てる
++  /** Build request for /api/project
+    *
+-   * @param projectIds project ids. This must have more than 1 id
++   * @param projectIds Project IDs (must have more than 1 ID)
+    * @param init connect.sid etc.
+    * @return request
+    */
+@@ -115,19 +104,19 @@ export interface ListProjects {
+     init?: BaseOptions,
+   ) => Request;
+ 
+-  /** 帰ってきた応答からprojectのJSONデータを取得する
++  /** Get projects JSON data from response
+    *
+-   * @param res 応答
+-   * @return projectのJSONデータ
++   * @param res Response object
++   * @return Projects JSON data
+    */
+   fromResponse: (
+     res: Response,
+-  ) => Promise<Result<ProjectResponse, ListProjectsError>>;
++  ) => Promise<ScrapboxResponse<ProjectResponse, ListProjectsError>>;
+ 
+   (
+     projectIds: ProjectId[],
+     init?: BaseOptions,
+-  ): Promise<Result<ProjectResponse, ListProjectsError | FetchError>>;
++  ): Promise<ScrapboxResponse<ProjectResponse, ListProjectsError | FetchError>>;
+ }
+ 
+ export type ListProjectsError = NotLoggedInError | HTTPError;
+@@ -144,15 +133,13 @@ const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
+   );
+ };
+ 
+-const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
+-  mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(res),
+-      async (error) =>
+-        (await parseHTTPError(error, ["NotLoggedInError"])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<ProjectResponse>,
+-  );
++const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<ProjectResponse, ListProjectsError>(res);
++  
++  await parseHTTPError(response, ["NotLoggedInError"]);
++
++  return response;
++};
+ 
+ /** list the projects' information
+  *
+@@ -166,10 +153,8 @@ export const listProjects: ListProjects = /* @__PURE__ */ (() => {
+   ) => {
+     const { fetch } = setDefaults(init ?? {});
+ 
+-    const res = await fetch(ListProject_toRequest(projectIds, init));
+-    if (isErr(res)) return res;
+-
+-    return ListProject_fromResponse(unwrapOk(res));
++    const response = await fetch(ListProject_toRequest(projectIds, init));
++    return ListProject_fromResponse(response);
+   };
+ 
+   fn.toRequest = ListProject_toRequest;
+diff --git a/rest/replaceLinks.ts b/rest/replaceLinks.ts
+index b89e43e..6d3ef92 100644
+--- a/rest/replaceLinks.ts
++++ b/rest/replaceLinks.ts
+@@ -1,10 +1,3 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   NotFoundError,
+   NotLoggedInError,
+@@ -12,7 +5,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie, getCSRFToken } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { FetchError } from "./robustFetch.ts";
+ import { type ExtendedOptions, setDefaults } from "./options.ts";
+ 
+@@ -38,11 +31,11 @@ export const replaceLinks = async (
+   from: string,
+   to: string,
+   init?: ExtendedOptions,
+-): Promise<Result<number, ReplaceLinksError | FetchError>> => {
++): Promise<ScrapboxResponse<number, ReplaceLinksError | FetchError>> => {
+   const { sid, hostName, fetch } = setDefaults(init ?? {});
+ 
+-  const csrfResult = await getCSRFToken(init);
+-  if (isErr(csrfResult)) return csrfResult;
++  const csrfToken = await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
+ 
+   const req = new Request(
+     `https://${hostName}/api/pages/${project}/replace/links`,
+@@ -50,30 +43,27 @@ export const replaceLinks = async (
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json;charset=utf-8",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+       },
+       body: JSON.stringify({ from, to }),
+     },
+   );
+ 
+-  const resResult = await fetch(req);
+-  if (isErr(resResult)) return resResult;
++  const res = await fetch(req);
++  const response = ScrapboxResponse.from<number, ReplaceLinksError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(resResult)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-        ])) ?? error,
+-    ),
+-    async (res) => {
+-      // messageには"2 pages have been successfully updated!"というような文字列が入っているはず
+-      const { message } = (await res.json()) as { message: string };
+-      return parseInt(message.match(/\d+/)?.[0] ?? "0");
+-    },
+-  );
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  if (response.ok) {
++    // The message contains text like "2 pages have been successfully updated!"
++    const { message } = await response.json() as { message: string };
++    return ScrapboxResponse.ok(parseInt(message.match(/\d+/)?.[0] ?? "0"));
++  }
++
++  return response;
+ };
+diff --git a/rest/response.ts b/rest/response.ts
+new file mode 100644
+index 0000000..ebf2e76
+--- /dev/null
++++ b/rest/response.ts
+@@ -0,0 +1,105 @@
++import type {
++  BadRequestError,
++  InvalidURLError,
++  NoQueryError,
++  NotFoundError,
++  NotLoggedInError,
++  NotMemberError,
++  NotPrivilegeError,
++  SessionError,
++} from "@cosense/types/rest";
++
++/**
++ * A type-safe response class that extends the web standard Response.
++ * It provides status-based type switching and direct access to Response properties.
++ */
++export class ScrapboxResponse<T = unknown, E = unknown> extends Response {
++  error?: E;
++
++  constructor(response: Response) {
++    super(response.body, {
++      status: response.status,
++      statusText: response.statusText,
++      headers: response.headers,
++    });
++  }
++
++  /**
++   * Parse the response body as JSON with type safety based on status code.
++   * Returns T for successful responses (2xx) and E for error responses.
++   */
++  async json(): Promise<T> {
++    const data = await super.json();
++    return data as T;
++  }
++
++  /**
++   * Create a new ScrapboxResponse instance from a Response.
++   */
++  static from<T = unknown, E = unknown>(response: Response): ScrapboxResponse<T, E> {
++    if (response instanceof ScrapboxResponse) {
++      return response;
++    }
++    return new ScrapboxResponse<T, E>(response);
++  }
++
++  /**
++   * Create a new error response with the given error details.
++   */
++  static error<T = unknown, E = unknown>(
++    error: E,
++    init?: ResponseInit,
++  ): ScrapboxResponse<T, E> {
++    const response = new ScrapboxResponse<T, E>(
++      new Response(null, {
++        status: 400,
++        ...init,
++      }),
++    );
++    Object.assign(response, { error });
++    return response;
++  }
++
++  /**
++   * Create a new success response with the given data.
++   */
++  static success<T = unknown, E = unknown>(
++    data: T,
++    init?: ResponseInit,
++  ): ScrapboxResponse<T, E> {
++    return new ScrapboxResponse<T, E>(
++      new Response(JSON.stringify(data), {
++        status: 200,
++        headers: {
++          "Content-Type": "application/json",
++        },
++        ...init,
++      }),
++    );
++  }
++
++  /**
++   * Clone the response while preserving type information and error details.
++   */
++  clone(): ScrapboxResponse<T, E> {
++    const cloned = super.clone();
++    const response = new ScrapboxResponse<T, E>(cloned);
++    if (this.error) {
++      Object.assign(response, { error: this.error });
++    }
++    return response;
++  }
++}
++
++export type ScrapboxErrorResponse<E> = ScrapboxResponse<never, E>;
++export type ScrapboxSuccessResponse<T> = ScrapboxResponse<T, never>;
++
++export type RESTError =
++  | BadRequestError
++  | NotFoundError
++  | NotLoggedInError
++  | NotMemberError
++  | SessionError
++  | InvalidURLError
++  | NoQueryError
++  | NotPrivilegeError;
+diff --git a/rest/robustFetch.ts b/rest/robustFetch.ts
+index e9b5305..8bd4c3e 100644
+--- a/rest/robustFetch.ts
++++ b/rest/robustFetch.ts
+@@ -1,4 +1,4 @@
+-import { createErr, createOk, type Result } from "option-t/plain_result";
++import { ScrapboxResponse } from "./response.ts";
+ 
+ export interface NetworkError {
+   name: "NetworkError";
+@@ -19,38 +19,39 @@ export type FetchError = NetworkError | AbortError;
+  *
+  * @param input - The resource URL or a {@linkcode Request} object.
+  * @param init - An optional object containing request options.
+- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
++ * @returns A promise that resolves to a {@linkcode ScrapboxResponse} object.
+  */
+ export type RobustFetch = (
+   input: RequestInfo | URL,
+   init?: RequestInit,
+-) => Promise<Result<Response, FetchError>>;
++) => Promise<ScrapboxResponse<Response, FetchError>>;
+ 
+ /**
+  * A simple implementation of {@linkcode RobustFetch} that uses {@linkcode fetch}.
+  *
+  * @param input - The resource URL or a {@linkcode Request} object.
+  * @param init - An optional object containing request options.
+- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
++ * @returns A promise that resolves to a {@linkcode ScrapboxResponse} object.
+  */
+ export const robustFetch: RobustFetch = async (input, init) => {
+   const request = new Request(input, init);
+   try {
+-    return createOk(await globalThis.fetch(request));
++    const response = await globalThis.fetch(request);
++    return ScrapboxResponse.from(response);
+   } catch (e: unknown) {
+     if (e instanceof DOMException && e.name === "AbortError") {
+-      return createErr({
++      return ScrapboxResponse.error({
+         name: "AbortError",
+         message: e.message,
+         request,
+-      });
++      }, { status: 499 }); // Use 499 for client closed request
+     }
+     if (e instanceof TypeError) {
+-      return createErr({
++      return ScrapboxResponse.error({
+         name: "NetworkError",
+         message: e.message,
+         request,
+-      });
++      }, { status: 0 }); // Use 0 for network errors
+     }
+     throw e;
+   }
+diff --git a/rest/search.ts b/rest/search.ts
+index 03c4ffc..2b890d1 100644
+--- a/rest/search.ts
++++ b/rest/search.ts
+@@ -1,10 +1,3 @@
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+ import type {
+   NoQueryError,
+   NotFoundError,
+@@ -15,7 +8,7 @@ import type {
+ } from "@cosense/types/rest";
+ import { cookie } from "./auth.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -36,7 +29,7 @@ export const searchForPages = async (
+   query: string,
+   project: string,
+   init?: BaseOptions,
+-): Promise<Result<SearchResult, SearchForPagesError | FetchError>> => {
++): Promise<ScrapboxResponse<SearchResult, SearchForPagesError | FetchError>> => {
+   const { sid, hostName, fetch } = setDefaults(init ?? {});
+ 
+   const req = new Request(
+@@ -47,21 +40,16 @@ export const searchForPages = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
+-
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-          "NoQueryError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<SearchResult>,
+-  );
++  const response = ScrapboxResponse.from<SearchResult, SearchForPagesError>(res);
++
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++    "NoQueryError",
++  ]);
++
++  return response;
+ };
+ 
+ export type SearchForJoinedProjectsError =
+@@ -78,7 +66,7 @@ export const searchForJoinedProjects = async (
+   query: string,
+   init?: BaseOptions,
+ ): Promise<
+-  Result<
++  ScrapboxResponse<
+     ProjectSearchResult,
+     SearchForJoinedProjectsError | FetchError
+   >
+@@ -93,19 +81,14 @@ export const searchForJoinedProjects = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
+-
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotLoggedInError",
+-          "NoQueryError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<ProjectSearchResult>,
+-  );
++  const response = ScrapboxResponse.from<ProjectSearchResult, SearchForJoinedProjectsError>(res);
++
++  await parseHTTPError(response, [
++    "NotLoggedInError",
++    "NoQueryError",
++  ]);
++
++  return response;
+ };
+ 
+ export type SearchForWatchListError = SearchForJoinedProjectsError;
+@@ -125,7 +108,7 @@ export const searchForWatchList = async (
+   projectIds: string[],
+   init?: BaseOptions,
+ ): Promise<
+-  Result<
++  ScrapboxResponse<
+     ProjectSearchResult,
+     SearchForWatchListError | FetchError
+   >
+@@ -143,17 +126,12 @@ export const searchForWatchList = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
+-
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotLoggedInError",
+-          "NoQueryError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<ProjectSearchResult>,
+-  );
++  const response = ScrapboxResponse.from<ProjectSearchResult, SearchForWatchListError>(res);
++
++  await parseHTTPError(response, [
++    "NotLoggedInError",
++    "NoQueryError",
++  ]);
++
++  return response;
+ };
+diff --git a/rest/snapshot.ts b/rest/snapshot.ts
+index 8fdc70c..ff07536 100644
+--- a/rest/snapshot.ts
++++ b/rest/snapshot.ts
+@@ -9,14 +9,7 @@ import type {
+ import { cookie } from "./auth.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+ /** 不正な`timestampId`を渡されたときに発生するエラー */
+@@ -40,7 +33,7 @@ export const getSnapshot = async (
+   pageId: string,
+   timestampId: string,
+   options?: BaseOptions,
+-): Promise<Result<PageSnapshotResult, SnapshotError | FetchError>> => {
++): Promise<ScrapboxResponse<PageSnapshotResult, SnapshotError | FetchError>> => {
+   const { sid, hostName, fetch } = setDefaults(options ?? {});
+ 
+   const req = new Request(
+@@ -49,25 +42,22 @@ export const getSnapshot = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<PageSnapshotResult, SnapshotError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        error.response.status === 422
+-          ? {
+-            name: "InvalidPageSnapshotIdError",
+-            message: await error.response.text(),
+-          }
+-          : (await parseHTTPError(error, [
+-            "NotFoundError",
+-            "NotLoggedInError",
+-            "NotMemberError",
+-          ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<PageSnapshotResult>,
+-  );
++  if (response.status === 422) {
++    return ScrapboxResponse.error({
++      name: "InvalidPageSnapshotIdError",
++      message: await response.text(),
++    });
++  }
++
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  return response;
+ };
+ 
+ export type SnapshotTimestampIdsError =
+@@ -90,7 +80,7 @@ export const getTimestampIds = async (
+   pageId: string,
+   options?: BaseOptions,
+ ): Promise<
+-  Result<PageSnapshotList, SnapshotTimestampIdsError | FetchError>
++  ScrapboxResponse<PageSnapshotList, SnapshotTimestampIdsError | FetchError>
+ > => {
+   const { sid, hostName, fetch } = setDefaults(options ?? {});
+ 
+@@ -100,18 +90,13 @@ export const getTimestampIds = async (
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
++  const response = ScrapboxResponse.from<PageSnapshotList, SnapshotTimestampIdsError>(res);
+ 
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        (await parseHTTPError(error, [
+-          "NotFoundError",
+-          "NotLoggedInError",
+-          "NotMemberError",
+-        ])) ?? error,
+-    ),
+-    (res) => res.json() as Promise<PageSnapshotList>,
+-  );
++  await parseHTTPError(response, [
++    "NotFoundError",
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  return response;
+ };
+diff --git a/rest/table.ts b/rest/table.ts
+index b013265..5cb8688 100644
+--- a/rest/table.ts
++++ b/rest/table.ts
+@@ -6,14 +6,7 @@ import type {
+ import { cookie } from "./auth.ts";
+ import { encodeTitleURI } from "../title.ts";
+ import { type BaseOptions, setDefaults } from "./options.ts";
+-import {
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ import { parseHTTPError } from "./parseHTTPError.ts";
+ import type { FetchError } from "./mod.ts";
+ 
+@@ -34,24 +27,29 @@ const getTable_toRequest: GetTable["toRequest"] = (
+   );
+ };
+ 
+-const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
+-  mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(res),
+-      async (error) =>
+-        error.response.status === 404
+-          ? {
+-            // responseが空文字の時があるので、自前で組み立てる
+-            name: "NotFoundError",
+-            message: "Table not found.",
+-          }
+-          : (await parseHTTPError(error, [
+-            "NotLoggedInError",
+-            "NotMemberError",
+-          ])) ?? error,
+-    ),
+-    (res) => res.text(),
+-  );
++const getTable_fromResponse: GetTable["fromResponse"] = async (res) => {
++  const response = ScrapboxResponse.from<string, TableError>(res);
++
++  if (response.status === 404) {
++    // Build our own error message since the response might be empty
++    return ScrapboxResponse.error({
++      name: "NotFoundError",
++      message: "Table not found.",
++    });
++  }
++
++  await parseHTTPError(response, [
++    "NotLoggedInError",
++    "NotMemberError",
++  ]);
++
++  if (response.ok) {
++    const text = await response.text();
++    return ScrapboxResponse.ok(text);
++  }
++
++  return response;
++};
+ 
+ export type TableError =
+   | NotFoundError
+@@ -80,14 +78,14 @@ export interface GetTable {
+    * @param res 応答
+    * @return ページのJSONデータ
+    */
+-  fromResponse: (res: Response) => Promise<Result<string, TableError>>;
++  fromResponse: (res: Response) => Promise<ScrapboxResponse<string, TableError>>;
+ 
+   (
+     project: string,
+     title: string,
+     filename: string,
+     options?: BaseOptions,
+-  ): Promise<Result<string, TableError | FetchError>>;
++  ): Promise<ScrapboxResponse<string, TableError | FetchError>>;
+ }
+ 
+ /** 指定したテーブルをCSV形式で得る
+@@ -107,8 +105,7 @@ export const getTable: GetTable = /* @__PURE__ */ (() => {
+     const { fetch } = setDefaults(options ?? {});
+     const req = getTable_toRequest(project, title, filename, options);
+     const res = await fetch(req);
+-    if (isErr(res)) return res;
+-    return await getTable_fromResponse(unwrapOk(res));
++    return getTable_fromResponse(res);
+   };
+ 
+   fn.toRequest = getTable_toRequest;
+diff --git a/rest/uploadToGCS.ts b/rest/uploadToGCS.ts
+index 00d6f0a..2861ac3 100644
+--- a/rest/uploadToGCS.ts
++++ b/rest/uploadToGCS.ts
+@@ -7,19 +7,8 @@ import {
+ import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
+ import { md5 } from "@takker/md5";
+ import { encodeHex } from "@std/encoding/hex";
+-import {
+-  createOk,
+-  isErr,
+-  mapAsyncForResult,
+-  mapErrAsyncForResult,
+-  mapForResult,
+-  orElseAsyncForResult,
+-  type Result,
+-  unwrapOk,
+-} from "option-t/plain_result";
+-import { toResultOkFromMaybe } from "option-t/maybe";
+ import type { FetchError } from "./robustFetch.ts";
+-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
++import { ScrapboxResponse } from "./response.ts";
+ 
+ /** uploadしたファイルのメタデータ */
+ export interface GCSFile {
+@@ -46,14 +35,14 @@ export const uploadToGCS = async (
+   file: File,
+   projectId: string,
+   options?: ExtendedOptions,
+-): Promise<Result<GCSFile, UploadGCSError | FetchError>> => {
++): Promise<ScrapboxResponse<GCSFile, UploadGCSError | FetchError>> => {
+   const md5Hash = `${encodeHex(md5(await file.arrayBuffer()))}`;
+   const res = await uploadRequest(file, projectId, md5Hash, options);
+-  if (isErr(res)) return res;
+-  const fileOrRequest = unwrapOk(res);
+-  if ("embedUrl" in fileOrRequest) return createOk(fileOrRequest);
++  if (!res.ok) return res;
++  const fileOrRequest = res.data;
++  if ("embedUrl" in fileOrRequest) return ScrapboxResponse.ok(fileOrRequest);
+   const result = await upload(fileOrRequest.signedUrl, file, options);
+-  if (isErr(result)) return result;
++  if (!result.ok) return result;
+   return verify(projectId, fileOrRequest.fileId, md5Hash, options);
+ };
+ 
+@@ -83,7 +72,7 @@ const uploadRequest = async (
+   md5: string,
+   init?: ExtendedOptions,
+ ): Promise<
+-  Result<GCSFile | UploadRequest, FileCapacityError | FetchError | HTTPError>
++  ScrapboxResponse<GCSFile | UploadRequest, FileCapacityError | FetchError | HTTPError>
+ > => {
+   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+   const body = {
+@@ -92,11 +81,10 @@ const uploadRequest = async (
+     contentType: file.type,
+     name: file.name,
+   };
+-  const csrfResult = await orElseAsyncForResult(
+-    toResultOkFromMaybe(csrf),
+-    () => getCSRFToken(init),
+-  );
+-  if (isErr(csrfResult)) return csrfResult;
++  
++  const csrfToken = csrf ?? await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
++
+   const req = new Request(
+     `https://${hostName}/api/gcs/${projectId}/upload-request`,
+     {
+@@ -104,27 +92,24 @@ const uploadRequest = async (
+       body: JSON.stringify(body),
+       headers: {
+         "Content-Type": "application/json;charset=utf-8",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+       },
+     },
+   );
++  
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
+-
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        error.response.status === 402
+-          ? {
+-            name: "FileCapacityError",
+-            message: (await error.response.json()).message,
+-          } as FileCapacityError
+-          : error,
+-    ),
+-    (res) => res.json(),
+-  );
++  const response = ScrapboxResponse.from<GCSFile | UploadRequest, FileCapacityError | HTTPError>(res);
++
++  if (response.status === 402) {
++    const json = await response.json();
++    return ScrapboxResponse.error({
++      name: "FileCapacityError",
++      message: json.message,
++    } as FileCapacityError);
++  }
++
++  return response;
+ };
+ 
+ /** Google Cloud Storage XML APIのerror
+@@ -140,7 +125,7 @@ const upload = async (
+   signedUrl: string,
+   file: File,
+   init?: BaseOptions,
+-): Promise<Result<undefined, GCSError | FetchError | HTTPError>> => {
++): Promise<ScrapboxResponse<undefined, GCSError | FetchError | HTTPError>> => {
+   const { sid, fetch } = setDefaults(init ?? {});
+   const res = await fetch(
+     signedUrl,
+@@ -153,21 +138,17 @@ const upload = async (
+       },
+     },
+   );
+-  if (isErr(res)) return res;
+-
+-  return mapForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        error.response.headers.get("Content-Type")?.includes?.("/xml")
+-          ? {
+-            name: "GCSError",
+-            message: await error.response.text(),
+-          } as GCSError
+-          : error,
+-    ),
+-    () => undefined,
+-  );
++  
++  const response = ScrapboxResponse.from<undefined, GCSError | HTTPError>(res);
++
++  if (!response.ok && response.headers.get("Content-Type")?.includes?.("/xml")) {
++    return ScrapboxResponse.error({
++      name: "GCSError",
++      message: await response.text(),
++    } as GCSError);
++  }
++
++  return response.ok ? ScrapboxResponse.ok(undefined) : response;
+ };
+ 
+ /** uploadしたファイルの整合性を確認する */
+@@ -176,13 +157,12 @@ const verify = async (
+   fileId: string,
+   md5: string,
+   init?: ExtendedOptions,
+-): Promise<Result<GCSFile, NotFoundError | FetchError | HTTPError>> => {
++): Promise<ScrapboxResponse<GCSFile, NotFoundError | FetchError | HTTPError>> => {
+   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
+-  const csrfResult = await orElseAsyncForResult(
+-    toResultOkFromMaybe(csrf),
+-    () => getCSRFToken(init),
+-  );
+-  if (isErr(csrfResult)) return csrfResult;
++  
++  const csrfToken = csrf ?? await getCSRFToken(init);
++  if (!csrfToken.ok) return csrfToken;
++
+   const req = new Request(
+     `https://${hostName}/api/gcs/${projectId}/verify`,
+     {
+@@ -190,26 +170,22 @@ const verify = async (
+       body: JSON.stringify({ md5, fileId }),
+       headers: {
+         "Content-Type": "application/json;charset=utf-8",
+-        "X-CSRF-TOKEN": unwrapOk(csrfResult),
++        "X-CSRF-TOKEN": csrfToken.data,
+         ...(sid ? { Cookie: cookie(sid) } : {}),
+       },
+     },
+   );
+ 
+   const res = await fetch(req);
+-  if (isErr(res)) return res;
+-
+-  return mapAsyncForResult(
+-    await mapErrAsyncForResult(
+-      responseIntoResult(unwrapOk(res)),
+-      async (error) =>
+-        error.response.status === 404
+-          ? {
+-            name: "NotFoundError",
+-            message: (await error.response.json()).message,
+-          } as NotFoundError
+-          : error,
+-    ),
+-    (res) => res.json(),
+-  );
++  const response = ScrapboxResponse.from<GCSFile, NotFoundError | HTTPError>(res);
++
++  if (response.status === 404) {
++    const json = await response.json();
++    return ScrapboxResponse.error({
++      name: "NotFoundError",
++      message: json.message,
++    } as NotFoundError);
++  }
++
++  return response;
+ };
+-- 
+2.34.1
+

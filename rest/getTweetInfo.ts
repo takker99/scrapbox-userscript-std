@@ -6,8 +6,9 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 export type TweetInfoError =
@@ -25,7 +26,7 @@ export type TweetInfoError =
 export const getTweetInfo = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<ScrapboxResponse<TweetInfo, TweetInfoError | FetchError>> => {
+): Promise<TargetedResponse<200 | 400 | 404 | 422, TweetInfo | TweetInfoError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const csrfToken = await getCSRFToken(init);
@@ -47,11 +48,11 @@ export const getTweetInfo = async (
   );
 
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<TweetInfo, TweetInfoError>(res);
+  const response = createTargetedResponse<200 | 400 | 404 | 422, TweetInfoError>(res);
 
   if (response.status === 422) {
     const json = await response.json();
-    return ScrapboxResponse.error({
+    return createErrorResponse(422, {
       name: "InvalidURLError",
       message: json.message as string,
     });

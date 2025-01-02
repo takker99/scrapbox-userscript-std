@@ -5,8 +5,9 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 export type WebPageTitleError =
@@ -24,7 +25,7 @@ export type WebPageTitleError =
 export const getWebPageTitle = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<ScrapboxResponse<string, WebPageTitleError | FetchError>> => {
+): Promise<TargetedResponse<200 | 400 | 404, string | WebPageTitleError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const csrfToken = await getCSRFToken(init);
@@ -46,7 +47,7 @@ export const getWebPageTitle = async (
   );
 
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<string, WebPageTitleError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, WebPageTitleError>(res);
 
   await parseHTTPError(response, [
     "SessionError",
@@ -56,7 +57,7 @@ export const getWebPageTitle = async (
 
   if (response.ok) {
     const { title } = await response.json() as { title: string };
-    return ScrapboxResponse.ok(title);
+    return createSuccessResponse(title);
   }
 
   return response;

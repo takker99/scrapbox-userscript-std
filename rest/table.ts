@@ -6,8 +6,9 @@ import type {
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import { ScrapboxResponse } from "./response.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
@@ -28,11 +29,11 @@ const getTable_toRequest: GetTable["toRequest"] = (
 };
 
 const getTable_fromResponse: GetTable["fromResponse"] = async (res) => {
-  const response = ScrapboxResponse.from<string, TableError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, TableError>(res);
 
   if (response.status === 404) {
     // Build our own error message since the response might be empty
-    return ScrapboxResponse.error({
+    return createErrorResponse(404, {
       name: "NotFoundError",
       message: "Table not found.",
     });
@@ -45,7 +46,7 @@ const getTable_fromResponse: GetTable["fromResponse"] = async (res) => {
 
   if (response.ok) {
     const text = await response.text();
-    return ScrapboxResponse.ok(text);
+    return createSuccessResponse(text);
   }
 
   return response;
@@ -78,14 +79,14 @@ export interface GetTable {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<ScrapboxResponse<string, TableError>>;
+  fromResponse: (res: Response) => Promise<TargetedResponse<200 | 400 | 404, string | TableError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<ScrapboxResponse<string, TableError | FetchError>>;
+  ): Promise<TargetedResponse<200 | 400 | 404, string | TableError | FetchError>>;
 }
 
 /** 指定したテーブルをCSV形式で得る

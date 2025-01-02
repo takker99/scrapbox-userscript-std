@@ -5,7 +5,8 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
 
@@ -31,7 +32,7 @@ export const replaceLinks = async (
   from: string,
   to: string,
   init?: ExtendedOptions,
-): Promise<ScrapboxResponse<number, ReplaceLinksError | FetchError>> => {
+): Promise<TargetedResponse<200 | 400 | 404, number | ReplaceLinksError | FetchError>> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const csrfToken = await getCSRFToken(init);
@@ -51,7 +52,7 @@ export const replaceLinks = async (
   );
 
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<number, ReplaceLinksError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, number | ReplaceLinksError>(res);
 
   await parseHTTPError(response, [
     "NotFoundError",
@@ -62,7 +63,7 @@ export const replaceLinks = async (
   if (response.ok) {
     // The message contains text like "2 pages have been successfully updated!"
     const { message } = await response.json() as { message: string };
-    return ScrapboxResponse.ok(parseInt(message.match(/\d+/)?.[0] ?? "0"));
+    return createSuccessResponse(parseInt(message.match(/\d+/)?.[0] ?? "0"));
   }
 
   return response;

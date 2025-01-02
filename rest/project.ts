@@ -9,7 +9,8 @@ import type {
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
@@ -32,13 +33,13 @@ export interface GetProject {
    */
   fromResponse: (
     res: Response,
-  ) => Promise<ScrapboxResponse<MemberProject | NotMemberProject, ProjectError>>;
+  ) => Promise<TargetedResponse<200 | 400 | 404, MemberProject | NotMemberProject | ProjectError>>;
 
   (
     project: string,
     options?: BaseOptions,
   ): Promise<
-    ScrapboxResponse<MemberProject | NotMemberProject, ProjectError | FetchError>
+    TargetedResponse<200 | 400 | 404, MemberProject | NotMemberProject | ProjectError | FetchError>
   >;
 }
 
@@ -58,7 +59,7 @@ const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
 };
 
 const getProject_fromResponse: GetProject["fromResponse"] = async (res) => {
-  const response = ScrapboxResponse.from<MemberProject | NotMemberProject, ProjectError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, MemberProject | NotMemberProject | ProjectError>(res);
   
   await parseHTTPError(response, [
     "NotFoundError",
@@ -111,12 +112,12 @@ export interface ListProjects {
    */
   fromResponse: (
     res: Response,
-  ) => Promise<ScrapboxResponse<ProjectResponse, ListProjectsError>>;
+  ) => Promise<TargetedResponse<200 | 400 | 404, ProjectResponse | ListProjectsError>>;
 
   (
     projectIds: ProjectId[],
     init?: BaseOptions,
-  ): Promise<ScrapboxResponse<ProjectResponse, ListProjectsError | FetchError>>;
+  ): Promise<TargetedResponse<200 | 400 | 404, ProjectResponse | ListProjectsError | FetchError>>;
 }
 
 export type ListProjectsError = NotLoggedInError | HTTPError;
@@ -134,7 +135,7 @@ const ListProject_toRequest: ListProjects["toRequest"] = (projectIds, init) => {
 };
 
 const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) => {
-  const response = ScrapboxResponse.from<ProjectResponse, ListProjectsError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, ProjectResponse | ListProjectsError>(res);
   
   await parseHTTPError(response, ["NotLoggedInError"]);
 

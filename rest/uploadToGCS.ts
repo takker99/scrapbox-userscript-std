@@ -8,7 +8,8 @@ import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
 import { md5 } from "@takker/md5";
 import { encodeHex } from "@std/encoding/hex";
 import type { FetchError } from "./robustFetch.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 
 /** uploadしたファイルのメタデータ */
 export interface GCSFile {
@@ -35,12 +36,12 @@ export const uploadToGCS = async (
   file: File,
   projectId: string,
   options?: ExtendedOptions,
-): Promise<ScrapboxResponse<GCSFile, UploadGCSError | FetchError>> => {
+): Promise<TargetedResponse<200 | 400 | 402 | 404, GCSFile | UploadGCSError | FetchError>> => {
   const md5Hash = `${encodeHex(md5(await file.arrayBuffer()))}`;
   const res = await uploadRequest(file, projectId, md5Hash, options);
   if (!res.ok) return res;
   const fileOrRequest = res.data;
-  if ("embedUrl" in fileOrRequest) return ScrapboxResponse.ok(fileOrRequest);
+  if ("embedUrl" in fileOrRequest) return createSuccessResponse(fileOrRequest);
   const result = await upload(fileOrRequest.signedUrl, file, options);
   if (!result.ok) return result;
   return verify(projectId, fileOrRequest.fileId, md5Hash, options);
@@ -99,11 +100,11 @@ const uploadRequest = async (
   );
   
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<GCSFile | UploadRequest, FileCapacityError | HTTPError>(res);
+  const response = createTargetedResponse<200 | 400 | 402 | 404, GCSFile | UploadRequest | FileCapacityError | HTTPError>(res);
 
   if (response.status === 402) {
     const json = await response.json();
-    return ScrapboxResponse.error({
+    return createErrorResponse(402, {
       name: "FileCapacityError",
       message: json.message,
     } as FileCapacityError);
@@ -125,7 +126,7 @@ const upload = async (
   signedUrl: string,
   file: File,
   init?: BaseOptions,
-): Promise<ScrapboxResponse<undefined, GCSError | FetchError | HTTPError>> => {
+): Promise<TargetedResponse<200 | 400 | 404, undefined | GCSError | FetchError | HTTPError>> => {
   const { sid, fetch } = setDefaults(init ?? {});
   const res = await fetch(
     signedUrl,
@@ -139,16 +140,16 @@ const upload = async (
     },
   );
   
-  const response = ScrapboxResponse.from<undefined, GCSError | HTTPError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, undefined | GCSError | HTTPError>(res);
 
   if (!response.ok && response.headers.get("Content-Type")?.includes?.("/xml")) {
-    return ScrapboxResponse.error({
+    return createErrorResponse(400, {
       name: "GCSError",
       message: await response.text(),
     } as GCSError);
   }
 
-  return response.ok ? ScrapboxResponse.ok(undefined) : response;
+  return response.ok ? createSuccessResponse(undefined) : response;
 };
 
 /** uploadしたファイルの整合性を確認する */
@@ -157,7 +158,7 @@ const verify = async (
   fileId: string,
   md5: string,
   init?: ExtendedOptions,
-): Promise<ScrapboxResponse<GCSFile, NotFoundError | FetchError | HTTPError>> => {
+): Promise<TargetedResponse<200 | 400 | 404, GCSFile | NotFoundError | FetchError | HTTPError>> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   
   const csrfToken = csrf ?? await getCSRFToken(init);
@@ -177,11 +178,11 @@ const verify = async (
   );
 
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<GCSFile, NotFoundError | HTTPError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, GCSFile | NotFoundError | HTTPError>(res);
 
   if (response.status === 404) {
     const json = await response.json();
-    return ScrapboxResponse.error({
+    return createErrorResponse(404, {
       name: "NotFoundError",
       message: json.message,
     } as NotFoundError);

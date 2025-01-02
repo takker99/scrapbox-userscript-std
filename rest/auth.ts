@@ -1,5 +1,6 @@
 import { getProfile } from "./profile.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse } from "./utils.ts";
 import type { HTTPError } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 import type { ExtendedOptions } from "./options.ts";
@@ -16,11 +17,11 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  */
 export const getCSRFToken = async (
   init?: ExtendedOptions,
-): Promise<ScrapboxResponse<string, NetworkError | AbortError | HTTPError>> => {
+): Promise<TargetedResponse<200 | 400 | 404 | 0 | 499, string | NetworkError | AbortError | HTTPError>> => {
   // deno-lint-ignore no-explicit-any
   const csrf = init?.csrf ?? (globalThis as any)._csrf;
-  if (csrf) return ScrapboxResponse.ok(csrf);
+  if (csrf) return createSuccessResponse(csrf);
 
   const profile = await getProfile(init);
-  return profile.ok ? ScrapboxResponse.ok(profile.data.csrfToken) : profile;
+  return profile.ok ? createSuccessResponse(profile.data.csrfToken) : profile;
 };

@@ -1,8 +1,9 @@
 import type { NotLoggedInError } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
+import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 export interface GetGyazoTokenOptions extends BaseOptions {
@@ -22,7 +23,7 @@ export type GyazoTokenError = NotLoggedInError | HTTPError;
  */
 export const getGyazoToken = async (
   init?: GetGyazoTokenOptions,
-): Promise<ScrapboxResponse<string | undefined, GyazoTokenError | FetchError>> => {
+): Promise<TargetedResponse<200 | 400 | 404, string | undefined | GyazoTokenError | FetchError>> => {
   const { fetch, sid, hostName, gyazoTeamsName } = setDefaults(init ?? {});
   const req = new Request(
     `https://${hostName}/api/login/gyazo/oauth-upload/token${
@@ -32,13 +33,13 @@ export const getGyazoToken = async (
   );
 
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<string | undefined, GyazoTokenError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, GyazoTokenError>(res);
 
   await parseHTTPError(response, ["NotLoggedInError"]);
 
   if (response.ok) {
     const json = await response.json();
-    return ScrapboxResponse.ok(json.token as string | undefined);
+    return createSuccessResponse(json.token as string | undefined);
   }
 
   return response;
