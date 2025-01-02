@@ -1,13 +1,22 @@
 import { statusBar } from "./dom.ts";
 
 export interface UseStatusBarResult {
-  /** 取得した.status-barの領域に情報を表示する */
+  /** Display information in the acquired status bar section
+   * 
+   * @param items Array of items to display (text, icons, or groups)
+   */
   render: (...items: Item[]) => void;
-  /** 取得した.statusb-barの領域を削除する */
+  /** Remove the acquired status bar section and clean up resources */
   dispose: () => void;
 }
 
-/** .status-barの一区画を取得し、各種操作函数を返す */
+/** Get a section of the status bar and return functions to manipulate it
+ * 
+ * The status bar is divided into sections, each managed independently.
+ * This hook creates a new section and provides methods to:
+ * - Display information (text and icons) in the section
+ * - Remove the section when it's no longer needed
+ */
 export const useStatusBar = (): UseStatusBarResult => {
   const bar = statusBar();
   if (!bar) throw new Error(`div.status-bar can't be found`);
@@ -67,21 +76,33 @@ const makeItem = (child: string | Node) => {
   return span;
 };
 
-/** スピナーを作る */
+/** Create a loading spinner icon
+ * 
+ * Creates a FontAwesome spinner icon wrapped in a status bar item.
+ * Use this to indicate loading or processing states.
+ */
 const makeSpinner = () => {
   const i = document.createElement("i");
   i.classList.add("fa", "fa-spinner");
   return makeItem(i);
 };
 
-/** チェックマークを作る */
+/** Create a checkmark icon
+ * 
+ * Creates a Kamon checkmark icon wrapped in a status bar item.
+ * Use this to indicate successful completion or confirmation.
+ */
 const makeCheckCircle = () => {
   const i = document.createElement("i");
   i.classList.add("kamon", "kamon-check-circle");
   return makeItem(i);
 };
 
-/** 警告アイコンを作る */
+/** Create a warning icon
+ * 
+ * Creates a FontAwesome warning triangle icon wrapped in a status bar item.
+ * Use this to indicate warnings, errors, or important notices.
+ */
 const makeExclamationTriangle = () => {
   const i = document.createElement("i");
   i.classList.add("fas", "fa-exclamation-triangle");
