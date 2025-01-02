@@ -21,12 +21,12 @@ import { toResultOkFromMaybe } from "option-t/maybe";
 import type { FetchError } from "./robustFetch.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 
-/** uploadしたファイルのメタデータ */
+/** Metadata for the uploaded file */
 export interface GCSFile {
-  /** uploadしたファイルのURL */
+  /** URL of the uploaded file */
   embedUrl: string;
 
-  /** uploadしたファイルの名前 */
+  /** Original name of the uploaded file */
   originalName: string;
 }
 
@@ -36,11 +36,11 @@ export type UploadGCSError =
   | FileCapacityError
   | HTTPError;
 
-/** 任意のファイルをscrapbox.ioにuploadする
+/** Upload any file to scrapbox.io
  *
- * @param file uploadしたいファイル
- * @param projectId upload先projectのid
- * @return 成功したら、ファイルのクラウド上のURLなどが返ってくる
+ * @param file File to upload
+ * @param projectId ID of the target project
+ * @return On success, returns the file's cloud URL and other metadata
  */
 export const uploadToGCS = async (
   file: File,
@@ -57,25 +57,25 @@ export const uploadToGCS = async (
   return verify(projectId, fileOrRequest.fileId, md5Hash, options);
 };
 
-/** 容量を使い切ったときに発生するerror */
+/** Error that occurs when storage capacity is exceeded */
 export interface FileCapacityError extends ErrorLike {
   name: "FileCapacityError";
 }
 
 interface UploadRequest {
-  /** upload先URL */
+  /** Signed URL for uploading the file */
   signedUrl: string;
 
-  /** uploadしたファイルに紐付けられる予定のfile id */
+  /** File ID that will be associated with the uploaded file */
   fileId: string;
 }
 
-/** ファイルのuploadを要求する
+/** Request file upload authorization
  *
- * @param file uploadしたいファイル
- * @param projectId upload先projectのid
- * @param md5 uploadしたいファイルのMD5 hash (16進数)
- * @return すでにuploadされていればファイルのURLを、まだの場合はupload先URLを返す
+ * @param file File to upload
+ * @param projectId ID of the target project
+ * @param md5 MD5 hash of the file (hexadecimal)
+ * @return Returns file URL if already uploaded, or upload destination URL if not
  */
 const uploadRequest = async (
   file: File,
@@ -127,15 +127,15 @@ const uploadRequest = async (
   );
 };
 
-/** Google Cloud Storage XML APIのerror
+/** Google Cloud Storage XML API error
  *
- * `message`には[この形式](https://cloud.google.com/storage/docs/xml-api/reference-status#http-status-and-error-codes)のXMLが入る
+ * The `message` field contains XML in [this format](https://cloud.google.com/storage/docs/xml-api/reference-status#http-status-and-error-codes)
  */
 export interface GCSError extends ErrorLike {
   name: "GCSError";
 }
 
-/** ファイルをuploadする */
+/** Upload the file to storage */
 const upload = async (
   signedUrl: string,
   file: File,
@@ -170,7 +170,7 @@ const upload = async (
   );
 };
 
-/** uploadしたファイルの整合性を確認する */
+/** Verify the integrity of the uploaded file */
 const verify = async (
   projectId: string,
   fileId: string,
