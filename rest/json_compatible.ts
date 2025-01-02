@@ -6,7 +6,7 @@ export type { IsAny, JsonValue };
  * Check if a property {@linkcode K} is optional in {@linkcode T}.
  *
  * ```ts
- * import type { Assert } from "@std/testing/types";
+ * import type { Assert } from "jsr:/@std/testing@^1.0.8/types";
  *
  * type _1 = Assert<IsOptional<{ a?: number }, "a">, true>;
  * type _2 = Assert<IsOptional<{ a?: undefined }, "a">, true>;
@@ -26,8 +26,8 @@ export type IsOptional<T, K extends keyof T> =
  * A type that is compatible with JSON.
  *
  * ```ts
- * import type { JsonValue } from "@std/json/types";
- * import { assertType } from "@std/testing/types";
+ * import type { JsonValue } from "jsr:/@std/json@^1.0.1/types";
+ * import { assertType } from "jsr:/@std/testing@^1.0.8/types";
  *
  * type IsJsonCompatible<T> = [T] extends [JsonCompatible<T>] ? true : false;
  *
