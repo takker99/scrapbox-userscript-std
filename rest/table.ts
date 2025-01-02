@@ -41,7 +41,7 @@ const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
       async (error) =>
         error.response.status === 404
           ? {
-            // responseが空文字の時があるので、自前で組み立てる
+            // Build error manually since response may be an empty string
             name: "NotFoundError",
             message: "Table not found.",
           }
@@ -60,13 +60,13 @@ export type TableError =
   | HTTPError;
 
 export interface GetTable {
-  /** /api/table/:project/:title/:filename.csv の要求を組み立てる
+  /** Build a request for /api/table/:project/:title/:filename.csv endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param filename テーブルの名前
-   * @param options オプション
-   * @return request
+   * @param project Name of the project containing the target page
+   * @param title Title of the page (case-insensitive)
+   * @param filename Name of the table to retrieve
+   * @param options Additional configuration options
+   * @return request object
    */
   toRequest: (
     project: string,
@@ -75,10 +75,10 @@ export interface GetTable {
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extract page JSON data from the response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res Response from the server
+   * @return Page data in JSON format
    */
   fromResponse: (res: Response) => Promise<Result<string, TableError>>;
 
@@ -90,12 +90,12 @@ export interface GetTable {
   ): Promise<Result<string, TableError | FetchError>>;
 }
 
-/** 指定したテーブルをCSV形式で得る
+/** Retrieve a specified table in CSV format
  *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param filename テーブルの名前
- * @param options オプション
+ * @param project Name of the project containing the target page
+ * @param title Title of the page (case-insensitive)
+ * @param filename Name of the table to retrieve
+ * @param options Additional configuration options
  */
 export const getTable: GetTable = /* @__PURE__ */ (() => {
   const fn: GetTable = async (
