@@ -1,25 +1,25 @@
 import { textInput } from "./dom.ts";
 
-/** editor上の位置情報 */
+/** Position information within the editor */
 export interface Position {
-  /** 行数 */ line: number;
-  /** 何文字目の後ろにいるか */ char: number;
+  /** Line number (1-based) */ line: number;
+  /** Character offset within the line (0-based) */ char: number;
 }
 
-/** 選択範囲を表すデータ
+/** Represents a text selection range in the editor
  *
- * 選択範囲がないときは、開始と終了が同じ位置になる
+ * When no text is selected, start and end positions are the same (cursor position)
  */
 export interface Range {
-  /** 選択範囲の開始位置 */ start: Position;
-  /** 選択範囲の終了位置 */ end: Position;
+  /** Starting position of the selection */ start: Position;
+  /** Ending position of the selection */ end: Position;
 }
 
-/** #text-inputを構築しているReact Componentに含まれるカーソルの情報 */
+/** Cursor information contained within the React Component that builds #text-input */
 export interface CaretInfo {
-  /** カーソルの位置 */ position: Position;
-  /** 選択範囲中の文字列 */ selectedText: string;
-  /** 選択範囲の位置 */ selectionRange: Range;
+  /** Current cursor position */ position: Position;
+  /** Currently selected text */ selectedText: string;
+  /** Range of the current selection */ selectionRange: Range;
 }
 
 interface ReactFiber {
@@ -32,10 +32,10 @@ interface ReactFiber {
   };
 }
 
-/** 現在のカーソルと選択範囲の位置情報を取得する
+/** Retrieves the current cursor position and text selection information
  *
- * @return カーソルと選択範囲の情報
- * @throws {Error} #text-inputとReact Componentの隠しpropertyが見つからなかった
+ * @return Information about cursor position and text selection
+ * @throws {Error} When #text-input element or React Component's internal properties are not found
  */
 export const caret = (): CaretInfo => {
   const textarea = textInput();
@@ -51,7 +51,7 @@ export const caret = (): CaretInfo => {
     );
   }
 
-  // @ts-ignore DOMを無理矢理objectとして扱っている
+  // @ts-ignore Forcefully treating DOM element as an object to access React internals
   return (textarea[
     reactKey
   ] as ReactFiber).return.return.stateNode.props;
