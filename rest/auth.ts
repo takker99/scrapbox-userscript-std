@@ -1,6 +1,6 @@
 import { getProfile } from "./profile.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createErrorResponse, createSuccessResponse } from "./utils.ts";
+import { type createErrorResponse, createSuccessResponse } from "./utils.ts";
 import type { HTTPError } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 import type { ExtendedOptions } from "./options.ts";

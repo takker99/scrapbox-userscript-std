@@ -11,6 +11,7 @@ import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
+import { createErrorResponse, createSuccessResponse } from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */

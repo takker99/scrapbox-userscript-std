@@ -10,8 +10,8 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  createErrorResponse,
-  createSuccessResponse,
+  type createErrorResponse,
+  type createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
@@ -79,9 +79,9 @@ export const searchForJoinedProjects = async (
   query: string,
   init?: BaseOptions,
 ): Promise<
-  ScrapboxResponse<
-    ProjectSearchResult,
-    SearchForJoinedProjectsError | FetchError
+  TargetedResponse<
+    200 | 400 | 404,
+    ProjectSearchResult | SearchForJoinedProjectsError | FetchError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
@@ -124,9 +124,9 @@ export const searchForWatchList = async (
   projectIds: string[],
   init?: BaseOptions,
 ): Promise<
-  ScrapboxResponse<
-    ProjectSearchResult,
-    SearchForWatchListError | FetchError
+  TargetedResponse<
+    200 | 400 | 404,
+    ProjectSearchResult | SearchForWatchListError | FetchError
   >
 > => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
