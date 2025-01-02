@@ -8,7 +8,7 @@ import type {
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createErrorResponse, createSuccessResponse } from "./utils.ts";
+import { createErrorResponse as _createErrorResponse, createSuccessResponse as _createSuccessResponse } from "./utils.ts";
 import {
   type BaseOptions,
   type ExtendedOptions,

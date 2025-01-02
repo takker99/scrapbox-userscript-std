@@ -13,7 +13,7 @@ import { isLiteralOneOf } from "@core/unknownutil/is/literal-one-of";
 import { isRecord } from "@core/unknownutil/is/record";
 import { isString } from "@core/unknownutil/is/string";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createErrorResponse } from "./utils.ts";
+import { createErrorResponse as _createErrorResponse } from "./utils.ts";
 
 export interface RESTfullAPIErrorMap {
   BadRequestError: BadRequestError;

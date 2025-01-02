@@ -10,7 +10,7 @@ import { type ExtendedOptions, setDefaults } from "./options.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
   createErrorResponse,
-  type createSuccessResponse,
+  createSuccessResponse as _createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";
 import type { FetchError } from "./mod.ts";
