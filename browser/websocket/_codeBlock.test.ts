@@ -22,7 +22,8 @@ Deno.test("extractFromCodeTitle()", async (t) => {
 
   await t.step("inaccurate titles", async (st) => {
     const nonTitles = [
-      "  code: foo. ", // コードブロックにはならないので`null`が正常
+      "  code: foo. ", // Not recognized as a code block due to trailing dot without extension
+                               // Returning `null` is expected as this format is invalid
       "any:code: foo ",
       " I'm not code block ",
     ];
