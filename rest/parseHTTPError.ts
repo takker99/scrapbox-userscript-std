@@ -12,7 +12,7 @@ import { isArrayOf } from "@core/unknownutil/is/array-of";
 import { isLiteralOneOf } from "@core/unknownutil/is/literal-one-of";
 import { isRecord } from "@core/unknownutil/is/record";
 import { isString } from "@core/unknownutil/is/string";
-import type { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
 
 export interface RESTfullAPIErrorMap {
   BadRequestError: BadRequestError;
@@ -61,7 +61,9 @@ export const parseHTTPError = async <
     if (json.name === "NotLoggedInError") {
       if (!isRecord(json.detals)) return undefined;
       if (!isString(json.detals.project)) return undefined;
-      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) return undefined;
+      if (!isArrayOf(isLoginStrategies)(json.detals.loginStrategies)) {
+        return undefined;
+      }
       const error = {
         name: json.name,
         message: json.message,

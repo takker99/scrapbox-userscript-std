@@ -1,7 +1,11 @@
 import type { GuestUser, MemberUser } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
@@ -25,7 +29,10 @@ export interface GetProfile {
   >;
 
   (init?: BaseOptions): Promise<
-    TargetedResponse<200 | 400 | 404 | 0 | 499, MemberUser | GuestUser | ProfileError | FetchError>
+    TargetedResponse<
+      200 | 400 | 404 | 0 | 499,
+      MemberUser | GuestUser | ProfileError | FetchError
+    >
   >;
 }
 
@@ -42,7 +49,10 @@ const getProfile_toRequest: GetProfile["toRequest"] = (
 };
 
 const getProfile_fromResponse: GetProfile["fromResponse"] = async (res) => {
-  const response = createTargetedResponse<200 | 400 | 404, MemberUser | GuestUser | ProfileError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    MemberUser | GuestUser | ProfileError
+  >(res);
   return response;
 };
 

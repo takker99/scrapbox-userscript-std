@@ -8,7 +8,11 @@ import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
@@ -30,7 +34,10 @@ const getCodeBlock_toRequest: GetCodeBlock["toRequest"] = (
 const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) => {
   const response = createTargetedResponse<200 | 400 | 404, CodeBlockError>(res);
 
-  if (response.status === 404 && response.headers.get("Content-Type")?.includes?.("text/plain")) {
+  if (
+    response.status === 404 &&
+    response.headers.get("Content-Type")?.includes?.("text/plain")
+  ) {
     return createErrorResponse(404, {
       name: "NotFoundError",
       message: "Code block is not found",
@@ -71,14 +78,18 @@ export interface GetCodeBlock {
    * @param res 応答
    * @return コード
    */
-  fromResponse: (res: Response) => Promise<TargetedResponse<200 | 400 | 404, string | CodeBlockError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, string | CodeBlockError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<TargetedResponse<200 | 400 | 404, string | CodeBlockError | FetchError>>;
+  ): Promise<
+    TargetedResponse<200 | 400 | 404, string | CodeBlockError | FetchError>
+  >;
 }
 export type CodeBlockError =
   | NotFoundError

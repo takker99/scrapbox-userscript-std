@@ -113,11 +113,11 @@ export type IsOptional<T, K extends keyof T> =
 export type JsonCompatible<T> =
   // deno-lint-ignore ban-types
   [Extract<T, Function | symbol | undefined>] extends [never] ? {
-    [K in keyof T]: [IsAny<T[K]>] extends [true] ? never
-      : T[K] extends JsonValue ? T[K]
-      : [IsOptional<T, K>] extends [true]
-        ? JsonCompatible<Exclude<T[K], undefined>> | Extract<T[K], undefined>
-      : undefined extends T[K] ? never
-      : JsonCompatible<T[K]>;
-  }
-  : never;
+      [K in keyof T]: [IsAny<T[K]>] extends [true] ? never
+        : T[K] extends JsonValue ? T[K]
+        : [IsOptional<T, K>] extends [true]
+          ? JsonCompatible<Exclude<T[K], undefined>> | Extract<T[K], undefined>
+        : undefined extends T[K] ? never
+        : JsonCompatible<T[K]>;
+    }
+    : never;

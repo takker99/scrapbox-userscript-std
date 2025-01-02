@@ -4,10 +4,12 @@
 
 ### REST API Changes
 
-The REST API has been completely redesigned to improve type safety, reduce dependencies, and better align with web standards. The main changes are:
+The REST API has been completely redesigned to improve type safety, reduce
+dependencies, and better align with web standards. The main changes are:
 
 1. Removal of `option-t` dependency
-   - All `Result` types from `option-t/plain_result` have been replaced with `ScrapboxResponse`
+   - All `Result` types from `option-t/plain_result` have been replaced with
+     `ScrapboxResponse`
    - No more `unwrapOk`, `isErr`, or other option-t utilities
 
 2. New `ScrapboxResponse` class
@@ -19,6 +21,7 @@ The REST API has been completely redesigned to improve type safety, reduce depen
 ### Before and After Examples
 
 #### Before (v0.29.x):
+
 ```typescript
 import { isErr, unwrapOk } from "option-t/plain_result";
 
@@ -32,6 +35,7 @@ console.log("Name:", profile.name);
 ```
 
 #### After (v0.30.0):
+
 ```typescript
 const response = await getProfile();
 if (!response.ok) {
@@ -83,10 +87,10 @@ console.log("Name:", response.data.name);
    ```typescript
    // Access headers
    const contentType = response.headers.get("content-type");
-   
+
    // Access raw body
    const text = await response.text();
-   
+
    // Parse JSON with type safety
    const json = await response.json();
    ```
@@ -94,6 +98,7 @@ console.log("Name:", response.data.name);
 ### Common Patterns
 
 1. **Status-based Error Handling**:
+
 ```typescript
 const response = await getSnapshot(project, pageId, timestampId);
 
@@ -114,15 +119,17 @@ console.log(response.data);
 ```
 
 2. **Type-safe JSON Parsing**:
+
 ```typescript
 const response = await getTweetInfo(tweetUrl);
 if (response.ok) {
-  const tweet = response.data;  // Properly typed as TweetInfo
+  const tweet = response.data; // Properly typed as TweetInfo
   console.log(tweet.text);
 }
 ```
 
 3. **Working with Headers**:
+
 ```typescript
 const response = await uploadToGCS(file, projectId);
 if (!response.ok && response.headers.get("Content-Type")?.includes("/xml")) {
@@ -134,6 +141,8 @@ if (!response.ok && response.headers.get("Content-Type")?.includes("/xml")) {
 ### Need Help?
 
 If you encounter any issues during migration, please:
+
 1. Check the examples in this guide
-2. Review the [API documentation](https://jsr.io/@takker/scrapbox-userscript-std)
+2. Review the
+   [API documentation](https://jsr.io/@takker/scrapbox-userscript-std)
 3. Open an issue on GitHub if you need further assistance

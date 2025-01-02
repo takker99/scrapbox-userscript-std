@@ -7,7 +7,11 @@ import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { type ExtendedOptions, setDefaults } from "./options.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 export type WebPageTitleError =
@@ -25,7 +29,9 @@ export type WebPageTitleError =
 export const getWebPageTitle = async (
   url: string | URL,
   init?: ExtendedOptions,
-): Promise<TargetedResponse<200 | 400 | 404, string | WebPageTitleError | FetchError>> => {
+): Promise<
+  TargetedResponse<200 | 400 | 404, string | WebPageTitleError | FetchError>
+> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const csrfToken = await getCSRFToken(init);
@@ -47,7 +53,9 @@ export const getWebPageTitle = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, WebPageTitleError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, WebPageTitleError>(
+    res,
+  );
 
   await parseHTTPError(response, [
     "SessionError",

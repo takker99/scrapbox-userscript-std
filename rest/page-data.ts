@@ -7,7 +7,7 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
 import {
   type BaseOptions,
   type ExtendedOptions,
@@ -29,7 +29,9 @@ export const importPages = async (
 ): Promise<
   ScrapboxResponse<string, ImportPagesError | FetchError>
 > => {
-  if (data.pages.length === 0) return ScrapboxResponse.ok("No pages to import.");
+  if (data.pages.length === 0) {
+    return ScrapboxResponse.ok("No pages to import.");
+  }
 
   const { sid, hostName, fetch } = setDefaults(init ?? {});
   const formData = new FormData();
@@ -96,7 +98,10 @@ export const exportPages = async <withMetadata extends true | false>(
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
   const res = await fetch(req);
-  const response = ScrapboxResponse.from<ExportedData<withMetadata>, ExportPagesError>(res);
+  const response = ScrapboxResponse.from<
+    ExportedData<withMetadata>,
+    ExportPagesError
+  >(res);
 
   await parseHTTPError(response, [
     "NotFoundError",

@@ -9,7 +9,11 @@ import type {
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
@@ -30,7 +34,12 @@ export const searchForPages = async (
   query: string,
   project: string,
   init?: BaseOptions,
-): Promise<TargetedResponse<200 | 400 | 404, SearchResult | SearchForPagesError | FetchError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404,
+    SearchResult | SearchForPagesError | FetchError
+  >
+> => {
   const { sid, hostName, fetch } = setDefaults(init ?? {});
 
   const req = new Request(
@@ -41,7 +50,10 @@ export const searchForPages = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, SearchResult | SearchForPagesError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    SearchResult | SearchForPagesError
+  >(res);
 
   await parseHTTPError(response, [
     "NotFoundError",
@@ -82,7 +94,10 @@ export const searchForJoinedProjects = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, ProjectSearchResult | SearchForJoinedProjectsError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    ProjectSearchResult | SearchForJoinedProjectsError
+  >(res);
 
   await parseHTTPError(response, [
     "NotLoggedInError",
@@ -127,7 +142,10 @@ export const searchForWatchList = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, ProjectSearchResult | SearchForWatchListError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    ProjectSearchResult | SearchForWatchListError
+  >(res);
 
   await parseHTTPError(response, [
     "NotLoggedInError",

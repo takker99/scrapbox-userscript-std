@@ -10,7 +10,7 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import { ScrapboxResponse } from "./response.ts";
+import type { TargetedResponse } from "./targeted_response.ts";
 import type { FetchError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */
@@ -48,7 +48,7 @@ const getPage_toRequest: GetPage["toRequest"] = (
 
 const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
   const response = ScrapboxResponse.from<Page, PageError>(res);
-  
+
   if (response.status === 414) {
     return ScrapboxResponse.error({
       name: "TooLongURIError",
@@ -168,7 +168,9 @@ export interface ListPages {
    * @param res Response object
    * @return Page list JSON data
    */
-  fromResponse: (res: Response) => Promise<ScrapboxResponse<PageList, ListPagesError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<ScrapboxResponse<PageList, ListPagesError>>;
 
   (
     project: string,
@@ -199,7 +201,7 @@ const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
 
 const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
   const response = ScrapboxResponse.from<PageList, ListPagesError>(res);
-  
+
   await parseHTTPError(response, [
     "NotFoundError",
     "NotLoggedInError",

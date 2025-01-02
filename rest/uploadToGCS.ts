@@ -9,7 +9,11 @@ import { md5 } from "@takker/md5";
 import { encodeHex } from "@std/encoding/hex";
 import type { FetchError } from "./robustFetch.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 
 /** uploadしたファイルのメタデータ */
 export interface GCSFile {
@@ -36,7 +40,9 @@ export const uploadToGCS = async (
   file: File,
   projectId: string,
   options?: ExtendedOptions,
-): Promise<TargetedResponse<200 | 400 | 402 | 404, GCSFile | UploadGCSError | FetchError>> => {
+): Promise<
+  TargetedResponse<200 | 400 | 402 | 404, GCSFile | UploadGCSError | FetchError>
+> => {
   const md5Hash = `${encodeHex(md5(await file.arrayBuffer()))}`;
   const res = await uploadRequest(file, projectId, md5Hash, options);
   if (!res.ok) return res;
@@ -73,7 +79,10 @@ const uploadRequest = async (
   md5: string,
   init?: ExtendedOptions,
 ): Promise<
-  ScrapboxResponse<GCSFile | UploadRequest, FileCapacityError | FetchError | HTTPError>
+  ScrapboxResponse<
+    GCSFile | UploadRequest,
+    FileCapacityError | FetchError | HTTPError
+  >
 > => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
   const body = {
@@ -82,7 +91,7 @@ const uploadRequest = async (
     contentType: file.type,
     name: file.name,
   };
-  
+
   const csrfToken = csrf ?? await getCSRFToken(init);
   if (!csrfToken.ok) return csrfToken;
 
@@ -98,9 +107,12 @@ const uploadRequest = async (
       },
     },
   );
-  
+
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 402 | 404, GCSFile | UploadRequest | FileCapacityError | HTTPError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 402 | 404,
+    GCSFile | UploadRequest | FileCapacityError | HTTPError
+  >(res);
 
   if (response.status === 402) {
     const json = await response.json();
@@ -126,7 +138,12 @@ const upload = async (
   signedUrl: string,
   file: File,
   init?: BaseOptions,
-): Promise<TargetedResponse<200 | 400 | 404, undefined | GCSError | FetchError | HTTPError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404,
+    undefined | GCSError | FetchError | HTTPError
+  >
+> => {
   const { sid, fetch } = setDefaults(init ?? {});
   const res = await fetch(
     signedUrl,
@@ -139,10 +156,15 @@ const upload = async (
       },
     },
   );
-  
-  const response = createTargetedResponse<200 | 400 | 404, undefined | GCSError | HTTPError>(res);
 
-  if (!response.ok && response.headers.get("Content-Type")?.includes?.("/xml")) {
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    undefined | GCSError | HTTPError
+  >(res);
+
+  if (
+    !response.ok && response.headers.get("Content-Type")?.includes?.("/xml")
+  ) {
     return createErrorResponse(400, {
       name: "GCSError",
       message: await response.text(),
@@ -158,9 +180,14 @@ const verify = async (
   fileId: string,
   md5: string,
   init?: ExtendedOptions,
-): Promise<TargetedResponse<200 | 400 | 404, GCSFile | NotFoundError | FetchError | HTTPError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404,
+    GCSFile | NotFoundError | FetchError | HTTPError
+  >
+> => {
   const { sid, hostName, fetch, csrf } = setDefaults(init ?? {});
-  
+
   const csrfToken = csrf ?? await getCSRFToken(init);
   if (!csrfToken.ok) return csrfToken;
 
@@ -178,7 +205,10 @@ const verify = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, GCSFile | NotFoundError | HTTPError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    GCSFile | NotFoundError | HTTPError
+  >(res);
 
   if (response.status === 404) {
     const json = await response.json();

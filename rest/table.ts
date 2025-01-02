@@ -8,7 +8,11 @@ import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 import type { FetchError } from "./mod.ts";
 
 const getTable_toRequest: GetTable["toRequest"] = (
@@ -79,14 +83,18 @@ export interface GetTable {
    * @param res 応答
    * @return ページのJSONデータ
    */
-  fromResponse: (res: Response) => Promise<TargetedResponse<200 | 400 | 404, string | TableError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, string | TableError>>;
 
   (
     project: string,
     title: string,
     filename: string,
     options?: BaseOptions,
-  ): Promise<TargetedResponse<200 | 400 | 404, string | TableError | FetchError>>;
+  ): Promise<
+    TargetedResponse<200 | 400 | 404, string | TableError | FetchError>
+  >;
 }
 
 /** 指定したテーブルをCSV形式で得る

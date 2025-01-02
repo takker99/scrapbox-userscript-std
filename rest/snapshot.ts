@@ -11,7 +11,11 @@ import { type BaseOptions, setDefaults } from "./options.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { FetchError } from "./mod.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 
 /** 不正な`timestampId`を渡されたときに発生するエラー */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
@@ -34,7 +38,12 @@ export const getSnapshot = async (
   pageId: string,
   timestampId: string,
   options?: BaseOptions,
-): Promise<TargetedResponse<200 | 400 | 404 | 422, PageSnapshotResult | SnapshotError | FetchError>> => {
+): Promise<
+  TargetedResponse<
+    200 | 400 | 404 | 422,
+    PageSnapshotResult | SnapshotError | FetchError
+  >
+> => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
   const req = new Request(
@@ -43,7 +52,9 @@ export const getSnapshot = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404 | 422, SnapshotError>(res);
+  const response = createTargetedResponse<200 | 400 | 404 | 422, SnapshotError>(
+    res,
+  );
 
   if (response.status === 422) {
     return createErrorResponse(422, {
@@ -81,7 +92,10 @@ export const getTimestampIds = async (
   pageId: string,
   options?: BaseOptions,
 ): Promise<
-  TargetedResponse<200 | 400 | 404, PageSnapshotList | SnapshotTimestampIdsError | FetchError>
+  TargetedResponse<
+    200 | 400 | 404,
+    PageSnapshotList | SnapshotTimestampIdsError | FetchError
+  >
 > => {
   const { sid, hostName, fetch } = setDefaults(options ?? {});
 
@@ -91,7 +105,10 @@ export const getTimestampIds = async (
   );
 
   const res = await fetch(req);
-  const response = createTargetedResponse<200 | 400 | 404, SnapshotTimestampIdsError>(res);
+  const response = createTargetedResponse<
+    200 | 400 | 404,
+    SnapshotTimestampIdsError
+  >(res);
 
   await parseHTTPError(response, [
     "NotFoundError",

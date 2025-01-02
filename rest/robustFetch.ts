@@ -1,5 +1,9 @@
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse, createErrorResponse, createTargetedResponse } from "./utils.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
+} from "./utils.ts";
 
 export interface NetworkError {
   name: "NetworkError";
@@ -25,7 +29,9 @@ export type FetchError = NetworkError | AbortError;
 export type RobustFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
-) => Promise<TargetedResponse<200 | 400 | 404 | 499 | 0, Response | FetchError>>;
+) => Promise<
+  TargetedResponse<200 | 400 | 404 | 499 | 0, Response | FetchError>
+>;
 
 /**
  * A simple implementation of {@linkcode RobustFetch} that uses {@linkcode fetch}.
@@ -38,7 +44,9 @@ export const robustFetch: RobustFetch = async (input, init) => {
   const request = new Request(input, init);
   try {
     const response = await globalThis.fetch(request);
-    return createTargetedResponse<200 | 400 | 404 | 499 | 0, Response>(response);
+    return createTargetedResponse<200 | 400 | 404 | 499 | 0, Response>(
+      response,
+    );
   } catch (e: unknown) {
     if (e instanceof DOMException && e.name === "AbortError") {
       return createErrorResponse(499, {
