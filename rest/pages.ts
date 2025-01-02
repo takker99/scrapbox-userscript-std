@@ -81,12 +81,12 @@ const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
   );
 
 export interface GetPage {
-  /** /api/pages/:project/:title の要求を組み立てる
+  /** Constructs a request for the /api/pages/:project/:title endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param options オプション
-   * @return request
+   * @param project The project name containing the desired page
+   * @param title The page title to retrieve (case insensitive)
+   * @param options Additional configuration options
+   * @return The constructed request object
    */
   toRequest: (
     project: string,
@@ -94,10 +94,10 @@ export interface GetPage {
     options?: GetPageOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extracts page JSON data from the API response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res The response from the API
+   * @return A Result containing either the page JSON data or an error
    */
   fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
 
@@ -115,11 +115,11 @@ export type PageError =
   | TooLongURIError
   | HTTPError;
 
-/** 指定したページのJSONデータを取得する
+/** Retrieves JSON data for a specified page
  *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param options オプション
+ * @param project The project name containing the desired page
+ * @param title The page title to retrieve (case insensitive)
+ * @param options Additional configuration options for the request
  */
 export const getPage: GetPage = /* @__PURE__ */ (() => {
   const fn: GetPage = async (
@@ -168,21 +168,21 @@ export interface ListPagesOption extends BaseOptions {
 }
 
 export interface ListPages {
-  /** /api/pages/:project の要求を組み立てる
+  /** Constructs a request for the /api/pages/:project endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param options オプション
-   * @return request
+   * @param project The project name to list pages from
+   * @param options Additional configuration options (sorting, pagination, etc.)
+   * @return The constructed request object
    */
   toRequest: (
     project: string,
     options?: ListPagesOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extracts page list JSON data from the API response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res The response from the API
+   * @return A Result containing either the page list JSON data or an error
    */
   fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
 
@@ -230,10 +230,10 @@ const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
       ),
   );
 
-/** 指定したprojectのページを一覧する
+/** Lists pages from a specified project
  *
- * @param project 一覧したいproject
- * @param options オプション 取得範囲や並び順を決める
+ * @param project The project name to list pages from
+ * @param options Configuration options for pagination and sorting
  */
 export const listPages: ListPages = /* @__PURE__ */ (() => {
   const fn: ListPages = async (
