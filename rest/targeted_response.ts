@@ -1,4 +1,4 @@
-import type { StatusCode, SuccessfulStatus } from "@std/http";
+import type { StatusCode, SuccessfulStatus } from "jsr:@std/http";
 import type { JsonCompatible } from "./json_compatible.ts";
 
 export type { StatusCode, SuccessfulStatus };
