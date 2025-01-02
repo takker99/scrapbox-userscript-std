@@ -109,7 +109,7 @@ export const moveLines = (count: number): void => {
     upLines(-count);
   }
 };
-// to行目の後ろに移動させる
+// Move selected lines to the position after the target line number
 export const moveLinesBefore = (from: number, to: number): void => {
   const count = to - from;
   if (count >= 0) {
@@ -167,5 +167,5 @@ export const insertText = async (text: string): Promise<void> => {
 
   const event = new InputEvent("input", { bubbles: true });
   cursor.dispatchEvent(event);
-  await delay(1); // 待ち時間は感覚で決めた
+  await delay(1); // 1ms delay to ensure event processing completes
 };
