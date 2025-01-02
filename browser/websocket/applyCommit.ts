@@ -3,19 +3,35 @@ import type { BaseLine } from "@cosense/types/rest";
 import { getUnixTimeFromId } from "./id.ts";
 
 export interface ApplyCommitProp {
-  /** changesの作成日時
+  /** Timestamp for when the changes were created
    *
-   * UnixTimeか、UnixTimeを含んだidを渡す。
-   * 何も指定されなかったら、実行時の時刻を用いる
+   * Can be provided as either:
+   * - A Unix timestamp (number)
+   * - An ID containing a Unix timestamp (string)
+   * If not specified, the current time will be used
    */
   updated?: number | string;
-  /** user id */ userId: string;
+  /** The ID of the user making the changes
+   *
+   * This ID is used to:
+   * - Track who made each line modification
+   * - Associate changes with user accounts
+   * - Maintain edit history and attribution
+   */ 
+  userId: string;
 }
 
-/** メタデータを含んだ行にcommitsを適用する
+/** Apply commits to lines with metadata
  *
- * @param lines commitsを適用する行
- * @param changes 適用するcommits
+ * This function processes a series of commits (changes) to modify lines in a Scrapbox page.
+ * Each commit can be one of:
+ * - Insert: Add a new line at a specific position or at the end
+ * - Update: Modify the text of an existing line
+ * - Delete: Remove a line
+ *
+ * @param lines - The lines to apply commits to, each containing metadata (id, text, etc.)
+ * @param changes - The commits to apply, each specifying an operation and target line
+ * @param options - Configuration including userId and optional timestamp
  */
 export const applyCommit = (
   lines: readonly BaseLine[],
