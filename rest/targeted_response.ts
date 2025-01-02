@@ -7,7 +7,7 @@ export type { StatusCode, SuccessfulStatus };
  * Maps a record of status codes and response body types to a union of {@linkcode TargetedResponse}.
  *
  * ```ts
- * import type { AssertTrue, IsExact } from "@std/testing/types";
+ * import type { AssertTrue, IsExact } from "jsr:/@std/testing@^1.0.8/types";
  *
  * type MappedResponse = MapTargetedResponse<{
  *   200: { success: true },
@@ -21,6 +21,19 @@ export type { StatusCode, SuccessfulStatus };
  * >>;
  * ```
  */
+export type MapTargetedResponse<T extends Record<number, unknown>> = {
+  [K in keyof T]: K extends number
+    ? T[K] extends Response
+      ? TargetedResponse<ExtendedStatusCodeNumber & K, T[K]>
+    : T[K] extends
+      | string
+      | Exclude<JsonCompatible<T[K]>, string | number | boolean | null>
+      | Uint8Array
+      | FormData
+      | Blob ? TargetedResponse<ExtendedStatusCodeNumber & K, T[K]>
+    : never
+    : never;
+}[keyof T];
 export type ResponseOfEndpoint<
   ResponseBodyMap extends Record<number, unknown> = Record<StatusCode, string>,
 > = {
@@ -33,7 +46,10 @@ export type ResponseOfEndpoint<
       >
       | Uint8Array
       | FormData
-      | Blob ? TargetedResponse<Status, ResponseBodyMap[Status]>
+      | Blob ? TargetedResponse<
+        ExtendedStatusCodeNumber & Status,
+        ResponseBodyMap[Status]
+      >
     : never
     : never;
 }[keyof ResponseBodyMap];
@@ -44,87 +60,66 @@ export type ResponseOfEndpoint<
  * @typeParam Status Available [HTTP status codes](https://developer.mozilla.org/docs/Web/HTTP/Status)
  * @typeParam Body response body type returned by {@linkcode TargetedResponse.text}, {@linkcode TargetedResponse.json} or {@linkcode TargetedResponse.formData}
  */
+// Add missing status codes
+export type ExtendedStatusCode =
+  | StatusCode
+  | 0
+  | 400
+  | 401
+  | 404
+  | 408
+  | 414
+  | 499
+  | 500;
+
+export type ExtendedStatusCodeNumber = ExtendedStatusCode & number;
+
 export interface TargetedResponse<
-  Status extends number,
-  Body extends
-    | string
-    | Exclude<JsonCompatible<Body>, string | number | boolean | null>
-    | Uint8Array
-    | FormData
-    | Blob,
-> extends globalThis.Response {
+  Status extends ExtendedStatusCode,
+  Body = unknown,
+> extends Response {
   /**
    * [HTTP status code](https://developer.mozilla.org/docs/Web/HTTP/Status)
    */
   readonly status: Status;
 
   /**
+   * Status text corresponding to the status code
+   */
+  readonly statusText: string;
+
+  /**
    * Whether the response is successful or not
-   *
-   * The same as {@linkcode https://developer.mozilla.org/docs/Web/API/Response/ok | Response.ok}.
-   *
-   * ```ts
-   * import type { Assert } from "@std/testing/types";
-   *
-   * type _1 = Assert<TargetedResponse<200, string>["ok"], true>;
-   * type _2 = Assert<TargetedResponse<201, string>["ok"], true>;
-   * type _3 = Assert<TargetedResponse<226, string>["ok"], true>;
-   * type _4 = Assert<TargetedResponse<101, string>["ok"], false>;
-   * type _5 = Assert<TargetedResponse<301, string>["ok"], false>;
-   * type _6 = Assert<TargetedResponse<301, string>["ok"], false>;
-   * type _7 = Assert<TargetedResponse<404, string>["ok"], false>;
-   * type _8 = Assert<TargetedResponse<1000, string>["ok"], boolean>;
-   * ```
    */
-  readonly ok: Status extends SuccessfulStatus ? true
-    : Status extends Exclude<StatusCode, SuccessfulStatus> ? false
-    : boolean;
+  readonly ok: Status extends SuccessfulStatus ? true : false;
 
   /**
-   * The same as {@linkcode https://developer.mozilla.org/docs/Web/API/Response/text | Response.text} but with type safety
-   *
-   * ```ts
-   * import type { AssertTrue, IsExact } from "@std/testing/types";
-   *
-   * type _1 = AssertTrue<IsExact<TargetedResponse<200, string>["text"], () => Promise<string>>>;
-   * type _2 = AssertTrue<IsExact<TargetedResponse<200, "result">["text"], () => Promise<"result">>>;
-   * type _3 = AssertTrue<IsExact<TargetedResponse<200,"state1" | "state2">["text"], () => Promise<"state1" | "state2">>>;
-   * type _4 = AssertTrue<IsExact<TargetedResponse<200, Uint8Array>["text"], () => Promise<never>>>;
-   * type _5 = AssertTrue<IsExact<TargetedResponse<200, FormData>["text"], () => Promise<never>>>;
-   * type _6 = AssertTrue<IsExact<TargetedResponse<200, Blob>["text"], () => Promise<never>>>;
-   * type _7 = AssertTrue<IsExact<TargetedResponse<200, { data: { id: string; name: string; }; }>["text"], () => Promise<string>>>;
-   * type _8 = AssertTrue<IsExact<TargetedResponse<200, "message" | Uint8Array>["text"], () => Promise<never>>>;
-   * type _9 = AssertTrue<IsExact<TargetedResponse<200, "message" | { data: number }>["text"], () => Promise<string>>>;
-   * ```
+   * Response headers
    */
-  text(): [Body] extends [string] ? Promise<Body>
-    : [Body] extends [Exclude<JsonCompatible<Body>, number | boolean | null>]
-      ? Promise<string>
-    : Promise<never>;
+  readonly headers: Headers;
 
   /**
-   * The same as {@linkcode https://developer.mozilla.org/docs/Web/API/Response/json | Response.json} but with type safety
-   *
-   * ```ts
-   * import type { AssertTrue, IsExact } from "@std/testing/types";
-   *
-   * type _1 = AssertTrue<IsExact<TargetedResponse<200, { data: { id: string; name: string; }; }>["json"], () => Promise<{ data: { id: string; name: string; }; }>>>;
-   * type _4 = AssertTrue<IsExact<TargetedResponse<200, Uint8Array>["json"], () => Promise<never>>>;
-   * type _5 = AssertTrue<IsExact<TargetedResponse<200, FormData>["json"], () => Promise<never>>>;
-   * type _6 = AssertTrue<IsExact<TargetedResponse<200, Blob>["json"], () => Promise<never>>>;
-   * type _7 = AssertTrue<IsExact<TargetedResponse<200, string>["json"], () => Promise<never>>>;
-   * type _3 = AssertTrue<IsExact<TargetedResponse<200,"state1" | "state2">["json"], () => Promise<never>>>;
-   * type _8 = AssertTrue<IsExact<TargetedResponse<200, "message" | Uint8Array>["json"], () => Promise<never>>>;
-   * type _9 = AssertTrue<IsExact<TargetedResponse<200, "message" | { data: number }>["json"], () => Promise<never>>>;
-   * ```
+   * Response body
    */
-  json(): [Body] extends
-    [Exclude<JsonCompatible<Body>, string | number | boolean | null>]
-    ? Promise<Body>
-    : Promise<never>;
+  readonly body: ReadableStream<Uint8Array> | null;
 
   /**
-   * The same as {@linkcode https://developer.mozilla.org/docs/Web/API/Response/formData | Response.formData} but with type safety
+   * Get response body as text
    */
-  formData(): Body extends FormData ? Promise<FormData> : Promise<never>;
+  text(): Promise<string>;
+
+  /**
+   * Get response body as JSON
+   */
+  json(): Promise<Body>;
+
+  /**
+   * Get response body as FormData
+   */
+  formData(): Promise<FormData>;
+
+  /**
+   * Clone the response
+   */
+  clone(): TargetedResponse<Status, Body>;
 }

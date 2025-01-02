@@ -60,6 +60,7 @@ export type ProjectError =
   | NotMemberError
   | NotLoggedInError
   | HTTPError;
+import type { HTTPError } from "./errors.ts";
 
 const getProject_toRequest: GetProject["toRequest"] = (project, init) => {
   const { sid, hostName } = setDefaults(init ?? {});

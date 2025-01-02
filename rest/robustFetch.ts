@@ -1,20 +1,27 @@
+import type { StatusCode as _StatusCode } from "jsr:@std/http";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
   createErrorResponse,
   type createSuccessResponse as _createSuccessResponse,
-  createTargetedResponse,
+  type createTargetedResponse as _createTargetedResponse,
 } from "./utils.ts";
 
-export interface NetworkError {
+export interface NetworkError extends Response {
   name: "NetworkError";
   message: string;
   request: Request;
+  ok: false;
+  status: 500;
+  statusText: "Network Error";
 }
 
-export interface AbortError {
+export interface AbortError extends Response {
   name: "AbortError";
   message: string;
   request: Request;
+  ok: false;
+  status: 408;
+  statusText: "Request Timeout";
 }
 
 export type FetchError = NetworkError | AbortError;
@@ -30,7 +37,10 @@ export type RobustFetch = (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<
-  TargetedResponse<200 | 400 | 404 | 499 | 0, Response | FetchError>
+  | TargetedResponse<200, Response>
+  | TargetedResponse<400 | 404, Response>
+  | TargetedResponse<408, AbortError>
+  | TargetedResponse<500, NetworkError>
 >;
 
 /**
@@ -38,29 +48,45 @@ export type RobustFetch = (
  *
  * @param input - The resource URL or a {@linkcode Request} object.
  * @param init - An optional object containing request options.
- * @returns A promise that resolves to a {@linkcode ScrapboxResponse} object.
+ * @returns A promise that resolves to a {@linkcode TargetedResponse} object.
  */
-export const robustFetch: RobustFetch = async (input, init) => {
+export const robustFetch: RobustFetch = async (input, init): Promise<
+  | TargetedResponse<200, Response>
+  | TargetedResponse<400 | 404, Response>
+  | TargetedResponse<408, AbortError>
+  | TargetedResponse<500, NetworkError>
+> => {
   const request = new Request(input, init);
   try {
     const response = await globalThis.fetch(request);
-    return createTargetedResponse<200 | 400 | 404 | 499 | 0, Response>(
-      response,
-    );
+    if (response.ok) {
+      return response as TargetedResponse<200, Response>;
+    }
+    return response as TargetedResponse<400 | 404, Response>;
   } catch (e: unknown) {
     if (e instanceof DOMException && e.name === "AbortError") {
-      return createErrorResponse(499, {
-        name: "AbortError",
+      const error = new Response(null, {
+        status: 408,
+        statusText: "Request Timeout",
+      });
+      Object.assign(error, {
+        name: "AbortError" as const,
         message: e.message,
-        request,
-      }); // Use 499 for client closed request
+        request: request.clone(),
+      });
+      return createErrorResponse(408, error as AbortError);
     }
     if (e instanceof TypeError) {
-      return createErrorResponse(0, {
-        name: "NetworkError",
+      const error = new Response(null, {
+        status: 500,
+        statusText: "Network Error",
+      });
+      Object.assign(error, {
+        name: "NetworkError" as const,
         message: e.message,
-        request,
-      }); // Use 0 for network errors
+        request: request.clone(),
+      });
+      return createErrorResponse(500, error as NetworkError);
     }
     throw e;
   }

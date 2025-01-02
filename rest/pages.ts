@@ -10,12 +10,14 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import type { TargetedResponse as _TargetedResponse } from "./targeted_response.ts";
-import type {
-  createErrorResponse as _createErrorResponse,
-  createSuccessResponse as _createSuccessResponse,
+import type { TargetedResponse } from "./targeted_response.ts";
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  createTargetedResponse,
 } from "./utils.ts";
-import type { FetchError } from "./robustFetch.ts";
+import type { HTTPError } from "./errors.ts";
+import type { AbortError, NetworkError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */
 export interface GetPageOption extends BaseOptions {
@@ -51,19 +53,13 @@ const getPage_toRequest: GetPage["toRequest"] = (
 };
 
 const getPage_fromResponse: GetPage["fromResponse"] = async (res) => {
-  const response = ScrapboxResponse.from<Page, PageError>(res);
-
-  if (response.status === 414) {
-    return ScrapboxResponse.error({
-      name: "TooLongURIError",
-      message: "project ids may be too much.",
-    });
-  }
+  const response = createTargetedResponse<200 | 400 | 404, Page>(res);
 
   await parseHTTPError(response, [
     "NotFoundError",
     "NotLoggedInError",
     "NotMemberError",
+    "TooLongURIError",
   ]);
 
   return response;
@@ -88,13 +84,20 @@ export interface GetPage {
    * @param res Response object
    * @return Page JSON data
    */
-  fromResponse: (res: Response) => Promise<ScrapboxResponse<Page, PageError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<TargetedResponse<200 | 400 | 404, Page>>;
 
   (
     project: string,
     title: string,
     options?: GetPageOption,
-  ): Promise<ScrapboxResponse<Page, PageError | FetchError>>;
+  ): Promise<
+    TargetedResponse<
+      200 | 400 | 404 | 408 | 500,
+      Page | NetworkError | AbortError
+    >
+  >;
 }
 
 export type PageError =
@@ -174,12 +177,17 @@ export interface ListPages {
    */
   fromResponse: (
     res: Response,
-  ) => Promise<ScrapboxResponse<PageList, ListPagesError>>;
+  ) => Promise<TargetedResponse<200 | 400 | 404, PageList>>;
 
   (
     project: string,
     options?: ListPagesOption,
-  ): Promise<ScrapboxResponse<PageList, ListPagesError | FetchError>>;
+  ): Promise<
+    TargetedResponse<
+      200 | 400 | 404 | 408 | 500,
+      PageList | NetworkError | AbortError
+    >
+  >;
 }
 
 export type ListPagesError =
@@ -204,7 +212,7 @@ const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
 };
 
 const listPages_fromResponse: ListPages["fromResponse"] = async (res) => {
-  const response = ScrapboxResponse.from<PageList, ListPagesError>(res);
+  const response = createTargetedResponse<200 | 400 | 404, PageList>(res);
 
   await parseHTTPError(response, [
     "NotFoundError",

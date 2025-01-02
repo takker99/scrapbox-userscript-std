@@ -36,6 +36,7 @@ export interface GetProfile {
   >;
 }
 
+import type { HTTPError } from "./errors.ts";
 export type ProfileError = HTTPError;
 
 const getProfile_toRequest: GetProfile["toRequest"] = (
@@ -49,11 +50,10 @@ const getProfile_toRequest: GetProfile["toRequest"] = (
 };
 
 const getProfile_fromResponse: GetProfile["fromResponse"] = (res) => {
-  const response = createTargetedResponse<
+  return Promise.resolve(createTargetedResponse<
     200 | 400 | 404,
     MemberUser | GuestUser | ProfileError
-  >(res);
-  return response;
+  >(res));
 };
 
 export const getProfile: GetProfile = /* @__PURE__ */ (() => {

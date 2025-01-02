@@ -1,7 +1,7 @@
 import { getProfile } from "./profile.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
-import { createSuccessResponse } from "./utils.ts";
-import type { HTTPError } from "./responseIntoResult.ts";
+import { createErrorResponse, createSuccessResponse } from "./utils.ts";
+import type { HTTPError } from "./errors.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";
 import type { ExtendedOptions } from "./options.ts";
 
@@ -20,13 +20,26 @@ export const getCSRFToken = async (
 ): Promise<
   TargetedResponse<
     200 | 400 | 404 | 0 | 499,
-    string | NetworkError | AbortError | HTTPError
+    { csrfToken: string } | NetworkError | AbortError | HTTPError
   >
 > => {
   // deno-lint-ignore no-explicit-any
   const csrf = init?.csrf ?? (globalThis as any)._csrf;
-  if (csrf) return createSuccessResponse(csrf);
+  if (csrf) {
+    return createSuccessResponse({ csrfToken: csrf });
+  }
 
   const profile = await getProfile(init);
-  return profile.ok ? createSuccessResponse(profile.data.csrfToken) : profile;
+  if (!profile.ok) return profile;
+
+  const data = await profile.json();
+  if (!("csrfToken" in data)) {
+    return createErrorResponse(400, {
+      name: "HTTPError",
+      message: "Invalid response format",
+      status: 400,
+      statusText: "Bad Request",
+    });
+  }
+  return createSuccessResponse({ csrfToken: data.csrfToken });
 };

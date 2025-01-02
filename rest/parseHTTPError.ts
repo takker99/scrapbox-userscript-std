@@ -32,7 +32,7 @@ export const parseHTTPError = async <
   T = unknown,
   E = unknown,
 >(
-  response: ScrapboxResponse<T, E>,
+  response: Response,
   errorNames: ErrorNames[],
 ): Promise<RESTfullAPIErrorMap[ErrorNames] | undefined> => {
   const res = response.clone();
@@ -52,7 +52,7 @@ export const parseHTTPError = async <
         const error = {
           name,
           message: json.message,
-        } as RESTfullAPIErrorMap[ErrorNames];
+        } as unknown as RESTfullAPIErrorMap[ErrorNames];
         Object.assign(response, { error });
         return error;
       }
@@ -72,14 +72,14 @@ export const parseHTTPError = async <
           project: json.detals.project,
           loginStrategies: json.detals.loginStrategies,
         },
-      } as RESTfullAPIErrorMap[ErrorNames];
+      } as unknown as RESTfullAPIErrorMap[ErrorNames];
       Object.assign(response, { error });
       return error;
     }
     const error = {
       name: json.name,
       message: json.message,
-    } as RESTfullAPIErrorMap[ErrorNames];
+    } as unknown as RESTfullAPIErrorMap[ErrorNames];
     Object.assign(response, { error });
     return error;
   } catch (e: unknown) {

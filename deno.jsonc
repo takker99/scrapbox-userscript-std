@@ -18,6 +18,7 @@
     "@std/async": "jsr:@std/async@1",
     "@std/encoding": "jsr:@std/encoding@1",
     "@std/json": "jsr:@std/json@^1.0.0",
+    "@std/testing": "jsr:@std/testing@^1.0.8",
     "@std/testing/snapshot": "jsr:@std/testing@1/snapshot",
     "@takker/md5": "jsr:@takker/md5@0.1",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
