@@ -9,21 +9,38 @@ import type { Socket } from "socket.io-client";
 export type PatchOptions = PushOptions;
 
 export interface PatchMetadata extends Page {
-  /** 書き換えを再試行した回数
+  /** Number of retry attempts for page modification
    *
-   * 初回は`0`で、再試行するたびに増える
+   * Starts at `0` for the first attempt and increments with each retry.
+   * This helps track and handle concurrent modification conflicts.
    */
   attempts: number;
 }
 
-/** ページ全体を書き換える
+/** Modify an entire Scrapbox page by computing and sending only the differences
  *
- * serverには書き換え前後の差分だけを送信する
+ * This function handles the entire page modification process:
+ * 1. Fetches current page content
+ * 2. Applies user-provided update function
+ * 3. Computes minimal changes needed
+ * 4. Handles errors (e.g., duplicate titles)
+ * 5. Retries on conflicts
  *
- * @param project 書き換えたいページのproject
- * @param title 書き換えたいページのタイトル
- * @param update 書き換え後の本文を作成する函数。引数には現在の本文が渡される。空配列を返すとページが削除される。undefinedを返すと書き換えを中断する
- * @param options 使用したいSocketがあれば指定する
+ * @param project - Project ID containing the target page
+ * @param title - Title of the page to modify
+ * @param update - Function to generate new content:
+ *                - Input: Current page lines and metadata
+ *                - Return values:
+ *                  - string[]: New page content
+ *                  - undefined: Abort modification
+ *                  - []: Delete the page
+ *                Can be async (returns Promise)
+ * @param options - Optional WebSocket configuration
+ *
+ * Special cases:
+ * - If update returns undefined: Operation is cancelled
+ * - If update returns []: Page is deleted
+ * - On duplicate title: Automatically suggests non-conflicting title
  */
 export const patch = (
   project: string,
