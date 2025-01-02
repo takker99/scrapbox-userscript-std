@@ -23,11 +23,38 @@ export type TweetInfoError =
   | BadRequestError
   | HTTPError;
 
-/** 指定したTweetの情報を取得する
+/** Retrieve information about a specified Tweet
  *
- * @param url 取得したいTweetのURL
- * @param init connect.sidなど
- * @return tweetの中身とか
+ * Fetches metadata and content information for a given Tweet URL through Scrapbox's
+ * Twitter embed API. This function handles authentication and CSRF token management
+ * automatically.
+ *
+ * @param url The URL of the Tweet to fetch information for. Can be either a string
+ *           or URL object. Should be a valid Twitter/X post URL.
+ * @param init Optional configuration including:
+ *             - sid: Scrapbox session ID for authentication
+ *             - hostName: Custom Scrapbox host name
+ *             - fetch: Custom fetch implementation
+ * @returns A Result containing either:
+ *          - Ok: TweetInfo object with Tweet metadata
+ *          - Err: One of several possible errors:
+ *            - SessionError: Authentication issues
+ *            - InvalidURLError: Malformed or invalid Tweet URL
+ *            - BadRequestError: API request issues
+ *            - HTTPError: Network or server errors
+ *
+ * @example
+ * ```typescript
+ * const result = await getTweetInfo("https://twitter.com/user/status/123456789");
+ * if (isErr(result)) {
+ *   console.error("Failed to get Tweet info:", result.err);
+ *   return;
+ * }
+ * const tweetInfo = result.val;
+ * console.log("Tweet text:", tweetInfo.text);
+ * ```
+ *
+ * Note: The function includes a 3000ms timeout for the API request.
  */
 export const getTweetInfo = async (
   url: string | URL,
