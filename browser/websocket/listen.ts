@@ -26,11 +26,26 @@ export type ListenStreamError =
   | AbortError
   | HTTPError;
 
-/** Streamを購読する
+/** Subscribe to WebSocket events from Scrapbox
  *
- * @param project 購読したいproject
- * @param events 購読したいevent。配列で指定する
- * @param options 使用したいSocketがあれば指定する
+ * This function sets up event listeners for Scrapbox's WebSocket events:
+ * - Uses socket.on() for continuous listening
+ * - Uses socket.once() for one-time events when options.once is true
+ * - Supports automatic cleanup with AbortSignal
+ *
+ * @param socket - ScrapboxSocket instance for WebSocket communication
+ * @param event - Event name to listen for (from ListenEvents type)
+ * @param listener - Callback function to handle the event
+ * @param options - Optional configuration:
+ *                 - signal: AbortSignal for cancellation
+ *                 - once: Listen only once if true
+ *
+ * Example:
+ * ```ts
+ * listen(socket, "project:update", (data) => {
+ *   console.log("Project updated:", data);
+ * }, { signal: abortController.signal });
+ * ```
  */
 export const listen = <EventName extends keyof ListenEvents>(
   socket: ScrapboxSocket,
