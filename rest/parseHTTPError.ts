@@ -27,7 +27,12 @@ export interface RESTfullAPIErrorMap {
   NotPrivilegeError: NotPrivilegeError;
 }
 
-/** 失敗した要求からエラー情報を取り出す */
+/** Extracts error information from a failed HTTP request
+ * 
+ * This function parses the response from a failed HTTP request to extract structured error information.
+ * It handles various error types including authentication, permission, and validation errors.
+ * Returns Maybe<T> where T is the specific error type requested in errorNames.
+ */
 export const parseHTTPError = async <
   ErrorNames extends keyof RESTfullAPIErrorMap,
 >(
@@ -75,7 +80,7 @@ export const parseHTTPError = async <
     } as unknown as RESTfullAPIErrorMap[ErrorNames];
   } catch (e: unknown) {
     if (e instanceof SyntaxError) return;
-    // JSONのparse error以外はそのまま投げる
+    // Re-throw all errors except JSON parse errors (SyntaxError)
     throw e;
   }
 };
