@@ -7,8 +7,11 @@ import type {
 } from "@cosense/types/rest";
 import { cookie, getCSRFToken } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
-import type { TargetedResponse } from "./targeted_response.ts";
-import { createErrorResponse as _createErrorResponse, createSuccessResponse as _createSuccessResponse } from "./utils.ts";
+import type { TargetedResponse as _TargetedResponse } from "./targeted_response.ts";
+import type {
+  createErrorResponse as _createErrorResponse,
+  createSuccessResponse as _createSuccessResponse,
+} from "./utils.ts";
 import {
   type BaseOptions,
   type ExtendedOptions,

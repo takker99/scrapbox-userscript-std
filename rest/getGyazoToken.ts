@@ -4,7 +4,7 @@ import { parseHTTPError } from "./parseHTTPError.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
-  createErrorResponse as _createErrorResponse,
+  type createErrorResponse as _createErrorResponse,
   createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";

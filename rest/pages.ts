@@ -10,8 +10,11 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import type { TargetedResponse } from "./targeted_response.ts";
-import { createErrorResponse as _createErrorResponse, createSuccessResponse as _createSuccessResponse } from "./utils.ts";
+import type { TargetedResponse as _TargetedResponse } from "./targeted_response.ts";
+import type {
+  createErrorResponse as _createErrorResponse,
+  createSuccessResponse as _createSuccessResponse,
+} from "./utils.ts";
 import type { FetchError } from "./robustFetch.ts";
 
 /** Options for `getPage()` */

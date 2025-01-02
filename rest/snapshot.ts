@@ -13,7 +13,7 @@ import type { FetchError } from "./mod.ts";
 import type { TargetedResponse } from "./targeted_response.ts";
 import {
   createErrorResponse,
-  createSuccessResponse as _createSuccessResponse,
+  type createSuccessResponse as _createSuccessResponse,
   createTargetedResponse,
 } from "./utils.ts";
 
