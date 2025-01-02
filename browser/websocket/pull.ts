@@ -23,11 +23,27 @@ import type { HTTPError } from "../../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
 import type { BaseOptions } from "../../rest/options.ts";
 
+/** Extended page metadata required for WebSocket operations
+ *
+ * This interface extends the basic Page type with additional identifiers
+ * needed for real-time collaboration and page modifications.
+ */
 export interface PushMetadata extends Page {
+  /** Unique identifier of the project containing the page */
   projectId: string;
+  /** Unique identifier of the current user */
   userId: string;
 }
 
+/** Comprehensive error type for page data retrieval operations
+ *
+ * This union type includes all possible errors that may occur when
+ * fetching page data, including:
+ * - Authentication errors (NotLoggedIn)
+ * - Authorization errors (NotMember)
+ * - Resource errors (NotFound, TooLongURI)
+ * - Network errors (Network, Abort, HTTP)
+ */
 export type PullError =
   | NotFoundError
   | NotLoggedInError
@@ -38,6 +54,20 @@ export type PullError =
   | NetworkError
   | AbortError;
 
+/** Fetch page data along with required metadata for WebSocket operations
+ *
+ * This function performs three parallel operations:
+ * 1. Fetches the page content
+ * 2. Retrieves the current user's ID (with caching)
+ * 3. Retrieves the project ID (with caching)
+ *
+ * If any operation fails, the entire operation fails with appropriate error.
+ *
+ * @param project - Project containing the target page
+ * @param title - Title of the page to fetch
+ * @param options - Optional settings for the page request
+ * @returns Result containing either PushMetadata or PullError
+ */
 export const pull = async (
   project: string,
   title: string,
@@ -57,10 +87,19 @@ export const pull = async (
     userId: unwrapOk(userRes),
   });
 };
-// TODO: 編集不可なページはStream購読だけ提供する
+// TODO: For read-only pages, provide stream subscription only
 
-/** cached user ID */
+/** Cached user ID to avoid redundant profile API calls */
 let userId: string | undefined;
+
+/** Get the current user's ID with caching
+ *
+ * This function caches the user ID in memory to reduce API calls.
+ * The cache is invalidated when the page is reloaded.
+ *
+ * @param init - Optional base request options
+ * @returns Result containing either the user ID or an error
+ */
 const getUserId = async (init?: BaseOptions): Promise<
   Result<
     string,
@@ -83,8 +122,18 @@ const getUserId = async (init?: BaseOptions): Promise<
   });
 };
 
-/** cached pairs of project name and project id */
+/** Cache mapping project names to their unique IDs */
 const projectMap = new Map<string, string>();
+
+/** Get a project's ID with caching
+ *
+ * This function maintains a cache of project IDs to reduce API calls.
+ * The cache is invalidated when the page is reloaded.
+ *
+ * @param project - Name of the project
+ * @param options - Optional base request options
+ * @returns Result containing either the project ID or an error
+ */
 export const getProjectId = async (
   project: string,
   options?: BaseOptions,
