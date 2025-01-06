@@ -19,19 +19,19 @@ code:code
  Links [link] and images [https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg] in code blocks should be ignored
 
 
-   ? Help needed with setup!!
+   ? Need help with setup!!
 
    table:infobox
     Name	[scrapbox.icon]
     Address	Add [link2] here
-    Phone	Adding # won't make it a link
+    Phone	Adding # won't create a link
     Strengths	List about 3 items
 
 #hashtag is recommended
-[/forum-jp] links should be excluded
- [/help-jp/] too
+[/forum-en] links should be excluded
+ [/help-en/] too
  [/icons/example.icon][takker.icon]
-[/help-jp/external-link]
+[/help-en/external-link]
 
 Prepare thumbnail
 [https://scrapbox.io/files/65f29c24974fd8002333b160.svg]

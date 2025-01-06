@@ -62,7 +62,7 @@ Deno.test("youtube links", async (t) => {
     await assertSnapshot(
       t,
       parseYoutube(
-        "ほげほげ",
+        "test_text",
       ),
     );
     await assertSnapshot(

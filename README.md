@@ -7,26 +7,42 @@ UNOFFICIAL standard module for Scrapbox UserScript
 
 ## Getting Started
 
-This library serves as an unofficial standard library for developing Scrapbox userscripts.
+This library serves as an unofficial standard library for developing Scrapbox userscripts. It provides a comprehensive set of utilities for interacting with Scrapbox's features, including REST API operations, browser interactions, and common utilities.
 
 ### Installation
 
 1. Bundler Configuration
-To use this library, you need to configure a bundler. You can set it up using one of the following methods:
+This library is distributed through JSR (JavaScript Registry) and requires a bundler configuration. Follow these steps:
 
+a. Configure your bundler to use JSR:
+- For esbuild: Add JSR to your import map
+- For other bundlers: Refer to your bundler's JSR integration documentation
+
+b. Import the library:
 ```typescript
-// Using JSR
+// Import the entire library
 import { ... } from "jsr:@cosense/std";
-// Or import specific features
-import { ... } from "jsr:@cosense/std/rest";
-import { ... } from "jsr:@cosense/std/browser";
+
+// Or import specific modules (recommended)
+import { getPage, getLines } from "jsr:@cosense/std/rest";
+import { getLines, press } from "jsr:@cosense/std/browser/dom";
 ```
 
-2. Required Modules
-Import the modules based on your needs:
-- REST API operations: `rest` module
-- Browser operations: `browser` module
-- Utilities: `title`, `parseAbsoluteLink`, etc.
+2. Module Organization
+The library is organized into the following main modules:
+
+- `rest/`: API operations for Scrapbox REST endpoints
+  - Page operations
+  - Project management
+  - User authentication
+- `browser/`: Browser-side operations
+  - DOM manipulation
+  - WebSocket communication
+  - Event handling
+- Core utilities:
+  - `title`: Title parsing and formatting
+  - `parseAbsoluteLink`: External link analysis
+  - Additional helper functions
 
 ## Examples
 
@@ -34,22 +50,32 @@ Import the modules based on your needs:
 
 1. Retrieving Page Information
 ```typescript
+// Get page content and metadata
 import { getPage } from "jsr:@cosense/std/rest";
 
 const page = await getPage("projectName", "pageName");
-console.log(page.title);
+console.log(page.title);        // Access page title
+console.log(page.lines);        // Access page content as lines
+console.log(page.descriptions); // Access page descriptions
 ```
 
 2. DOM Operations
 ```typescript
-import { getLines } from "jsr:@cosense/std/browser/dom";
+// Interact with the current page's content
+import { getLines, press } from "jsr:@cosense/std/browser/dom";
 
+// Get all lines from the current page
 const lines = getLines();
 console.log(lines.map(line => line.text));
+
+// Simulate keyboard input
+await press("Enter"); // Add a new line
+await press("Tab");   // Indent the line
 ```
 
 3. External Link Analysis
 ```typescript
+// Parse external links (YouTube, Spotify, etc.)
 import { parseAbsoluteLink } from "jsr:@cosense/std";
 import type { LinkNode } from "@progfay/scrapbox-parser";
 
@@ -59,13 +85,24 @@ const link: LinkNode = {
   href: "https://www.youtube.com/watch?v=xxxxx",
   content: ""
 };
+
+// Parse and handle different link types
 const parsed = parseAbsoluteLink(link);
 if (parsed.type === "youtube") {
-  console.log(parsed.videoId);
+  console.log(parsed.videoId);    // YouTube video ID
+  console.log(parsed.timestamp);  // Video timestamp (if present)
+} else if (parsed.type === "spotify") {
+  console.log(parsed.trackId);    // Spotify track ID
 }
 ```
 
 ### Important Notes
-- You must use a bundler to use this library
-- TypeScript type definitions are available
-- For more detailed examples, refer to the [Examples](https://github.com/takker99/scrapbox-userscript-std/tree/main/examples) directory
+- This library requires a bundler for use in userscripts
+- Full TypeScript support with type definitions included
+- Comprehensive error handling with type-safe responses
+- For more examples and use cases, see the [Examples](https://github.com/takker99/scrapbox-userscript-std/tree/main/examples) directory
+
+### Additional Resources
+- [JSR Package Page](https://jsr.io/@cosense/std)
+- [API Documentation](https://jsr.io/@cosense/std/doc)
+- [GitHub Repository](https://github.com/takker99/scrapbox-userscript-std)

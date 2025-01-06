@@ -3,12 +3,12 @@ export const snapshot = {};
 snapshot[`findMetadata() 1`] = `
 [
   [
-    "ふつうの",
-    "リンク2",
+    "normal",
+    "link2",
     "hashtag",
   ],
   [
-    "/help-jp/外部リンク",
+    "/help-en/external-link",
   ],
   [
     "scrapbox",
@@ -21,13 +21,13 @@ snapshot[`findMetadata() 1`] = `
     "65e7f4413bc95600258481fb",
   ],
   [
-    "助けてhelpfeel!!",
+    "Need help with setup!!",
   ],
   [
-    "名前	[scrapbox.icon]",
-    "住所	[リンク2]を入れること",
-    "電話番号	#をつけてもリンクにならないよ",
-    "自分の強み	3個くらい列挙",
+    "Name	[scrapbox.icon]",
+    "Address	Add [link2] here",
+    "Phone	Adding # won't create a link",
+    "Strengths	List about 3 items",
   ],
 ]
 `;
