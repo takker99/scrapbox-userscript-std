@@ -170,7 +170,9 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
  *     break;
  *   }
  *   const links = result.val; // Array of links in this batch
- *   console.log(`Got ${links.length} links`);
+ *   if (links) {
+ *     console.log(`Got ${links.length} links`);
+ *   }
  * }
  * ```
  */
@@ -216,7 +218,9 @@ export async function* readLinksBulk(
  *     break;
  *   }
  *   const link = result.val; // Single link entry
- *   console.log("Processing link:", link.title);
+ *   if (link) {
+ *     console.log("Processing link:", link.title);
+ *   }
  * }
  * ```
  */

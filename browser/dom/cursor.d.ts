@@ -17,7 +17,7 @@ export interface SetPositionOptions {
 }
 
 /** Class for managing cursor operations in the Scrapbox editor
- * 
+ *
  * @see {@linkcode Position} for cursor position type details
  * @see {@linkcode Page} for page data type details
  */

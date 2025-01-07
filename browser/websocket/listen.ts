@@ -42,9 +42,9 @@ export type ListenStreamError =
  *
  * Example:
  * ```ts
- * listen(socket, "project:update", (data) => {
+ * listen(socket, "project:update", (data: ProjectUpdateData) => {
  *   console.log("Project updated:", data);
- * }, { signal: abortController.signal });
+ * }, { signal: controller.signal });
  * ```
  */
 export const listen = <EventName extends keyof ListenEvents>(

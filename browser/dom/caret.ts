@@ -1,7 +1,7 @@
 import { textInput } from "./dom.ts";
 
 /** Position information within the editor
- * 
+ *
  * @see {@linkcode Range} for selection range information
  */
 export interface Position {
@@ -12,7 +12,7 @@ export interface Position {
 /** Represents a text selection range in the editor
  *
  * When no text is selected, {@linkcode start} and {@linkcode end} positions are the same (cursor position)
- * 
+ *
  * @see {@linkcode Position} for position type details
  */
 export interface Range {

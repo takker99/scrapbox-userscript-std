@@ -51,7 +51,9 @@ export type TweetInfoError =
  *   return;
  * }
  * const tweetInfo = result.val;
- * console.log("Tweet text:", tweetInfo.text);
+ * if (tweetInfo) {
+ *   console.log("Tweet text:", tweetInfo.text);
+ * }
  * ```
  *
  * Note: The function includes a 3000ms timeout for the API request.

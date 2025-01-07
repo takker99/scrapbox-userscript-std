@@ -2,7 +2,7 @@
  *
  * This function searches through the cache storage in reverse chronological order
  * to find the most recent cached response for a given request.
- * 
+ *
  * > [!Note]
  * > Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
  *

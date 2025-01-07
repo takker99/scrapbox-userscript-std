@@ -42,7 +42,7 @@ Prepare thumbnail
 Deno.test({
   name: "findMetadata()",
   ignore: true,
-  fn: (t) => assertSnapshot(t, findMetadata(text))
+  fn: (t) => assertSnapshot(t, findMetadata(text)),
 });
 
 // Test Helpfeel extraction (lines starting with "?")
@@ -50,7 +50,9 @@ Deno.test({
 Deno.test({
   name: "getHelpfeels()",
   ignore: true,
-  fn: () =>
-  assertEquals(getHelpfeels(text.split("\n").map((text) => ({ text }))), [
-    "Help needed with setup!!",
-  ]));
+  fn: () => {
+    assertEquals(getHelpfeels(text.split("\n").map((text) => ({ text }))), [
+      "Help needed with setup!!",
+    ]);
+  },
+});
