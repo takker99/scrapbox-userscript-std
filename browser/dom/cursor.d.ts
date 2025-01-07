@@ -16,7 +16,11 @@ export interface SetPositionOptions {
   source?: "mouse";
 }
 
-/** Class for managing cursor operations in the Scrapbox editor */
+/** Class for managing cursor operations in the Scrapbox editor
+ * 
+ * @see {@linkcode Position} for cursor position type details
+ * @see {@linkcode Page} for page data type details
+ */
 export declare class Cursor extends BaseStore<
   { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined
 > {
@@ -45,19 +49,19 @@ export declare class Cursor extends BaseStore<
   /** Hide the editor's popup menu */
   hidePopupMenu(): void;
 
-  /** Focus the cursor on #text-input and make it visible
+  /** Focus the cursor on `#text-input` and make it visible
    *
    * This action triggers the `event: "focusTextInput"` event
    */
   focus(): void;
 
-  /** Check if #text-input has focus
+  /** Check if `#text-input` has focus
    *
    * Returns the same value as `this.focusTextarea`
    */
   get hasFocus(): boolean;
 
-  /** Remove focus from #text-input without changing cursor visibility */
+  /** Remove focus from `#text-input` without changing cursor visibility */
   blur(): void;
 
   /** Adjust cursor position to stay within valid line and column boundaries */
@@ -71,13 +75,13 @@ export declare class Cursor extends BaseStore<
 
   /** Make the cursor visible
    *
-   * Does not change the focus state of #text-input
+   * Does not change the focus state of `#text-input`
    */
   show(): void;
 
   /** Hide the cursor
    *
-   * On touch devices, this also removes focus from #text-input
+   * On touch devices, this also removes focus from `#text-input`
    */
   hide(): void;
 

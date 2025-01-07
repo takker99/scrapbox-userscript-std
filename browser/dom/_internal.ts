@@ -1,5 +1,5 @@
 /**
- * Encodes `AddEventListenerOptions` into a number for equality comparison.
+ * Encodes {@linkcode AddEventListenerOptions} into a number for equality comparison.
  * This function converts the options object into a single number where each bit
  * represents a specific option (capture, once, passive).
  */
@@ -16,7 +16,7 @@ export const encode = (
   );
 };
 /**
- * Decodes a number back into `AddEventListenerOptions` object.
+ * Decodes a number back into {@linkcode AddEventListenerOptions} object.
  * Each bit in the encoded number represents a specific option:
  *
  * - `capture`: `0b001` (bit 0)
@@ -24,8 +24,8 @@ export const encode = (
  * - `passive`: `0b100` (bit 2)
  * - `0`: returns `undefined`
  *
- * @param encoded The number containing encoded `AddEventListenerOptions` flags
- * @returns An `AddEventListenerOptions` object or `undefined` if encoded value is 0
+ * @param encoded The number containing encoded {@linkcode AddEventListenerOptions} flags
+ * @returns An {@linkcode AddEventListenerOptions} object or `undefined` if encoded value is 0
  */
 export const decode = (
   encoded: number,

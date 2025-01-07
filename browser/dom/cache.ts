@@ -2,7 +2,9 @@
  *
  * This function searches through the cache storage in reverse chronological order
  * to find the most recent cached response for a given request.
- * Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
+ * 
+ * > [!Note]
+ * > Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
  *
  * @param request The request to find a cached response for
  * @param options Cache query options (e.g., to ignore search params)
@@ -46,7 +48,8 @@ export const generateCacheName = (date: Date): string =>
  * 1. `"prefetch"` cache - temporary storage, cleared after first use
  * 2. `"api-yyyy-MM-dd"` cache - date-based persistent storage
  *
- * Note: Throws an exception if the network connection is slow
+ * > [!Note]
+ * > Throws an exception if the network connection is slow
  *
  * @param urls List of API URLs to prefetch
  */
