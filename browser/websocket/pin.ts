@@ -43,8 +43,7 @@ export const pin = (
       ) return [];
       // Create page and pin it in a single operation
       // Note: The server accepts combined creation and pin operations
-      const pinChange: Change = { pin: pinNumber() };
-      const changes: Change[] = [pinChange];
+      const changes: Change[] = [{ pin: pinNumber() }];
       if (!page.persistent) changes.unshift({ title });
       return changes;
     },

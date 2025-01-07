@@ -41,8 +41,16 @@ export type ListenStreamError =
  *                 - once: Listen only once if true
  *
  * Example:
- * ```ts
- * listen(socket, "project:update", (data: ProjectUpdateData) => {
+ * ```typescript
+ * import { type ScrapboxSocket } from "./socket.ts";
+ * import { type ListenEvents } from "./listen-events.ts";
+ * 
+ * // Setup socket and controller
+ * const socket: ScrapboxSocket = /* ... */;
+ * const controller = new AbortController();
+ * 
+ * // Listen for project updates
+ * listen<"project:updates">(socket, "project:updates", (data) => {
  *   console.log("Project updated:", data);
  * }, { signal: controller.signal });
  * ```

@@ -97,7 +97,7 @@ export const getCodeBlocks = (
   const codeBlocks: TinyCodeBlock[] = [];
 
   let currentCode: CodeTitle & {
-    /** 読み取り中の行がコードブロックかどうか */
+    /** Whether the current line is part of a code block */
     isCodeBlock: boolean;
   } = {
     isCodeBlock: false,
@@ -137,7 +137,7 @@ export const getCodeBlocks = (
   return codeBlocks.filter((codeBlock) => isMatchFilter(codeBlock, filter));
 };
 
-/** コードブロックのフィルターに合致しているか検証する */
+/** Verify if a code block matches the specified filter criteria */
 const isMatchFilter = (
   codeBlock: TinyCodeBlock,
   filter?: GetCodeBlocksFilter,
