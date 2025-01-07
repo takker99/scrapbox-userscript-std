@@ -2,7 +2,7 @@ const AnchorFMRegExp =
   /https?:\/\/anchor\.fm\/[a-zA-Z\d_-]+\/episodes\/([a-zA-Z\d_-]+(?:\/[a-zA-Z\d_-]+)?)(?:\?[^\s]{0,100}|)/;
 
 /** Extract the episode ID from an Anchor FM URL
- * 
+ *
  * This function parses Anchor FM podcast episode URLs and extracts their unique
  * episode identifiers. It supports various Anchor FM URL formats including:
  * - https://anchor.fm/[show]/episodes/[episode-id]

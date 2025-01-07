@@ -17,7 +17,7 @@ export interface GetGyazoTokenOptions extends BaseOptions {
    *
    * Specify this parameter when you want to upload images to a Gyazo Teams workspace.
    * If not provided, the image will be uploaded to your personal Gyazo account.
-   * 
+   *
    * @example
    * ```typescript
    * const token = await getGyazoToken({ gyazoTeamsName: "my-team" });

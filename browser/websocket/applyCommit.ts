@@ -17,7 +17,7 @@ export interface ApplyCommitProp {
    * - Track who made each line modification
    * - Associate changes with user accounts
    * - Maintain edit history and attribution
-   */ 
+   */
   userId: string;
 }
 

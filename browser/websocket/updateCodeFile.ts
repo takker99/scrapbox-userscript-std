@@ -8,7 +8,7 @@ import { push, type PushError, type PushOptions } from "./push.ts";
 import type { Result } from "option-t/plain_result";
 
 /** Interface for specifying code block content and metadata for updates
- * 
+ *
  * This interface is used when you want to update or create a code block in a Scrapbox page.
  * It contains all necessary information about the code block, including its filename,
  * content, and optional language specification for syntax highlighting.
@@ -33,7 +33,7 @@ export interface SimpleCodeFile {
 }
 
 /** Configuration options for updateCodeFile() function
- * 
+ *
  * These options control how code blocks are created, updated, and formatted
  * in the Scrapbox page. They extend the standard PushOptions with additional
  * settings specific to code block management.
@@ -52,7 +52,7 @@ export interface UpdateCodeFileOptions extends PushOptions {
   insertPositionIfNotExist?: "top" | "bottom" | "notInsert";
 
   /** Controls automatic empty line insertion at the end of the page
-   * 
+   *
    * When `true` (default), automatically adds an empty line after the code block
    * This helps maintain consistent page formatting and improves readability by:
    * - Ensuring visual separation between content blocks
@@ -62,12 +62,12 @@ export interface UpdateCodeFileOptions extends PushOptions {
   isInsertEmptyLineInTail?: boolean;
 
   /** Enable debug output for troubleshooting
-   * 
+   *
    * When `true`, logs detailed information about the update process:
    * - Original code block content and structure
    * - New code being inserted or updated
    * - Generated commit operations
-   * 
+   *
    * Useful for understanding how the code block is being modified
    * and diagnosing any unexpected behavior.
    */
@@ -163,12 +163,12 @@ export const updateCodeFile = (
 };
 
 /** Convert an array of TinyCodeBlocks into a flat array of code lines
- * 
+ *
  * This helper function processes multiple code blocks and:
  * 1. Combines all code block contents into a single array
  * 2. Removes leading indentation from each line
  * 3. Preserves line IDs and other metadata
- * 
+ *
  * The resulting flat array is used for efficient diff generation
  * when comparing old and new code content. Removing indentation
  * ensures accurate content comparison regardless of the block's
@@ -184,16 +184,16 @@ const flatCodeBodies = (codeBlocks: readonly TinyCodeBlock[]): BaseLine[] => {
 };
 
 /** Generate commit operations from code block differences
- * 
+ *
  * This function analyzes the differences between old and new code content
  * to create a sequence of commit operations that will transform the old
  * content into the new content. It handles:
- * 
+ *
  * 1. Line additions (with proper indentation)
  * 2. Line deletions
  * 3. Line modifications
  * 4. Empty line management
- * 
+ *
  * The function maintains proper indentation for each code block and
  * ensures consistent formatting across the entire page.
  */

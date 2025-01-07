@@ -49,7 +49,7 @@ export interface TitleChange {
 }
 export interface FilesChange {
   /** Array of file IDs
-   * 
+   *
    * These IDs reference files that have been uploaded to the page.
    * Files can include images, documents, or other attachments.
    */
@@ -57,7 +57,7 @@ export interface FilesChange {
 }
 export interface HelpFeelsChange {
   /** Array of Helpfeel entries without the leading "? " prefix
-   * 
+   *
    * Helpfeel is a Scrapbox notation for creating help/documentation entries.
    * Example: "? How to use" becomes "How to use" in this array.
    * These entries are used to build the page's help documentation.
@@ -66,7 +66,7 @@ export interface HelpFeelsChange {
 }
 export interface infoboxDefinitionChange {
   /** Array of trimmed lines from infobox tables
-   * 
+   *
    * Contains lines from tables marked with either:
    * - `table:infobox`: Standard information box format
    * - `table:cosense`: Custom information box format

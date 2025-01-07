@@ -16,7 +16,7 @@ export interface SpotifyProps {
 }
 
 /** Parse a Spotify URL to extract content ID and type
- * 
+ *
  * This function analyzes URLs from open.spotify.com and extracts both the content ID
  * and the type of content. It supports various Spotify content types including:
  * - Tracks (songs)
@@ -25,10 +25,10 @@ export interface SpotifyProps {
  * - Albums
  * - Podcast episodes
  * - Podcast shows
- * 
+ *
  * The function handles URLs in the format:
  * https://open.spotify.com/{type}/{id}[?query_params]
- * 
+ *
  * @param url - The URL to parse, can be any string including non-Spotify URLs
  * @returns An object containing the content ID and type if the URL is a valid Spotify URL,
  *          undefined otherwise. For example, from "https://open.spotify.com/track/123"

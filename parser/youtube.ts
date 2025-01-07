@@ -16,7 +16,7 @@ const youtubeListRegExp =
 /** Properties extracted from a YouTube URL
  * This type represents the parsed data from different types of YouTube URLs.
  * It's a union type that handles both video-related URLs and playlist URLs.
- * 
+ *
  * For video URLs (standard, short URLs, or youtu.be links):
  * @property params - URL query parameters (e.g., timestamp, playlist reference)
  * @property videoId - The unique identifier of the video
@@ -24,7 +24,7 @@ const youtubeListRegExp =
  *   - "com": Standard youtube.com/watch?v= format
  *   - "dotbe": Short youtu.be/ format
  *   - "short": YouTube Shorts format
- * 
+ *
  * For playlist URLs:
  * @property params - URL query parameters
  * @property listId - The unique identifier of the playlist
@@ -41,26 +41,26 @@ export type YoutubeProps = {
 };
 
 /** Parse a YouTube URL to extract video/playlist ID and other properties
- * 
+ *
  * This function handles various YouTube URL formats:
  * 1. Standard video URLs:
  *    - https://www.youtube.com/watch?v={videoId}
  *    - https://music.youtube.com/watch?v={videoId}
- * 
+ *
  * 2. Short URLs:
  *    - https://youtu.be/{videoId}
  *    - Can include optional query parameters
- * 
+ *
  * 3. YouTube Shorts:
  *    - https://youtube.com/shorts/{videoId}
  *    - https://www.youtube.com/shorts/{videoId}
- * 
+ *
  * 4. Playlist URLs:
  *    - https://youtube.com/playlist?list={listId}
  *    - https://music.youtube.com/playlist?list={listId}
- * 
+ *
  * The function preserves all query parameters from the original URL.
- * 
+ *
  * @param url - Any URL or string to parse
  * @returns A YoutubeProps object containing the extracted information if the URL
  *          is a valid YouTube URL, undefined otherwise

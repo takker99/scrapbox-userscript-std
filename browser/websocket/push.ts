@@ -195,14 +195,14 @@ export const push = async (
 
       // Prepare commit data for WebSocket transmission
       const data: PageCommit = {
-        kind: "page",                    // Indicates page modification
-        projectId: metadata.projectId,   // Project scope
-        pageId: metadata.id,             // Target page
-        parentId: metadata.commitId,     // Base commit for change
-        userId: metadata.userId,         // Change author
-        changes,                         // Actual modifications
-        cursor: null,                    // No cursor position
-        freeze: true,                    // Prevent concurrent edits
+        kind: "page", // Indicates page modification
+        projectId: metadata.projectId, // Project scope
+        pageId: metadata.id, // Target page
+        parentId: metadata.commitId, // Base commit for change
+        userId: metadata.userId, // Change author
+        changes, // Actual modifications
+        cursor: null, // No cursor position
+        freeze: true, // Prevent concurrent edits
       };
 
       // Inner loop: handles WebSocket communication and error recovery
@@ -231,13 +231,13 @@ export const push = async (
 
         // Temporary errors: retry after delay
         if (name === "TimeoutError" || name === "SocketIOError") {
-          await delay(3000);  // Wait 3 seconds before retry
-          continue;           // Retry push with same changes
+          await delay(3000); // Wait 3 seconds before retry
+          continue; // Retry push with same changes
         }
 
         // Conflict error: page was modified by another user
         if (name === "NotFastForwardError") {
-          await delay(1000);  // Brief delay to avoid rapid retries
+          await delay(1000); // Brief delay to avoid rapid retries
           // Fetch latest page state
           const pullResult = await pull(project, title);
           if (isErr(pullResult)) return pullResult;
@@ -246,7 +246,7 @@ export const push = async (
 
         // Store error for next attempt and regenerate changes
         reason = name;
-        break;  // Exit push loop, retry with new changes
+        break; // Exit push loop, retry with new changes
       }
     }
 

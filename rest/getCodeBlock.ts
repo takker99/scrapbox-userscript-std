@@ -153,7 +153,7 @@ export type CodeBlockError =
  *   "example.js",
  *   { sid: "session-id" }
  * );
- * 
+ *
  * if (result.ok) {
  *   // Success case
  *   console.log("Code content:", result.val);

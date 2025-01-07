@@ -4,7 +4,7 @@ import { decode, encode } from "./_internal.ts";
 declare const scrapbox: Scrapbox;
 
 /** Map structure for tracking event listeners and their options
- * 
+ *
  * Structure:
  * - First level: Maps event names to their listeners
  * - Second level: Maps each listener to its set of encoded options
@@ -74,7 +74,7 @@ export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
     const encoded = encode(options);
 
     /** A wrapper listener that removes itself from the `listenerMap` when called
-     * 
+     *
      * This wrapper ensures proper cleanup of both the DOM event listener and our
      * internal listener tracking when a 'once' listener is triggered.
      */

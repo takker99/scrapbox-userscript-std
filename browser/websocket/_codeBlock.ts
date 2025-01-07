@@ -1,7 +1,7 @@
 import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
 
 /** Interface for storing code block title line information
- * 
+ *
  * In Scrapbox, code blocks start with a title line that defines:
  * - The code's filename or language identifier
  * - Optional language specification in parentheses
@@ -55,7 +55,7 @@ export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {
 };
 
 /** Calculate the indentation level for code block content
- * 
+ *
  * The content of a code block is indented one level deeper than its title line.
  * This function determines the correct indentation by analyzing the title line's
  * whitespace and adding one additional level.

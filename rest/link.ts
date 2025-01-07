@@ -130,7 +130,7 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
  *   return;
  * }
  * const { pages, followingId } = result.val;
- * 
+ *
  * // Get next page if available
  * if (followingId) {
  *   const nextResult = await getLinks("project-name", { followingId });

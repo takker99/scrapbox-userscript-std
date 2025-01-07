@@ -38,7 +38,7 @@ export const takeInternalLines = (): readonly BaseLine[] => {
 };
 
 /** Internal React Fiber node structure for accessing line data
- * 
+ *
  * This interface represents the minimal structure needed to access
  * the lines data from React's component props. This is an implementation
  * detail that depends on React's internal structure.

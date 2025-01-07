@@ -4,13 +4,13 @@ import type { Selection } from "./selection.d.ts";
 export type { Cursor, Selection };
 
 /** Retrieve Scrapbox's internal cursor and selection stores from the DOM
- * 
+ *
  * This function accesses React's internal fiber tree to obtain references to
  * the Cursor and Selection store instances that Scrapbox uses to manage
  * text input state. These stores provide APIs for:
  * - Cursor: Managing text cursor position and movement
  * - Selection: Handling text selection ranges and operations
- * 
+ *
  * @throws {Error} If text input element or stores cannot be found
  * @returns Object containing cursor and selection store instances
  */
@@ -52,7 +52,7 @@ export const takeStores = (): { cursor: Cursor; selection: Selection } => {
 };
 
 /** Internal React Fiber node structure
- * 
+ *
  * This interface represents the minimal structure we need from React's
  * internal fiber tree to access Scrapbox's store instances. Note that
  * this is an implementation detail and might change with React updates.

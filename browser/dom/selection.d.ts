@@ -36,7 +36,7 @@ export declare class Selection extends BaseStore<undefined> {
    *
    * @param range The selection range to normalize
    * @return The normalized range with start position at the beginning
-   * 
+   *
    * This is useful when you need consistent text processing regardless of
    * whether the user selected text from top-to-bottom or bottom-to-top.
    */

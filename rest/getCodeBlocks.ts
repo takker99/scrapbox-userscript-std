@@ -5,7 +5,7 @@ import {
 } from "../browser/websocket/_codeBlock.ts";
 
 /** Minimal information about a code block that can be extracted from pull() response
- * 
+ *
  * This interface represents the essential structure of a code block in Scrapbox,
  * containing only the information that can be reliably extracted from the page content.
  */
@@ -46,7 +46,7 @@ export interface TinyCodeBlock {
 }
 
 /** Filter options for getCodeBlocks()
- * 
+ *
  * This interface allows you to filter code blocks by various criteria.
  * All filters are optional and can be combined. When multiple filters
  * are specified, they are combined with AND logic (all must match).

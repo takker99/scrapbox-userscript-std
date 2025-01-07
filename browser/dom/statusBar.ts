@@ -2,7 +2,7 @@ import { statusBar } from "./dom.ts";
 
 export interface UseStatusBarResult {
   /** Display information in the acquired status bar section
-   * 
+   *
    * @param items Array of items to display (text, icons, or groups)
    */
   render: (...items: Item[]) => void;
@@ -11,7 +11,7 @@ export interface UseStatusBarResult {
 }
 
 /** Get a section of the status bar and return functions to manipulate it
- * 
+ *
  * The status bar is divided into sections, each managed independently.
  * This hook creates a new section and provides methods to:
  * - Display information (text and icons) in the section
@@ -77,7 +77,7 @@ const makeItem = (child: string | Node) => {
 };
 
 /** Create a loading spinner icon
- * 
+ *
  * Creates a FontAwesome spinner icon wrapped in a status bar item.
  * Use this to indicate loading or processing states.
  */
@@ -88,7 +88,7 @@ const makeSpinner = () => {
 };
 
 /** Create a checkmark icon
- * 
+ *
  * Creates a Kamon checkmark icon wrapped in a status bar item.
  * Use this to indicate successful completion or confirmation.
  */
@@ -99,7 +99,7 @@ const makeCheckCircle = () => {
 };
 
 /** Create a warning icon
- * 
+ *
  * Creates a FontAwesome warning triangle icon wrapped in a status bar item.
  * Use this to indicate warnings, errors, or important notices.
  */

@@ -28,7 +28,7 @@ export interface RESTfullAPIErrorMap {
 }
 
 /** Extracts error information from a failed HTTP request
- * 
+ *
  * This function parses the response from a failed HTTP request to extract structured error information.
  * It handles various error types including authentication, permission, and validation errors.
  * Returns Maybe<T> where T is the specific error type requested in errorNames.

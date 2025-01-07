@@ -1,4 +1,4 @@
-/** 
+/**
  * Encodes `AddEventListenerOptions` into a number for equality comparison.
  * This function converts the options object into a single number where each bit
  * represents a specific option (capture, once, passive).
@@ -15,7 +15,7 @@ export const encode = (
     (options.passive ? 4 : 0)
   );
 };
-/** 
+/**
  * Decodes a number back into `AddEventListenerOptions` object.
  * Each bit in the encoded number represents a specific option:
  *

@@ -71,9 +71,9 @@ export const updateCodeBlock = (
       // The diffGenerator creates a sequence of Insert/Update/Delete
       // operations that transform the old code into the new code
       const diffGenerator = diffToChanges(
-        oldCodeWithoutIndent,  // Original code without indentation
-        newCodeBody,           // New code content
-        page,                  // Page metadata for line IDs
+        oldCodeWithoutIndent, // Original code without indentation
+        newCodeBody, // New code content
+        page, // Page metadata for line IDs
       );
 
       // Process the changes to restore proper indentation
@@ -141,21 +141,19 @@ function* fixCommits(
     // Delete operations don't need indentation adjustment
     if ("_delete" in commit) {
       yield commit;
-    }
-    // Update operations need their text indented
+    } // Update operations need their text indented
     else if ("_update" in commit) {
       yield {
         ...commit,
         lines: {
           ...commit.lines,
-          text: indent + commit.lines.text,  // Add block's indentation
+          text: indent + commit.lines.text, // Add block's indentation
         },
       };
-    }
-    // Handle insert operations based on their position
+    } // Handle insert operations based on their position
     else if (
-      commit._insert != "_end" ||  // Not an end insertion
-      nextLine === null            // No next line exists
+      commit._insert != "_end" || // Not an end insertion
+      nextLine === null // No next line exists
     ) {
       // Regular insertion - just add indentation
       yield {
@@ -168,7 +166,7 @@ function* fixCommits(
     } else {
       // End insertion - use nextLine's ID and add indentation
       yield {
-        _insert: nextLine.id,      // Insert before the next line
+        _insert: nextLine.id, // Insert before the next line
         lines: {
           ...commit.lines,
           text: indent + commit.lines.text,

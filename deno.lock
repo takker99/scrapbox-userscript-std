@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@core/unknownutil@4": "4.3.0",
     "jsr:@cosense/types@0.10": "0.10.1",
+    "jsr:@cosense/types@~0.10.4": "0.10.4",
     "jsr:@progfay/scrapbox-parser@9": "9.1.5",
     "jsr:@std/assert@1": "1.0.7",
     "jsr:@std/assert@^1.0.7": "1.0.7",
@@ -20,8 +21,7 @@
     "jsr:@std/testing@1": "1.0.4",
     "jsr:@takker/gyazo@*": "0.3.0",
     "jsr:@takker/md5@0.1": "0.1.0",
-    "npm:option-t@*": "50.0.0",
-    "npm:option-t@50": "50.0.0",
+    "npm:option-t@51": "51.0.0",
     "npm:option-t@^49.1.0": "49.3.0",
     "npm:socket.io-client@^4.7.5": "4.8.1"
   },
@@ -31,6 +31,9 @@
     },
     "@cosense/types@0.10.1": {
       "integrity": "13d2488a02c7b0b035a265bc3299affbdab1ea5b607516379685965cd37b2058"
+    },
+    "@cosense/types@0.10.4": {
+      "integrity": "04423c152a525df848c067f9c6aa05409baadf9da15d8e4569e1bcedfa3c7624"
     },
     "@progfay/scrapbox-parser@9.1.5": {
       "integrity": "729a086b6675dd4a216875757c918c6bbea329d6e35e410516a16bbd6c468369"
@@ -133,8 +136,8 @@
     "option-t@49.3.0": {
       "integrity": "sha512-MQFSbqNnjEzQahREx7r1tESmK2UctFK+zmwmnHpBHROJvoRGM9tDMWi53B6ePyFJyAiggRRV9cuXedkpLBeC8w=="
     },
-    "option-t@50.0.0": {
-      "integrity": "sha512-zHw9Et+SfAx3Xtl9LagyAjyyzC3pNONEinTAOmZN2IKL0dYa6dthjzwuSRueJ2gLkaTiinQjRDGo/1mKSl70hg=="
+    "option-t@51.0.0": {
+      "integrity": "sha512-qgmiuyGKqWdK/dWxX6JX8KX/I0XPyKKZysKioMqXz5+uElzYe+Av5LyF5rMXiBDD2/46RnWrHRYwsKeo5jht2A=="
     },
     "socket.io-client@4.8.1": {
       "integrity": "sha512-hJVXfu3E28NmzGk8o1sHhN3om52tRvwYeidbj7xKy2eIIse5IoKX3USlS6Tqt3BHAtflLIkCQBkzVrEEfWUyYQ==",
@@ -163,6 +166,7 @@
     "dependencies": [
       "jsr:@core/unknownutil@4",
       "jsr:@cosense/types@0.10",
+      "jsr:@cosense/types@~0.10.4",
       "jsr:@progfay/scrapbox-parser@9",
       "jsr:@std/assert@1",
       "jsr:@std/async@1",
@@ -170,7 +174,7 @@
       "jsr:@std/json@1",
       "jsr:@std/testing@1",
       "jsr:@takker/md5@0.1",
-      "npm:option-t@50",
+      "npm:option-t@51",
       "npm:socket.io-client@^4.7.5"
     ]
   }
