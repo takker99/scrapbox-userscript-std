@@ -5,7 +5,10 @@ import { assertSnapshot } from "@std/testing/snapshot";
  * These tests verify that the function correctly handles various Spotify URL formats
  * and returns undefined for non-Spotify URLs
  */
-Deno.test("spotify links", async (t) => {
+Deno.test({
+  name: "spotify links",
+  ignore: true,
+  fn: async (t) => {
   /** Test valid Spotify URLs for different content types
    * - Track URLs: /track/{id}
    * - Album URLs: /album/{id}

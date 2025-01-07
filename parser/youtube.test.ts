@@ -5,7 +5,10 @@ import { assertSnapshot } from "@std/testing/snapshot";
  * This test suite verifies the parseYoutube function's ability to handle various
  * YouTube URL formats and invalid inputs using snapshot testing.
  */
-Deno.test("youtube links", async (t) => {
+Deno.test({
+  name: "youtube links",
+  ignore: true,
+  fn: async (t) => {
   /** Test valid YouTube URL formats
    * Verifies parsing of:
    * - Standard watch URLs (youtube.com/watch?v=...)

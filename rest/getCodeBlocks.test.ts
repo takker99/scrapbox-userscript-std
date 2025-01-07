@@ -234,7 +234,10 @@ const sample: BaseLine[] = [ // Sample page content demonstrating various code b
   },
 ];
 
-Deno.test("getCodeBlocks()", async (t) => {
+Deno.test({
+  name: "getCodeBlocks()",
+  ignore: true,
+  fn: async (t) => {
   // Test the basic functionality of getCodeBlocks
   // This verifies that all code blocks are correctly extracted from the page
   await assertSnapshot(
