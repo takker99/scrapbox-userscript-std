@@ -238,53 +238,54 @@ Deno.test({
   name: "getCodeBlocks()",
   ignore: true,
   fn: async (t) => {
-  // Test the basic functionality of getCodeBlocks
-  // This verifies that all code blocks are correctly extracted from the page
-  await assertSnapshot(
-    t,
-    getCodeBlocks({ project, title, lines: sample }),
-  );
+    // Test the basic functionality of getCodeBlocks
+    // This verifies that all code blocks are correctly extracted from the page
+    await assertSnapshot(
+      t,
+      getCodeBlocks({ project, title, lines: sample }),
+    );
 
-  // Test filtering code blocks by filename
-  // This ensures that we can retrieve specific code blocks by their filename
-  await t.step("filename filter", async (st) => {
-    const filename = "インデント.md";
-    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
-      filename,
+    // Test filtering code blocks by filename
+    // This ensures that we can retrieve specific code blocks by their filename
+    await t.step("filename filter", async (st) => {
+      const filename = "インデント.md";
+      const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
+        filename,
+      });
+      const yet = [];
+      for (const codeBlock of codeBlocks) {
+        yet.push(assertEquals(codeBlock.filename, filename));
+      }
+      await Promise.all(yet);
+      await assertSnapshot(st, codeBlocks);
     });
-    const yet = [];
-    for (const codeBlock of codeBlocks) {
-      yet.push(assertEquals(codeBlock.filename, filename));
-    }
-    await Promise.all(yet);
-    await assertSnapshot(st, codeBlocks);
-  });
-  // Test filtering code blocks by programming language
-  // This verifies that we can find all code blocks of a specific language
-  await t.step("language name filter", async (st) => {
-    const lang = "py";
-    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
-      lang,
+    // Test filtering code blocks by programming language
+    // This verifies that we can find all code blocks of a specific language
+    await t.step("language name filter", async (st) => {
+      const lang = "py";
+      const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
+        lang,
+      });
+      const yet = [];
+      for (const codeBlock of codeBlocks) {
+        yet.push(assertEquals(codeBlock.lang, lang));
+      }
+      await Promise.all(yet);
+      await assertSnapshot(st, codeBlocks);
     });
-    const yet = [];
-    for (const codeBlock of codeBlocks) {
-      yet.push(assertEquals(codeBlock.lang, lang));
-    }
-    await Promise.all(yet);
-    await assertSnapshot(st, codeBlocks);
-  });
-  // Test filtering code blocks by their title line ID
-  // This ensures we can find code blocks starting at a specific line in the page
-  await t.step("title line ID filter", async (st) => {
-    const titleLineId = "63b7b1261280f00000c9bc34";
-    const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
-      titleLineId,
+    // Test filtering code blocks by their title line ID
+    // This ensures we can find code blocks starting at a specific line in the page
+    await t.step("title line ID filter", async (st) => {
+      const titleLineId = "63b7b1261280f00000c9bc34";
+      const codeBlocks = getCodeBlocks({ project, title, lines: sample }, {
+        titleLineId,
+      });
+      const yet = [];
+      for (const codeBlock of codeBlocks) {
+        yet.push(assertEquals(codeBlock.titleLine.id, titleLineId));
+      }
+      await Promise.all(yet);
+      await assertSnapshot(st, codeBlocks);
     });
-    const yet = [];
-    for (const codeBlock of codeBlocks) {
-      yet.push(assertEquals(codeBlock.titleLine.id, titleLineId));
-    }
-    await Promise.all(yet);
-    await assertSnapshot(st, codeBlocks);
-  });
+  },
 });
