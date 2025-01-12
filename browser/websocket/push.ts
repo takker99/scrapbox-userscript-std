@@ -40,8 +40,8 @@ export interface PushOptions {
 
   /** Maximum number of push retry attempts
    *
-   * When this limit is exceeded, the operation fails with a `RetryError`.
-   * Each retry occurs when there's a conflict (NotFastForwardError) or
+   * When this limit is exceeded, the operation fails with a {@linkcode RetryError}.
+   * Each retry occurs when there's a conflict ({@linkcode NotFastForwardError}) or
    * duplicate title issue, allowing the client to resolve the conflict
    * by fetching the latest page state and recreating the changes.
    */
@@ -86,12 +86,12 @@ export interface UnexpectedError extends ErrorLike {
  *
  * This union type includes all possible errors that may occur during
  * a push operation, including:
- * - Operation errors (Retry, Unexpected)
- * - WebSocket errors (SocketIOServerDisconnect, UnexpectedRequest)
- * - Authentication errors (NotLoggedIn)
- * - Authorization errors (NotMember)
- * - Resource errors (NotFound, TooLongURI)
- * - Network errors (Network, Abort, HTTP)
+ * - Operation errors ({@linkcode RetryError}, {@linkcode UnexpectedError})
+ * - WebSocket errors ({@linkcode SocketIOServerDisconnectError}, {@linkcode UnexpectedRequestError})
+ * - Authentication errors ({@linkcode NotLoggedInError})
+ * - Authorization errors ({@linkcode NotMemberError})
+ * - Resource errors ({@linkcode NotFoundError}, {@linkcode TooLongURIError})
+ * - Network errors ({@linkcode NetworkError}, {@linkcode AbortError}, {@linkcode HTTPError})
  */
 export type PushError =
   | RetryError
@@ -117,8 +117,8 @@ export type PushError =
  * @param attempts - Current attempt number (starts from 1)
  * @param prev - Changes from the previous attempt (empty on first try)
  * @param reason - If retrying, explains why the previous attempt failed:
- *                - NotFastForwardError: Concurrent modification detected
- *                - DuplicateTitleError: Page title already exists
+ *                - `"NotFastForwardError"`: Concurrent modification detected
+ *                - `"DuplicateTitleError"`: Page title already exists
  * @returns Array of changes to apply, or empty array to cancel the push
  */
 export type CommitMakeHandler = (
@@ -150,8 +150,8 @@ export type CommitMakeHandler = (
  *                    Return empty array to cancel the operation.
  * @param options - Optional configuration for push behavior
  * @returns On success/cancel: new commit ID
- *          On max retries: RetryError
- *          On other errors: Various error types (see PushError)
+ *          On max retries: {@linkcode RetryError}
+ *          On other errors: Various error types (see {@linkcode PushError})
  */
 export const push = async (
   project: string,
@@ -254,7 +254,7 @@ export const push = async (
     return createErr({
       name: "RetryError",
       attempts,
-      // Error message format from Deno standard library
+      // Error message format from [Deno standard library](https://github.com/denoland/deno_std/blob/0.223.0/async/retry.ts#L23)
       message: `Retrying exceeded the maxAttempts (${attempts}).`,
     });
   } finally {

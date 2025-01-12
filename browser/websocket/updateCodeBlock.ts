@@ -14,12 +14,14 @@ import type { Result } from "option-t/plain_result";
  * maintaining all WebSocket connection and retry settings.
  */
 export interface UpdateCodeBlockOptions extends PushOptions {
-  /** Enable debug output when true
+  /** Enable debug output when `true`
    *
    * When enabled, logs detailed information about:
    * - Original code block state
    * - New code content
    * - Generated change commits
+   *
+   * @default {false}
    */
   debug?: boolean;
 }
@@ -32,22 +34,22 @@ export interface UpdateCodeBlockOptions extends PushOptions {
  * 3. Optional filename/language updates
  * 4. WebSocket-based synchronization
  *
- * When provided with a SimpleCodeFile object, this function will also
+ * When provided with a {@linkcode SimpleCodeFile} object, this function will also
  * update the code block's filename and language settings. String or
  * string array inputs will only modify the content while preserving
  * the existing filename and language.
  *
  * @param newCode - New content for the code block:
- *                 - string: Single-line content
- *                 - string[]: Multi-line content
- *                 - SimpleCodeFile: Content with metadata (filename, language)
+ *                 - `string`: Single-line content
+ *                 - `string[]`: Multi-line content
+ *                 - {@linkcode SimpleCodeFile}: Content with metadata (filename, language)
  * @param target - Existing code block to update, including its current
  *                state and page information
  * @param options - Optional configuration for debugging and WebSocket
  *                 connection management
  * @returns Promise resolving to:
  *          - Success: New commit ID
- *          - Failure: Various error types (see PushError)
+ *          - Failure: Various error types (see {@linkcode PushError})
  */
 export const updateCodeBlock = (
   newCode: string | string[] | SimpleCodeFile,
@@ -107,9 +109,9 @@ export const updateCodeBlock = (
  *
  * Handles different input types uniformly by converting them into
  * an array of code lines:
- * - SimpleCodeFile: Extracts content field
- * - string[]: Uses directly
- * - string: Splits into lines
+ * - {@linkcode SimpleCodeFile}: Extracts content field
+ * - `string[]`: Uses directly
+ * - `string`: Splits into lines
  */
 const getCodeBody = (code: string | string[] | SimpleCodeFile): string[] => {
   const content = isSimpleCodeFile(code) ? code.content : code;
@@ -181,8 +183,8 @@ function* fixCommits(
  * Creates an update commit for the title line when the filename
  * or language settings differ from the current block. The title
  * format follows the pattern:
- * - Basic: filename.ext
- * - With language: filename.ext(language)
+ * - Basic: `filename.ext`
+ * - With language: `filename.ext(language)`
  *
  * The function is smart enough to:
  * 1. Preserve existing title if no changes needed

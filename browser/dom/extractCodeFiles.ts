@@ -28,7 +28,7 @@ export interface CodeBlock {
 
   /** Lines of code within the block
    *
-   * Excludes .code-title
+   * Excludes `.code-title`
    *
    * Indentation is already removed from each line
    */
@@ -54,7 +54,7 @@ export const extractCodeFiles = (
         startId: line.id,
         endId: line.id,
         updated: line.updated,
-        // Register the indentation level of .code-title, not the content
+        // Register the indentation level of `.code-title`, not the content
         indent: rest.indent - 1,
         lines: [],
       });

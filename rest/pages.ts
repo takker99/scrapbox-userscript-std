@@ -20,7 +20,7 @@ import { unwrapOrForMaybe } from "option-t/maybe";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./robustFetch.ts";
 
-/** Options for `getPage()` */
+/** Options for {@linkcode getPage} */
 export interface GetPageOption extends BaseOptions {
   /** use `followRename` */
   followRename?: boolean;
@@ -81,7 +81,7 @@ const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
   );
 
 export interface GetPage {
-  /** Constructs a request for the /api/pages/:project/:title endpoint
+  /** Constructs a request for the `/api/pages/:project/:title` endpoint
    *
    * @param project The project name containing the desired page
    * @param title The page title to retrieve (case insensitive)
@@ -140,7 +140,7 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
   return fn;
 })();
 
-/** Options for `listPages()` */
+/** Options for {@linkcode listPages} */
 export interface ListPagesOption extends BaseOptions {
   /** the sort of page list to return
    *
@@ -168,7 +168,7 @@ export interface ListPagesOption extends BaseOptions {
 }
 
 export interface ListPages {
-  /** Constructs a request for the /api/pages/:project endpoint
+  /** Constructs a request for the `/api/pages/:project` endpoint
    *
    * @param project The project name to list pages from
    * @param options Additional configuration options (sorting, pagination, etc.)

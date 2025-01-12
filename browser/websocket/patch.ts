@@ -31,10 +31,10 @@ export interface PatchMetadata extends Page {
  * @param update - Function to generate new content:
  *                - Input: Current page lines and metadata
  *                - Return values:
- *                  - string[]: New page content
- *                  - undefined: Abort modification
- *                  - []: Delete the page
- *                Can be async (returns Promise)
+ *                  - `string[]`: New page content
+ *                  - `undefined`: Abort modification
+ *                  - `[]`: Delete the page
+ *                Can be async (returns `Promise`)
  * @param options - Optional WebSocket configuration
  *
  * Special cases:

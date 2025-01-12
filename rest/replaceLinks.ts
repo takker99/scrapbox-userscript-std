@@ -24,13 +24,14 @@ export type ReplaceLinksError =
 
 /** Replaces all links within the specified project
  *
- * Important: This function only replaces links, not page titles.
- * - If you need to replace page titles as well, use `patch()` from /browser/mod.ts
+ * > [!IMPORTANT]
+ * > This function only replaces links, not page titles.
+ * > If you need to replace page titles as well, use {@linkcode patch}
  *
  * @param project The project name where all links will be replaced
  * @param from The original link text to be replaced
  * @param to The new link text to replace with
- * @param init Options including connect.sid (session ID) and other configuration
+ * @param init Options including `connect.sid` (session ID) and other configuration
  * @return The number of pages where links were replaced
  */
 export const replaceLinks = async (

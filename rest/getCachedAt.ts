@@ -1,7 +1,7 @@
 /** Get the timestamp when a response was cached by the ServiceWorker
  *
  * This function retrieves the timestamp when a Response was cached by the
- * ServiceWorker, using a custom header 'x-serviceworker-cached'. ServiceWorkers
+ * ServiceWorker, using a custom header `x-serviceworker-cached`. ServiceWorkers
  * are web workers that act as proxy servers between web apps, the browser,
  * and the network, enabling offline functionality and faster page loads.
  *
@@ -9,8 +9,8 @@
  * @returns
  * - A number representing the UNIX timestamp (milliseconds since epoch) when
  *   the response was cached by the ServiceWorker
- * - undefined if:
- *   1. The response wasn't cached (no x-serviceworker-cached header)
+ * - `undefined` if:
+ *   1. The response wasn't cached (no `x-serviceworker-cached` header)
  *   2. The header value couldn't be parsed as a number
  *
  * @example

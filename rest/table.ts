@@ -60,7 +60,7 @@ export type TableError =
   | HTTPError;
 
 export interface GetTable {
-  /** Build a request for /api/table/:project/:title/:filename.csv endpoint
+  /** Build a request for `/api/table/:project/:title/:filename.csv` endpoint
    *
    * @param project Name of the project containing the target page
    * @param title Title of the page (case-insensitive)

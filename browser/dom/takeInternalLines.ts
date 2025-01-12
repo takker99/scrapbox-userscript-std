@@ -4,16 +4,16 @@ import type { BaseLine } from "@cosense/types/userscript";
 /** Get a reference to Scrapbox's internal page content data
  *
  * This function provides direct access to the page content without deep cloning,
- * unlike `scrapbox.Page.lines` which creates a deep copy. Use this when:
+ * unlike `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}` which creates a deep copy. Use this when:
  * - You need better performance by avoiding data cloning
  * - You only need to read the raw line data
  *
- * Important Notes:
- * - This returns a direct reference to the internal data. While the type definition
- *   marks it as readonly, the content can still be modified through JavaScript.
- *   Be careful not to modify the data to avoid unexpected behavior.
- * - Unlike `scrapbox.Page.lines`, the returned data does not include parsed
- *   syntax information (no syntax tree or parsed line components).
+ * > [!IMPORTANT]
+ * > - This returns a direct reference to the internal data. While the type definition
+ * >   marks it as readonly, the content can still be modified through JavaScript.
+ * >   Be careful not to modify the data to avoid unexpected behavior.
+ * > - Unlike `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}`, the returned data does not include parsed
+ * >   syntax information (no syntax tree or parsed line components).
  *
  * @returns A readonly array of BaseLine objects representing the page content
  */

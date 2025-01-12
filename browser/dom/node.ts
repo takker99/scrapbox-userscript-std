@@ -110,7 +110,7 @@ export const getText = <T extends HTMLElement>(
   if (value.classList.contains("char-index")) {
     return value.textContent ?? undefined;
   }
-  // When the element contains div.lines (which contains multiple div.line elements), return all text content concatenated
+  // When the element contains `div.lines` (which contains multiple div.line elements), return all text content concatenated
   if (
     value.classList.contains("line") ||
     value.getElementsByClassName("lines")?.[0]

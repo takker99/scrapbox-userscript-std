@@ -11,7 +11,7 @@ export interface PinOptions extends PushOptions {
    * This is useful when you want to create and pin placeholder pages
    * that will be filled with content later.
    *
-   * @default false
+   * @default {false}
    */
   create?: boolean;
 }
@@ -42,7 +42,7 @@ export const pin = (
         page.pin > 0 || (!page.persistent && !(options?.create ?? false))
       ) return [];
       // Create page and pin it in a single operation
-      // Note: The server accepts combined creation and pin operations
+      // @ts-ignore The server is expected to accept combined creation and pin operations
       const changes: Change[] = [{ pin: pinNumber() }];
       if (!page.persistent) changes.unshift({ title });
       return changes;
@@ -54,8 +54,7 @@ export interface UnPinOptions extends PushOptions {}
 
 /** Unpin a Scrapbox page, removing it from the pinned list
  *
- * This sets the page's pin number to 0, which effectively unpins it.
- * The page will return to its normal position in the project's page list.
+ * This sets the page's pin number to `0`, which effectively unpins it.
  *
  * @param project - Project containing the target page
  * @param title - Title of the page to unpin
@@ -77,12 +76,12 @@ export const unpin = (
 /** Calculate a pin number for sorting pinned pages
  *
  * The pin number is calculated as:
- * MAX_SAFE_INTEGER - (current Unix timestamp in seconds)
+ * {@linkcode Number.MAX_SAFE_INTEGER} - (current Unix timestamp in seconds)
  *
  * This ensures that:
  * 1. More recently pinned pages appear lower in the pinned list
  * 2. Pin numbers are unique and stable
- * 3. There's enough room for future pins (MAX_SAFE_INTEGER is very large)
+ * 3. There's enough room for future pins ({@linkcode Number.MAX_SAFE_INTEGER} is very large)
  */
 export const pinNumber = (): number =>
   Number.MAX_SAFE_INTEGER - Math.floor(Date.now() / 1000);

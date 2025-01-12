@@ -19,7 +19,7 @@ import {
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./mod.ts";
 
-/** Error that occurs when an invalid `timestampId` is provided */
+/** Error that occurs when an invalid `timestampId` is provided to {@linkcode getSnapshot} */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
   name: "InvalidPageSnapshotIdError";
 }
@@ -33,7 +33,7 @@ export type SnapshotError =
 
 /** get a page snapshot
  *
- * @param options connect.sid etc.
+ * @param options `connect.sid` etc.
  */
 export const getSnapshot = async (
   project: string,
@@ -82,7 +82,7 @@ export type SnapshotTimestampIdsError =
  * @param project - The name of the project.
  * @param pageId - The ID of the page.
  * @param options - Optional configuration options.
- * @returns A promise that resolves to a {@link Result} object containing the page snapshot list if successful,
+ * @returns A promise that resolves to a {@linkcode Result} object containing the page snapshot list if successful,
  * or an error if the request fails.
  */
 export const getTimestampIds = async (

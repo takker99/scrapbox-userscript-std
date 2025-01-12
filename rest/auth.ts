@@ -6,11 +6,11 @@ import type { ExtendedOptions } from "./options.ts";
 
 /** Create a cookie string for HTTP headers
  *
- * This function creates a properly formatted cookie string for the connect.sid
+ * This function creates a properly formatted cookie string for the `connect.sid`
  * session identifier, which is used for authentication in Scrapbox.
  *
- * @param sid - The session ID string stored in connect.sid
- * @returns A formatted cookie string in the format "connect.sid={sid}"
+ * @param sid - The session ID string stored in `connect.sid`
+ * @returns A formatted cookie string in the format `"connect.sid={sid}"`
  */
 export const cookie = (sid: string): string => `connect.sid=${sid}`;
 
@@ -18,8 +18,8 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  *
  * CSRF (Cross-Site Request Forgery) tokens are security measures that protect
  * against unauthorized requests. This function retrieves the token either from:
- * 1. The provided options object
- * 2. The global _csrf variable
+ * 1. `init.csrf`
+ * 2. `globalThis._csrf`
  * 3. The user profile (if neither of the above is available)
  *
  * @param init - Optional configuration including authentication details
@@ -27,7 +27,7 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  *              to get the token from other sources.
  * @returns A Result containing either:
  *          - Success: The CSRF token string
- *          - Error: NetworkError, AbortError, or HTTPError if retrieval fails
+ *          - Error: {@linkcode NetworkError}, {@linkcode AbortError}, or {@linkcode HTTPError} if retrieval fails
  */
 export const getCSRFToken = async (
   init?: ExtendedOptions,

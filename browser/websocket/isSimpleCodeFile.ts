@@ -1,8 +1,8 @@
 import type { SimpleCodeFile } from "./updateCodeFile.ts";
 
-/** Type guard to check if an object is a SimpleCodeFile
+/** Check if an object is a {@linkcode SimpleCodeFile}
  *
- * SimpleCodeFile represents a code block in Scrapbox with:
+ * {@linkcode SimpleCodeFile} represents a code block in Scrapbox with:
  * - filename: Name of the code file or block identifier
  * - content: Code content as string or array of strings
  * - lang: Optional programming language identifier

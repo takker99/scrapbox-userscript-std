@@ -39,10 +39,10 @@ export interface PushMetadata extends Page {
  *
  * This union type includes all possible errors that may occur when
  * fetching page data, including:
- * - Authentication errors (NotLoggedIn)
- * - Authorization errors (NotMember)
- * - Resource errors (NotFound, TooLongURI)
- * - Network errors (Network, Abort, HTTP)
+ * - Authentication errors ({@linkcode NotLoggedInError})
+ * - Authorization errors ({@linkcode NotMemberError})
+ * - Resource errors ({@linkcode NotFoundError}, {@linkcode TooLongURIError})
+ * - Network errors ({@linkcode NetworkError}, {@linkcode AbortError}, {@linkcode HTTPError})
  */
 export type PullError =
   | NotFoundError
@@ -66,7 +66,7 @@ export type PullError =
  * @param project - Project containing the target page
  * @param title - Title of the page to fetch
  * @param options - Optional settings for the page request
- * @returns Result containing either PushMetadata or PullError
+ * @returns Result containing either {@linkcode PushMetadata} or {@linkcode PullError}
  */
 export const pull = async (
   project: string,

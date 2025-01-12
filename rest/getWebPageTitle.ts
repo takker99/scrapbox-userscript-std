@@ -31,16 +31,13 @@ export type WebPageTitleError =
  * @param url The URL of the web page to fetch the title from. Can be either
  *           a string or URL object.
  * @param init Optional configuration including:
- *             - sid: Scrapbox session ID for authentication
- *             - hostName: Custom Scrapbox host name
- *             - fetch: Custom fetch implementation
- * @returns A Result containing either:
- *          - Ok: The page title as a string
- *          - Err: One of several possible errors:
- *            - SessionError: Authentication issues
- *            - InvalidURLError: Malformed or invalid URL
- *            - BadRequestError: API request issues
- *            - HTTPError: Network or server errors
+ * @returns A {@linkcode Result} containing either:
+ *          - Success: The page title as a string
+ *          - Error: One of several possible errors:
+ *            - {@linkcode SessionError}: Authentication issues
+ *            - {@linkcode InvalidURLError}: Malformed or invalid URL
+ *            - {@linkcode BadRequestError}: API request issues
+ *            - {@linkcode HTTPError}: Network or server errors
  *
  * @example
  * ```typescript
@@ -53,7 +50,8 @@ export type WebPageTitleError =
  * console.log("Page title:", title);
  * ```
  *
- * Note: The function includes a 3000ms timeout for the API request.
+ * > [!NOTE]
+ * > The function includes a 3000ms timeout for the API request.
  */
 export const getWebPageTitle = async (
   url: string | URL,

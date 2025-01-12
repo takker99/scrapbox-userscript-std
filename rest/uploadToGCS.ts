@@ -129,7 +129,7 @@ const uploadRequest = async (
 
 /** Google Cloud Storage XML API error
  *
- * The `message` field contains XML in [this format](https://cloud.google.com/storage/docs/xml-api/reference-status#http-status-and-error-codes)
+ * The {@linkcode ErrorLike.message} field contains XML in [this format](https://cloud.google.com/storage/docs/xml-api/reference-status#http-status-and-error-codes)
  */
 export interface GCSError extends ErrorLike {
   name: "GCSError";

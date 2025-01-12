@@ -15,7 +15,7 @@ import type { Result } from "option-t/plain_result";
  */
 export interface SimpleCodeFile {
   /** The filename to be displayed in the code block's title
-   * This will appear as "code:filename" in the Scrapbox page
+   * This will appear as `code:{filename}` in the Scrapbox page
    */
   filename: string;
 
@@ -32,7 +32,7 @@ export interface SimpleCodeFile {
   lang?: string;
 }
 
-/** Configuration options for updateCodeFile() function
+/** Configuration options for {@linkcode updateCodeFile} function
  *
  * These options control how code blocks are created, updated, and formatted
  * in the Scrapbox page. They extend the standard PushOptions with additional
@@ -48,6 +48,8 @@ export interface UpdateCodeFileOptions extends PushOptions {
    *
    * This option is particularly useful when you want to ensure code blocks
    * are created in a consistent location across multiple pages.
+   *
+   * @default {"notInsert"}
    */
   insertPositionIfNotExist?: "top" | "bottom" | "notInsert";
 
@@ -58,6 +60,8 @@ export interface UpdateCodeFileOptions extends PushOptions {
    * - Ensuring visual separation between content blocks
    * - Making it easier to add new content after the code block
    * - Maintaining consistent spacing across all pages
+   *
+   * @default {true}
    */
   isInsertEmptyLineInTail?: boolean;
 
@@ -83,13 +87,13 @@ export interface UpdateCodeFileOptions extends PushOptions {
  * - Handling multiple code blocks with the same name
  * - Preserving indentation and block structure
  *
- * Key Features:
+ * ## Key Features:
  * 1. Safe by default: Does nothing if the target file doesn't exist (configurable)
  * 2. Handles multiple blocks: Can update all code blocks with the same name
  * 3. Maintains structure: Preserves indentation and block formatting
  * 4. Smart distribution: When updating multiple blocks, distributes content logically
  *
- * Important Notes:
+ * ## Important Notes:
  * - When multiple code blocks with the same name exist, the new content will be
  *   distributed across them. While the function attempts to maintain a logical
  *   distribution, the exact visual layout is not guaranteed.
@@ -99,7 +103,7 @@ export interface UpdateCodeFileOptions extends PushOptions {
  * @param codeFile - New content and metadata for the code file
  * @param project - Project name as used in the project URL settings
  * @param title - Title of the page to update
- * @param options - Additional configuration options (see UpdateCodeFileOptions)
+ * @param options - Additional configuration options (see {@linkcode UpdateCodeFileOptions})
  *
  * @example
  * ```typescript
@@ -162,7 +166,7 @@ export const updateCodeFile = (
   );
 };
 
-/** Convert an array of TinyCodeBlocks into a flat array of code lines
+/** Convert an array of {@linkcode TinyCodeBlock}s into a flat array of code lines
  *
  * This helper function processes multiple code blocks and:
  * 1. Combines all code block contents into a single array

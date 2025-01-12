@@ -20,7 +20,7 @@ export function* makeChanges(
   }
 
   // Handle title changes
-  // Note: We always include title change commits for new pages (persistent=false)
+  // Note: We always include title change commits for new pages (`persistent === false`)
   // to ensure proper page initialization
   if (before.lines[0].text !== after_[0] || !before.persistent) {
     yield { title: after_[0] };

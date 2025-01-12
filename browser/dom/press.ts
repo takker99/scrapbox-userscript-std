@@ -12,7 +12,8 @@ export interface PressOptions {
 /** Dispatches a keyboard event programmatically via JavaScript
  *
  * Used to send keyboard input commands to Scrapbox.
- * Note: This function appears to block synchronously until Scrapbox's event listeners
+ * > [!NOTE]
+ * > This function appears to block synchronously until Scrapbox's event listeners
  * finish processing the keyboard event.
  *
  * @param key The name of the key to simulate pressing

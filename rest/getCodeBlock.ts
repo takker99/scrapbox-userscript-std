@@ -50,31 +50,13 @@ const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
   );
 
 export interface GetCodeBlock {
-  /** Build a request to fetch a code block from /api/code/:project/:title/:filename
+  /** `/api/code/:project/:title/:filename` の要求を組み立てる
    *
-   * This method constructs a Request object to fetch the content of a code block
-   * from Scrapbox. A code block is a section of code in a Scrapbox page that is
-   * formatted as a distinct block, typically used for storing code snippets,
-   * configuration files, or other structured text.
-   *
-   * @param project - The name of the Scrapbox project containing the page
-   * @param title - The title of the page containing the code block
-   *               (case-insensitive)
-   * @param filename - The name of the code block file as it appears in the page
-   * @param options - Optional configuration for the request:
-   *                 - sid: Session ID for authenticated requests
-   *                 - hostName: Custom hostname for the Scrapbox instance
-   * @returns A Request object configured to fetch the code block
-   *
-   * @example
-   * ```typescript
-   * const request = getCodeBlock.toRequest(
-   *   "myproject",
-   *   "My Page",
-   *   "example.js",
-   *   { sid: "session-id" }
-   * );
-   * ```
+   * @param project 取得したいページのproject名
+   * @param title 取得したいページのtitle 大文字小文字は問わない
+   * @param filename 取得したいコードブロックのファイル名
+   * @param options オプション
+   * @return request
    */
   toRequest: (
     project: string,
@@ -83,30 +65,10 @@ export interface GetCodeBlock {
     options?: BaseOptions,
   ) => Request;
 
-  /** Extract code content from the API response
+  /** 帰ってきた応答からコードを取得する
    *
-   * This method processes the Response from the Scrapbox API and handles various
-   * error cases that might occur when fetching a code block:
-   * - NotFoundError: The code block doesn't exist
-   * - NotLoggedInError: Authentication is required but not provided
-   * - NotMemberError: User doesn't have access to the project
-   * - HTTPError: Other HTTP-related errors
-   *
-   * @param res - The Response object from the API request
-   * @returns A Result containing either:
-   *          - Success: The code block content as a string
-   *          - Error: One of the error types defined in CodeBlockError
-   *
-   * @example
-   * ```typescript
-   * const response = await fetch(request);
-   * const result = await getCodeBlock.fromResponse(response);
-   * if (result.ok) {
-   *   console.log("Code content:", result.val);
-   * } else {
-   *   console.error("Error:", result.err);
-   * }
-   * ```
+   * @param res 応答
+   * @return コード
    */
   fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
 
@@ -123,57 +85,12 @@ export type CodeBlockError =
   | NotMemberError
   | HTTPError;
 
-/** Fetch the content of a specific code block from a Scrapbox page
+/** 指定したコードブロック中のテキストを取得する
  *
- * This function provides a high-level interface to retrieve code block content
- * from Scrapbox pages. It combines the functionality of toRequest and
- * fromResponse into a single convenient method. The function handles:
- * - Request construction with proper URL encoding
- * - Authentication via session ID (if provided)
- * - Error handling for various failure cases
- * - Response parsing and content extraction
- *
- * @param project - The name of the Scrapbox project containing the page
- * @param title - The title of the page containing the code block
- *               (case-insensitive)
- * @param filename - The name of the code block file as it appears in the page
- * @param options - Optional configuration:
- *                 - sid: Session ID for authenticated requests
- *                 - hostName: Custom hostname for the Scrapbox instance
- *                 - fetch: Custom fetch function for making requests
- * @returns A Result containing either:
- *          - Success: The code block content as a string
- *          - Error: A FetchError or one of the CodeBlockError types
- *
- * @example
- * ```typescript
- * const result = await getCodeBlock(
- *   "myproject",
- *   "My Page",
- *   "example.js",
- *   { sid: "session-id" }
- * );
- *
- * if (result.ok) {
- *   // Success case
- *   console.log("Code content:", result.val);
- * } else {
- *   // Error handling based on error type
- *   switch (result.err.name) {
- *     case "NotFoundError":
- *       console.error("Code block not found");
- *       break;
- *     case "NotLoggedInError":
- *       console.error("Authentication required");
- *       break;
- *     case "NotMemberError":
- *       console.error("No access to project");
- *       break;
- *     default:
- *       console.error("Other error:", result.err);
- *   }
- * }
- * ```
+ * @param project 取得したいページのproject名
+ * @param title 取得したいページのtitle 大文字小文字は問わない
+ * @param filename 取得したいコードブロックのファイル名
+ * @param options オプション
  */
 export const getCodeBlock: GetCodeBlock = /* @__PURE__ */ (() => {
   const fn: GetCodeBlock = async (

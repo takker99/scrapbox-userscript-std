@@ -21,10 +21,10 @@ import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProject {
-  /** Constructs a request for the /api/project/:project endpoint
+  /** Constructs a request for the `/api/project/:project` endpoint
    *
    * This endpoint retrieves detailed information about a specific project,
-   * which can be either a MemberProject or NotMemberProject depending on the user's access level.
+   * which can be either a {@linkcode MemberProject} or {@linkcode NotMemberProject} depending on the user's access level.
    *
    * @param project The project name to retrieve information for
    * @param init Options including connect.sid (session ID) and other configuration
@@ -38,10 +38,10 @@ export interface GetProject {
   /** Extracts project JSON data from the API response
    *
    * Processes the API response and extracts the project information.
-   * Handles various error cases including NotFoundError, NotMemberError, and NotLoggedInError.
+   * Handles various error cases including {@linkcode NotFoundError}, {@linkcode NotMemberError}, and {@linkcode NotLoggedInError}.
    *
    * @param res The API response object
-   * @return A Result containing either project data or an error
+   * @return A {@linkcode Result} containing either project data or an error
    */
   fromResponse: (
     res: Response,
@@ -87,7 +87,7 @@ const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
 /** get the project information
  *
  * @param project project name to get
- * @param init connect.sid etc.
+ * @param init `connect.sid` etc.
  */
 export const getProject: GetProject = /* @__PURE__ */ (() => {
   const fn: GetProject = async (
@@ -110,13 +110,13 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
 })();
 
 export interface ListProjects {
-  /** Constructs a request for the /api/projects endpoint
+  /** Constructs a request for the `/api/projects` endpoint
    *
    * This endpoint retrieves information for multiple projects in a single request.
    * The endpoint requires at least one project ID to be provided.
    *
    * @param projectIds Array of project IDs to retrieve information for (must contain at least one ID)
-   * @param init Options including connect.sid (session ID) and other configuration
+   * @param init Options including `connect.sid` (session ID) and other configuration
    * @return The constructed request object
    */
   toRequest: (
@@ -127,10 +127,10 @@ export interface ListProjects {
   /** Extracts projects JSON data from the API response
    *
    * Processes the API response and extracts information for multiple projects.
-   * Handles authentication errors (NotLoggedInError) and other HTTP errors.
+   * Handles authentication errors ({@linkcode NotLoggedInError}) and other HTTP errors.
    *
    * @param res The API response object
-   * @return A Result containing either project data or an error
+   * @return A {@linkcode Result} containing either project data or an error
    */
   fromResponse: (
     res: Response,
@@ -169,7 +169,7 @@ const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
 /** list the projects' information
  *
  * @param projectIds project ids. This must have more than 1 id
- * @param init connect.sid etc.
+ * @param init `connect.sid` etc.
  */
 export const listProjects: ListProjects = /* @__PURE__ */ (() => {
   const fn: ListProjects = async (

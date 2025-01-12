@@ -3,15 +3,15 @@ import type { Page as PageData } from "@cosense/types/rest";
 
 export interface SetPositionOptions {
   /** Whether to auto-scroll the page when the cursor moves outside the viewport
-   * When true, the page will automatically scroll to keep the cursor visible
+   * When `true`, the page will automatically scroll to keep the cursor visible
    *
-   * @default true
+   * @default {true}
    */
   scrollInView?: boolean;
 
   /** Source of the cursor movement event
    *
-   * Can be set to "mouse" when the cursor movement is triggered by mouse interaction
+   * Can be set to `"mouse"` when the cursor movement is triggered by mouse interaction
    * This parameter helps distinguish between different types of cursor movements
    */
   source?: "mouse";
@@ -35,7 +35,8 @@ export type PageWithCache = PageData & { cachedAt: number | undefined };
 
 /** Internal class for managing Scrapbox page data
  *
- * Note: Some type definitions are still in progress and may be incomplete
+ * > [!NOTE]
+ * > Some type definitions are still in progress and may be incomplete
  */
 export declare class Page extends BaseStore<
   { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined

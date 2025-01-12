@@ -11,7 +11,7 @@ export interface SetPositionOptions {
 
   /** Source of the cursor movement event
    *
-   * "mouse" indicates the cursor was moved by mouse interaction
+   * `"mouse"` indicates the cursor was moved by mouse interaction
    */
   source?: "mouse";
 }

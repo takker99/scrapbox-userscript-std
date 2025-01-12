@@ -8,8 +8,8 @@ export type { Cursor, Selection };
  * This function accesses React's internal fiber tree to obtain references to
  * the Cursor and Selection store instances that Scrapbox uses to manage
  * text input state. These stores provide APIs for:
- * - Cursor: Managing text cursor position and movement
- * - Selection: Handling text selection ranges and operations
+ * - {@linkcode Cursor}: Managing text cursor position and movement
+ * - {@linkcode Selection}: Handling text selection ranges and operations
  *
  * @throws {Error} If text input element or stores cannot be found
  * @returns Object containing cursor and selection store instances

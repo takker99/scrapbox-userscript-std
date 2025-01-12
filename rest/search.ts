@@ -30,7 +30,7 @@ export type SearchForPagesError =
  *
  * @param query The search query string to match against pages
  * @param project The name of the project to search within
- * @param init Options including connect.sid (session ID) and other configuration
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForPages = async (
   query: string,
@@ -72,7 +72,7 @@ export type SearchForJoinedProjectsError =
 /** Search across all projects that the user has joined
  *
  * @param query The search query string to match against projects
- * @param init Options including connect.sid (session ID) and other configuration
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForJoinedProjects = async (
   query: string,
@@ -112,15 +112,17 @@ export type SearchForWatchListError = SearchForJoinedProjectsError;
 
 /** Search within a list of watched projects
  *
- * Note: Despite the name "watch list", this function can search any public project,
- * even those the user hasn't joined.
+ * > [!NOTE]
+ * > Despite the name "watch list", this function can search any public project,
+ * > even those the user hasn't joined.
  *
- * Note: If you include IDs of projects the user has already joined,
- * these IDs will be ignored in the search.
+ * > [!NOTE]
+ * > If you include IDs of projects the user has already joined,
+ * > these IDs will be ignored in the search.
  *
  * @param query The search query string to match
  * @param projectIds List of project IDs to search within (for non-joined public projects)
- * @param init Options including connect.sid (session ID) and other configuration
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForWatchList = async (
   query: string,

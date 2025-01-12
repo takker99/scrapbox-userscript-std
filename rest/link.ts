@@ -105,21 +105,18 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
 /** Retrieve link data from a specified Scrapbox project
  *
  * This function fetches link data from a project, supporting pagination through
- * the followingId parameter. It returns both the link data and the next
+ * the {@linkcode GetLinksOptions.followingId} parameter. It returns both the link data and the next
  * followingId for subsequent requests.
  *
  * @param project The project to retrieve link data from
- * @param options Configuration options including:
- *                - sid: Scrapbox session ID for authentication
- *                - hostName: Custom Scrapbox host name
- *                - followingId: ID for pagination (get next set of links)
- * @returns A Result containing either:
- *          - Ok: GetLinksResult with pages and next followingId
- *          - Err: One of several possible errors:
- *            - NotFoundError: Project not found
- *            - NotLoggedInError: Authentication required
- *            - InvalidFollowingIdError: Invalid pagination ID
- *            - HTTPError: Network or server errors
+ * @param options Configuration options
+ * @returns A {@linkcode Result} containing either:
+ *          - Success: {@linkcode GetLinksResult} with pages and next followingId
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Project not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode InvalidFollowingIdError}: Invalid pagination ID
+ *            - {@linkcode HTTPError}: Network or server errors
  *
  * @example
  * ```typescript
@@ -157,10 +154,10 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
  * pagination. Each yield returns a batch of links as received from the API.
  *
  * @param project The project to retrieve link data from
- * @param options Configuration options for authentication and host name
- * @returns An AsyncGenerator that yields either:
- *          - Ok: Array of SearchedTitle objects (batch of links)
- *          - Err: Error if authentication fails or other issues occur
+ * @param options Configuration options
+ * @returns An {@linkcode AsyncGenerator} that yields either:
+ *          - Success: Array of {@linkcode SearchedTitle} objects (batch of links)
+ *          - Error: Error if authentication fails or other issues occur
  *
  * @example
  * ```typescript
@@ -201,14 +198,14 @@ export async function* readLinksBulk(
 /** Retrieve all link data from a specified project one by one
  *
  * This async generator yields individual link entries, automatically handling
- * pagination. Unlike readLinksBulk, this yields one SearchedTitle at a time,
+ * pagination. Unlike {@linkcode readLinksBulk}, this yields one {@linkcode SearchedTitle} at a time,
  * making it ideal for processing links individually.
  *
  * @param project The project to retrieve link data from
- * @param options Configuration options for authentication and host name
- * @returns An AsyncGenerator that yields either:
- *          - Ok: Individual SearchedTitle object (single link)
- *          - Err: Error if authentication fails or other issues occur
+ * @param options Configuration options
+ * @returns An {@linkcode AsyncGenerator} that yields either:
+ *          - Success: Individual {@linkcode SearchedTitle} object (single link)
+ *          - Error: Error if authentication fails or other issues occur
  *
  * @example
  * ```typescript

@@ -14,14 +14,16 @@ export interface OpenOptions {
   body?: string;
 
   /** Whether to open the page in a new tab
+   * - `true`: open in a new tab
+   * - `false`: open in the same tab
    *
-   * @default false (opens in the same tab)
+   * @default {false}
    */
   newTab?: boolean;
 
   /** Whether to reload the page when opening in the same tab
    *
-   * @default false for same project (no reload), true for different project (force reload)
+   * Default value is `false` for same project (no reload) and `true` for different project (force reload)
    */
   reload?: boolean;
 

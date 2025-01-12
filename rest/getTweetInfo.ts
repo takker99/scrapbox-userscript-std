@@ -32,16 +32,13 @@ export type TweetInfoError =
  * @param url The URL of the Tweet to fetch information for. Can be either a string
  *           or URL object. Should be a valid Twitter/X post URL.
  * @param init Optional configuration including:
- *             - sid: Scrapbox session ID for authentication
- *             - hostName: Custom Scrapbox host name
- *             - fetch: Custom fetch implementation
- * @returns A Result containing either:
- *          - Ok: TweetInfo object with Tweet metadata
- *          - Err: One of several possible errors:
- *            - SessionError: Authentication issues
- *            - InvalidURLError: Malformed or invalid Tweet URL
- *            - BadRequestError: API request issues
- *            - HTTPError: Network or server errors
+ * @returns A {@linkcode Result} containing either:
+ *          - Success: {@linkcode TweetInfo} object with Tweet metadata
+ *          - Error: One of several possible errors:
+ *            - {@linkcode SessionError}: Authentication issues
+ *            - {@linkcode InvalidURLError}: Malformed or invalid Tweet URL
+ *            - {@linkcode BadRequestError}: API request issues
+ *            - {@linkcode HTTPError}: Network or server errors
  *
  * @example
  * ```typescript
@@ -56,7 +53,8 @@ export type TweetInfoError =
  * }
  * ```
  *
- * Note: The function includes a 3000ms timeout for the API request.
+ * > [!NOTE]
+ * > The function includes a 3000ms timeout for the API request.
  */
 export const getTweetInfo = async (
   url: string | URL,

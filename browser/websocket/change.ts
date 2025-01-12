@@ -67,11 +67,7 @@ export interface HelpFeelsChange {
 export interface infoboxDefinitionChange {
   /** Array of trimmed lines from infobox tables
    *
-   * Contains lines from tables marked with either:
-   * - `table:infobox`: Standard information box format
-   * - `table:cosense`: Custom information box format
-   * Each line is trimmed of leading/trailing whitespace.
-   * These tables provide structured metadata for the page.
+   * Contains lines from tables marked with either `table:infobox` or `table:cosense`
    */
   infoboxDefinition: string[];
 }

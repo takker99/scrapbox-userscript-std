@@ -34,21 +34,19 @@ export type ListenStreamError =
  * - Supports automatic cleanup with AbortSignal
  *
  * @param socket - ScrapboxSocket instance for WebSocket communication
- * @param event - Event name to listen for (from ListenEvents type)
+ * @param event - Event name to listen for (from {@linkcode ListenEvents} type)
  * @param listener - Callback function to handle the event
- * @param options - Optional configuration:
- *                 - signal: AbortSignal for cancellation
- *                 - once: Listen only once if true
+ * @param options - Optional configuration
  *
- * Example:
+ * @example
  * ```typescript
  * import { type ScrapboxSocket } from "./socket.ts";
  * import { type ListenEvents } from "./listen-events.ts";
- * 
+ *
  * // Setup socket and controller
- * const socket: ScrapboxSocket = /* ... */;
+ * declare const socket: ScrapboxSocket;
  * const controller = new AbortController();
- * 
+ *
  * // Listen for project updates
  * listen<"project:updates">(socket, "project:updates", (data) => {
  *   console.log("Project updated:", data);
