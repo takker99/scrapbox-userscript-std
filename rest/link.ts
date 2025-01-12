@@ -120,17 +120,19 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * // Get first page of links
  * const result = await getLinks("project-name");
  * if (isErr(result)) {
- *   console.error("Failed to get links:", result.err);
- *   return;
+ *   throw new Error(`Failed to get links: ${unwrapErr(result)}`);
  * }
- * const { pages, followingId } = result.val;
+ * const { pages, followingId } = unwrapOk(result);
  *
  * // Get next page if available
  * if (followingId) {
  *   const nextResult = await getLinks("project-name", { followingId });
+ *   // Handle next page result...
  * }
  * ```
  */
@@ -161,15 +163,13 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * for await (const result of readLinksBulk("project-name")) {
  *   if (isErr(result)) {
- *     console.error("Failed to get links:", result.err);
- *     break;
+ *     throw new Error(`Failed to get links: ${unwrapErr(result)}`);
  *   }
- *   const links = result.val; // Array of links in this batch
- *   if (links) {
- *     console.log(`Got ${links.length} links`);
- *   }
+ *   console.log(`Got ${unwrapOk(result).length} links`);
  * }
  * ```
  */
@@ -209,15 +209,14 @@ export async function* readLinksBulk(
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * for await (const result of readLinks("project-name")) {
  *   if (isErr(result)) {
- *     console.error("Failed to get link:", result.err);
- *     break;
+ *     throw new Error(`Failed to get link: ${unwrapErr(result)}`);
  *   }
- *   const link = result.val; // Single link entry
- *   if (link) {
- *     console.log("Processing link:", link.title);
- *   }
+ *   // Single link entry
+ *   console.log("Processing link:", unwrapOk(result).title);
  * }
  * ```
  */

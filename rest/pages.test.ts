@@ -6,7 +6,7 @@ Deno.test("getPage", async (t) => { // Tests page fetching with various options
   // Test fetching a page with rename following enabled
   await assertSnapshot(
     t,
-    getPage.toRequest("takker", "test_page", { followRename: true }),
+    getPage.toRequest("takker", "テストページ", { followRename: true }),
   );
 });
 /** Test suite for page listing functionality */

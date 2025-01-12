@@ -20,7 +20,13 @@ export interface GetGyazoTokenOptions extends BaseOptions {
    *
    * @example
    * ```typescript
-   * const token = await getGyazoToken({ gyazoTeamsName: "my-team" });
+   * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+   *
+   * const result = await getGyazoToken({ gyazoTeamsName: "my-team" });
+   * if (isErr(result)) {
+   *   throw new Error(`Failed to get Gyazo token: ${unwrapErr(result)}`);
+   * }
+   * const token = unwrapOk(result);
    * ```
    */
   gyazoTeamsName?: string;
@@ -41,12 +47,13 @@ export type GyazoTokenError = NotLoggedInError | HTTPError;
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * const result = await getGyazoToken();
  * if (isErr(result)) {
- *   console.error("Failed to get Gyazo token:", result.err);
- *   return;
+ *   throw new Error(`Failed to get Gyazo token: ${unwrapErr(result)}`);
  * }
- * const token = result.val;
+ * const token = unwrapOk(result);
  * ```
  */
 export const getGyazoToken = async (

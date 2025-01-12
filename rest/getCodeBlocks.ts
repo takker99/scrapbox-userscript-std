@@ -75,12 +75,22 @@ export interface GetCodeBlocksFilter {
  * Each code block is treated independently, allowing for multiple code blocks
  * with the same name to exist in the same page.
  *
- * Example usage:
+ * @example
  * ```typescript
+ * import type { BaseLine } from "@cosense/types/rest";
+ * import { getPage } from "@cosense/std/rest";
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
+ * const result = await getPage("my-project", "My Page");
+ * if(isErr(result)) {
+ *   throw new Error(`Failed to get page: ${unwrapErr(result)}`);
+ * }
+ * const page = unwrapOk(result);
+ *
  * const codeBlocks = getCodeBlocks({
- *   project: "myproject",
- *   title: "My Page",
- *   lines: pageLines
+ *   project: "my-project",
+ *   title: page.title,
+ *   lines: page.lines,
  * }, {
  *   lang: "typescript" // optional: filter by language
  * });

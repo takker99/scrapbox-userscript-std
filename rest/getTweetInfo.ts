@@ -42,15 +42,14 @@ export type TweetInfoError =
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * const result = await getTweetInfo("https://twitter.com/user/status/123456789");
  * if (isErr(result)) {
- *   console.error("Failed to get Tweet info:", result.err);
- *   return;
+ *   throw new Error(`Failed to get Tweet info: ${unwrapErr(result)}`);
  * }
- * const tweetInfo = result.val;
- * if (tweetInfo) {
- *   console.log("Tweet text:", tweetInfo.text);
- * }
+ * const tweetInfo = unwrapOk(result);
+ * console.log("Tweet text:", tweetInfo.description);
  * ```
  *
  * > [!NOTE]

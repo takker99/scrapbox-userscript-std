@@ -41,13 +41,13 @@ export type WebPageTitleError =
  *
  * @example
  * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
  * const result = await getWebPageTitle("https://example.com");
  * if (isErr(result)) {
- *   console.error("Failed to get page title:", result.err);
- *   return;
+ *   throw new Error(`Failed to get page title: ${unwrapErr(result)}`);
  * }
- * const title = result.val;
- * console.log("Page title:", title);
+ * console.log("Page title:", unwrapOk(result));
  * ```
  *
  * > [!NOTE]

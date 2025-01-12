@@ -40,17 +40,16 @@ export type ListenStreamError =
  *
  * @example
  * ```typescript
- * import { type ScrapboxSocket } from "./socket.ts";
- * import { type ListenEvents } from "./listen-events.ts";
+ * import { connect } from "@cosense/std/browser/websocket";
+ * import { unwrapOk } from "option-t/plain_result";
  *
  * // Setup socket and controller
- * declare const socket: ScrapboxSocket;
- * const controller = new AbortController();
+ * const socket = unwrapOk(await connect());
  *
- * // Listen for project updates
- * listen<"project:updates">(socket, "project:updates", (data) => {
+ * // Listen for pages' changes in a specified project
+ * listen(socket, "projectUpdatesStream:commit", (data) => {
  *   console.log("Project updated:", data);
- * }, { signal: controller.signal });
+ * });
  * ```
  */
 export const listen = <EventName extends keyof ListenEvents>(
