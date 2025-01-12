@@ -22,7 +22,7 @@ export declare class Selection extends BaseStore<undefined> {
    *
    * @param init Set `init.normalizeOrder` to `true` to ensure Range.start is
    *            the beginning of the selection (useful for consistent text processing)
-   * @return The current selection range
+   * @returns The current {@linkcode Range} object representing the selection
    */
   getRange(init?: { normalizeOrder: boolean }): Range;
 
@@ -34,8 +34,8 @@ export declare class Selection extends BaseStore<undefined> {
 
   /** Normalize the selection range order to ensure start position comes before end
    *
-   * @param range The selection range to normalize
-   * @return The normalized range with start position at the beginning
+   * @param range - The selection range to normalize
+   * @returns A normalized {@linkcode Range} with start position at the beginning
    *
    * This is useful when you need consistent text processing regardless of
    * whether the user selected text from top-to-bottom or bottom-to-top.

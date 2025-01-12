@@ -37,8 +37,10 @@ export interface CodeBlock {
 
 /** Extract code blocks from {@linkcode scrapbox.Page.lines}
  *
- * @param lines Page lines to process
- * @return A Map of source code files with filename as key
+ * @param lines - Page lines to process
+ * @returns A {@linkcode Map}<{@linkcode string}, {@linkcode string}> containing:
+ *          - Key: The filename
+ *          - Value: The source code content
  */
 export const extractCodeFiles = (
   lines: Iterable<Line>,

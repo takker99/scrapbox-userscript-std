@@ -19,11 +19,23 @@ import {
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./mod.ts";
 
-/** Error that occurs when an invalid `timestampId` is provided to {@linkcode getSnapshot} */
+/** Error that occurs when an invalid `timestampId` is provided to {@linkcode getSnapshot}
+ *
+ * Extends {@linkcode ErrorLike} with a specific error name for invalid snapshot IDs.
+ */
 export interface InvalidPageSnapshotIdError extends ErrorLike {
   name: "InvalidPageSnapshotIdError";
 }
 
+/** Union type of all possible errors that can occur when retrieving a page snapshot
+ *
+ * Includes:
+ * - {@linkcode NotFoundError}: Page or project not found
+ * - {@linkcode NotLoggedInError}: User authentication required
+ * - {@linkcode NotMemberError}: User lacks project access
+ * - {@linkcode InvalidPageSnapshotIdError}: Invalid snapshot ID provided
+ * - {@linkcode HTTPError}: Server or network error
+ */
 export type SnapshotError =
   | NotFoundError
   | NotLoggedInError
@@ -31,9 +43,22 @@ export type SnapshotError =
   | InvalidPageSnapshotIdError
   | HTTPError;
 
-/** get a page snapshot
+/** Retrieve a specific version of a page from its snapshot history
  *
- * @param options `connect.sid` etc.
+ * @param project - The name of the Scrapbox project containing the page
+ * @param pageId - The ID of the page to retrieve the snapshot for
+ * @param timestampId - The specific snapshot timestamp ID to retrieve
+ * @param options - Optional configuration including {@linkcode BaseOptions} like `connect.sid`
+ * @returns A {@linkcode Result}<{@linkcode PageSnapshotResult}, {@linkcode SnapshotError} | {@linkcode FetchError}> containing:
+ *          - Success: A {@linkcode PageSnapshotResult} containing the page snapshot data
+ *          - Error: One of several possible errors:
+ *            - {@linkcode SnapshotError} or {@linkcode FetchError}: Network or API errors
+ *            - {@linkcode NotFoundError}: Page or project not found
+ *            - {@linkcode NotLoggedInError}: User authentication required
+ *            - {@linkcode NotMemberError}: User lacks project access
+ *            - {@linkcode InvalidPageSnapshotIdError}: Invalid timestamp ID
+ *            - {@linkcode HTTPError}: Server or network error
+ *            - {@linkcode FetchError}: Request failed
  */
 export const getSnapshot = async (
   project: string,
@@ -70,6 +95,14 @@ export const getSnapshot = async (
   );
 };
 
+/** Union type of all possible errors that can occur when retrieving snapshot timestamp IDs
+ *
+ * Includes:
+ * - {@linkcode NotFoundError}: Page or project not found
+ * - {@linkcode NotLoggedInError}: User authentication required
+ * - {@linkcode NotMemberError}: User lacks project access
+ * - {@linkcode HTTPError}: Server or network error
+ */
 export type SnapshotTimestampIdsError =
   | NotFoundError
   | NotLoggedInError
@@ -79,11 +112,17 @@ export type SnapshotTimestampIdsError =
 /**
  * Retrieves the timestamp IDs for a specific page in a project.
  *
- * @param project - The name of the project.
- * @param pageId - The ID of the page.
- * @param options - Optional configuration options.
- * @returns A promise that resolves to a {@linkcode Result} object containing the page snapshot list if successful,
- * or an error if the request fails.
+ * @param project - The name of the Scrapbox project to retrieve snapshots from
+ * @param pageId - The ID of the page to retrieve snapshot history for
+ * @param options - Optional {@linkcode BaseOptions} configuration including authentication
+ * @returns A {@linkcode Result}<{@linkcode PageSnapshotList}, {@linkcode SnapshotTimestampIdsError} | {@linkcode FetchError}> containing:
+ *          - Success: A {@linkcode PageSnapshotList} containing the page's snapshot history
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Page or project not found
+ *            - {@linkcode NotLoggedInError}: User authentication required
+ *            - {@linkcode NotMemberError}: User lacks project access
+ *            - {@linkcode HTTPError}: Server or network error
+ *            - {@linkcode FetchError}: Request failed
  */
 export const getTimestampIds = async (
   project: string,

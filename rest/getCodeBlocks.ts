@@ -98,7 +98,7 @@ export interface GetCodeBlocksFilter {
  *
  * @param target Information about the page to process, including its content lines
  * @param filter Optional criteria to filter the returned code blocks
- * @returns Array of code blocks matching the filter criteria
+ * @returns Array of {@linkcode CodeBlock} objects matching the filter criteria
  */
 export const getCodeBlocks = (
   target: { project: string; title: string; lines: BaseLine[] },
@@ -167,7 +167,7 @@ const equals = (a: unknown, b: unknown): boolean => !a || a === b;
  *
  * @param lineText The text content of the line to process
  * @param titleIndent The indentation level (number of spaces) of the code block's title line
- * @returns The processed line text if it's part of the code block, null otherwise
+ * @returns The processed {@linkcode string} if it's part of the code block, `null` otherwise
  */
 const extractFromCodeBody = (
   lineText: string,

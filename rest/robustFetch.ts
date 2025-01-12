@@ -17,9 +17,13 @@ export type FetchError = NetworkError | AbortError;
 /**
  * Represents a function that performs a network request using the Fetch API.
  *
- * @param input - The resource URL or a {@linkcode Request} object.
- * @param init - An optional object containing request options.
- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
+ * @param input - The resource URL (as {@linkcode string} or {@linkcode URL}), {@linkcode RequestInfo}, or a {@linkcode Request} object to fetch
+ * @param init - Optional {@linkcode RequestInit} configuration for the request including headers, method, body, etc.
+ * @returns A {@linkcode Result}<{@linkcode Response}, {@linkcode FetchError}> containing either:
+ *          - Success: A {@linkcode Response} from the successful fetch operation
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NetworkError}: Network connectivity or DNS resolution failed (from {@linkcode TypeError})
+ *            - {@linkcode AbortError}: Request was aborted before completion (from {@linkcode DOMException})
  */
 export type RobustFetch = (
   input: RequestInfo | URL,
@@ -29,9 +33,13 @@ export type RobustFetch = (
 /**
  * A simple implementation of {@linkcode RobustFetch} that uses {@linkcode fetch}.
  *
- * @param input - The resource URL or a {@linkcode Request} object.
- * @param init - An optional object containing request options.
- * @returns A promise that resolves to a {@linkcode Result} object containing either a {@linkcode Request} or an error.
+ * @param input - The resource URL (as {@linkcode string} or {@linkcode URL}), {@linkcode RequestInfo}, or a {@linkcode Request} object to fetch
+ * @param init - Optional {@linkcode RequestInit} configuration for the request including headers, method, body, etc.
+ * @returns A {@linkcode Result}<{@linkcode Response}, {@linkcode FetchError}> containing either:
+ *          - Success: A {@linkcode Response} from the successful fetch operation
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NetworkError}: Network connectivity or DNS resolution failed (from {@linkcode TypeError})
+ *            - {@linkcode AbortError}: Request was aborted before completion (from {@linkcode DOMException})
  */
 export const robustFetch: RobustFetch = async (input, init) => {
   const request = new Request(input, init);

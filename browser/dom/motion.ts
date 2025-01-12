@@ -19,7 +19,7 @@ import { range } from "../../range.ts";
  *
  * This function is specifically for mobile version of Scrapbox
  *
- * @param [holding=1000] Duration of long press in milliseconds
+ * @param [holding=1000] - Duration of long press in milliseconds
  */
 export const focusEnd = async (holding = 1000): Promise<void> => {
   const target = getLineDOM(caret().position.line)
@@ -35,7 +35,7 @@ export const focusEnd = async (holding = 1000): Promise<void> => {
 
 /** Move the cursor left using `ArrowLeft` key
  *
- * @param [count=1] Number of moves to perform
+ * @param [count=1] - Number of moves to perform
  */
 export const moveLeft = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -44,7 +44,7 @@ export const moveLeft = (count = 1): void => {
 };
 /** Move the cursor up using `ArrowUp` key
  *
- * @param [count=1] Number of moves to perform
+ * @param [count=1] - Number of moves to perform
  */
 export const moveUp = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -53,7 +53,7 @@ export const moveUp = (count = 1): void => {
 };
 /** Move the cursor down using `ArrowDown` key
  *
- * @param [count=1] Number of moves to perform
+ * @param [count=1] - Number of moves to perform
  */
 export const moveDown = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -62,7 +62,7 @@ export const moveDown = (count = 1): void => {
 };
 /** Move the cursor right using `ArrowRight` key
  *
- * @param [count=1] Number of moves to perform
+ * @param [count=1] - Number of moves to perform
  */
 export const moveRight = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -109,7 +109,7 @@ export const goLastLine = async (): Promise<void> => {
 };
 /** Move to the end of a specified line
  *
- * @param value Target line number, line ID, or {@linkcode HTMLElement}
+ * @param value - Target line number, line ID, or {@linkcode HTMLElement}
  */
 export const goLine = async (
   value: string | number | HTMLElement | undefined,
@@ -129,8 +129,8 @@ const _goLine = async (target: HTMLDivElement | undefined) => {
  *
  * Note: This operation will fail if attempting to move to characters that cannot be clicked in the UI
  *
- * @param line Target line (can be line number, line ID, or line DOM element)
- * @param pos Character position (column) in the target line
+ * @param line - Target line (can be line number, line ID, or line DOM element)
+ * @param pos - Character position (column) in the target line
  */
 export const goChar = async (
   line: string | number | HTMLElement,
@@ -162,7 +162,7 @@ const getVisibleLineCount = (): number => {
 
 /** Scroll half a page up
  *
- * @param [count=1] Number of scroll operations to perform
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollHalfUp = async (count = 1): Promise<void> => {
   const lineNo = getLineNo(caret().position.line);
@@ -176,7 +176,7 @@ export const scrollHalfUp = async (count = 1): Promise<void> => {
 };
 /** Scroll half a page down
  *
- * @param [count=1] Number of scroll operations to perform
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollHalfDown = async (count = 1): Promise<void> => {
   const lineNo = getLineNo(caret().position.line);
@@ -190,7 +190,7 @@ export const scrollHalfDown = async (count = 1): Promise<void> => {
 };
 /** Scroll one page up using `PageUp` key
  *
- * @param [count=1] Number of scroll operations to perform
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollUp = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -199,7 +199,7 @@ export const scrollUp = (count = 1): void => {
 };
 /** Scroll one page down using `PageDown` key
  *
- * @param [count=1] Number of scroll operations to perform
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollDown = (count = 1): void => {
   for (const _ of range(0, count)) {

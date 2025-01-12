@@ -25,7 +25,7 @@ export const encode = (
  * - `0`: returns `undefined`
  *
  * @param encoded The number containing encoded {@linkcode AddEventListenerOptions} flags
- * @returns An {@linkcode AddEventListenerOptions} object or `undefined` if encoded value is 0
+ * @returns An {@linkcode AddEventListenerOptions} object or {@linkcode undefined} if encoded value is 0
  */
 export const decode = (
   encoded: number,

@@ -15,7 +15,11 @@ import type { BaseLine } from "@cosense/types/userscript";
  * > - Unlike `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}`, the returned data does not include parsed
  * >   syntax information (no syntax tree or parsed line components).
  *
- * @returns A readonly array of BaseLine objects representing the page content
+ * @returns A {@linkcode ReadonlyArray}<{@linkcode BaseLine}> containing:
+ *          - Success: The page content as a readonly array of line objects
+ *          - Error: May throw one of:
+ *            - `Error` when div.lines element is not found
+ *            - `Error` when React fiber property is missing
  */
 export const takeInternalLines = (): readonly BaseLine[] => {
   const linesEl = lines();
@@ -42,6 +46,9 @@ export const takeInternalLines = (): readonly BaseLine[] => {
  * This interface represents the minimal structure needed to access
  * the lines data from React's component props. This is an implementation
  * detail that depends on React's internal structure.
+ *
+ * @interface
+ * @internal
  */
 interface ReactFiber {
   return: {

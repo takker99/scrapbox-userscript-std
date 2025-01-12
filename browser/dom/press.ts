@@ -16,8 +16,8 @@ export interface PressOptions {
  * > This function appears to block synchronously until Scrapbox's event listeners
  * finish processing the keyboard event.
  *
- * @param key The name of the key to simulate pressing
- * @param pressOptions Additional options for the key press (modifiers, etc.)
+ * @param key - The name of the key to simulate pressing
+ * @param pressOptions - Additional options for the key press (modifiers, etc.)
  */
 export const press = (
   key: KeyName,

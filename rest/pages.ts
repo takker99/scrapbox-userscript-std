@@ -85,8 +85,8 @@ export interface GetPage {
    *
    * @param project The project name containing the desired page
    * @param title The page title to retrieve (case insensitive)
-   * @param options Additional configuration options
-   * @return The constructed request object
+   * @param options - Additional configuration options
+   * @returns A {@linkcode Request} object for fetching page data
    */
   toRequest: (
     project: string,
@@ -96,8 +96,14 @@ export interface GetPage {
 
   /** Extracts page JSON data from the API response
    *
-   * @param res The response from the API
-   * @return A Result containing either the page JSON data or an error
+   * @param res - The response from the API
+   * @returns A {@linkcode Result}<{@linkcode unknown}, {@linkcode Error}> containing:
+   *          - Success: The page data in JSON format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Page not found
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
 
@@ -144,7 +150,7 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
 export interface ListPagesOption extends BaseOptions {
   /** the sort of page list to return
    *
-   * @default "updated"
+   * @default updated
    */
   sort?:
     | "updatedWithMe"
@@ -171,8 +177,8 @@ export interface ListPages {
   /** Constructs a request for the `/api/pages/:project` endpoint
    *
    * @param project The project name to list pages from
-   * @param options Additional configuration options (sorting, pagination, etc.)
-   * @return The constructed request object
+   * @param options - Additional configuration options (sorting, pagination, etc.)
+   * @returns A {@linkcode Request} object for fetching pages data
    */
   toRequest: (
     project: string,
@@ -181,8 +187,13 @@ export interface ListPages {
 
   /** Extracts page list JSON data from the API response
    *
-   * @param res The response from the API
-   * @return A Result containing either the page list JSON data or an error
+   * @param res - The response from the API
+   * @returns A {@linkcode Result}<{@linkcode Page[]}, {@linkcode ListPagesError}> containing:
+   *          - Success: Array of page data in JSON format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
 

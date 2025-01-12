@@ -29,10 +29,10 @@ export type TweetInfoError =
  * Twitter embed API. This function handles authentication and CSRF token management
  * automatically.
  *
- * @param url The URL of the Tweet to fetch information for. Can be either a string
- *           or URL object. Should be a valid Twitter/X post URL.
- * @param init Optional configuration including:
- * @returns A {@linkcode Result} containing either:
+ * @param url - The URL of the Tweet to fetch information for. Can be either a {@linkcode string}
+ *           or {@linkcode URL} object. Should be a valid Twitter/X post URL.
+ * @param init - Optional {@linkcode RequestInit} configuration for customizing request behavior and authentication
+ * @returns A {@linkcode Result}<{@linkcode TweetInfo}, {@linkcode Error}> containing:
  *          - Success: {@linkcode TweetInfo} object with Tweet metadata
  *          - Error: One of several possible errors:
  *            - {@linkcode SessionError}: Authentication issues

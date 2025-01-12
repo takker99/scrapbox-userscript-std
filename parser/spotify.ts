@@ -30,9 +30,11 @@ export interface SpotifyProps {
  * https://open.spotify.com/{type}/{id}[?query_params]
  *
  * @param url - The URL to parse, can be any string including non-Spotify URLs
- * @returns An object containing the content ID and type if the URL is a valid Spotify URL,
- *          undefined otherwise. For example, from "https://open.spotify.com/track/123"
- *          returns { videoId: "123", pathType: "track" }
+ * @returns A {@linkcode Result}<{@linkcode SpotifyProps}, {@linkcode undefined}> containing:
+ *          - Success: The content information with:
+ *            - videoId: The unique content identifier
+ *            - pathType: Content type ("track", "artist", "playlist", "album", "episode", or "show")
+ *          - Error: {@linkcode undefined} if not a valid Spotify URL
  */
 export const parseSpotify = (url: string): SpotifyProps | undefined => {
   const matches = url.match(spotifyRegExp);

@@ -3,7 +3,7 @@ import { statusBar } from "./dom.ts";
 export interface UseStatusBarResult {
   /** Display information in the acquired status bar section
    *
-   * @param items Array of items to display (text, icons, or groups)
+   * @param items - Array of items to display (text, icons, or groups)
    */
   render: (...items: Item[]) => void;
   /** Remove the acquired status bar section and clean up resources */

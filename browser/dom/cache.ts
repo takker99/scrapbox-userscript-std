@@ -7,9 +7,9 @@
  * > Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
  * > For details, see the article "ServiceWorker and Cache Usage in Scrapbox" {@see https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173}
  *
- * @param request The request to find a cached response for
- * @param options Cache query options (e.g., to ignore search params)
- * @return The cached response if found, otherwise `undefined`
+ * @param request - The {@linkcode Request} to find a cached response for
+ * @param options - {@linkcode CacheQueryOptions} (e.g., to ignore search params)
+ * @returns A {@linkcode Response} if found, otherwise {@linkcode undefined}
  */
 export const findLatestCache = async (
   request: Request,
@@ -26,8 +26,8 @@ export const findLatestCache = async (
 
 /** Saves a response to the REST API cache storage managed by scrapbox.io
  *
- * @param request The request to associate with the cached response
- * @param response The response to cache
+ * @param request The {@linkcode Request} to associate with the cached response
+ * @param response The {@linkcode Response} to cache
  */
 export const saveApiCache = async (
   request: Request,

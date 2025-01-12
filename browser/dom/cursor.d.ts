@@ -1,17 +1,23 @@
+/** @module cursor */
 import { type BaseLine, BaseStore } from "@cosense/types/userscript";
 import type { Position } from "./position.ts";
 import type { Page } from "./page.d.ts";
 
+/** Options for setting cursor position
+ * @interface
+ */
 export interface SetPositionOptions {
   /** Whether to auto-scroll the page when the cursor moves outside the viewport
    *
    * @default true
+   * @type {boolean}
    */
   scrollInView?: boolean;
 
   /** Source of the cursor movement event
    *
    * `"mouse"` indicates the cursor was moved by mouse interaction
+   * @type {"mouse"}
    */
   source?: "mouse";
 }
@@ -20,6 +26,7 @@ export interface SetPositionOptions {
  *
  * @see {@linkcode Position} for cursor position type details
  * @see {@linkcode Page} for page data type details
+ * @extends {@linkcode BaseStore}<{ source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined>
  */
 export declare class Cursor extends BaseStore<
   { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined
@@ -31,13 +38,24 @@ export declare class Cursor extends BaseStore<
   /** Reset cursor position and remove cursor focus from the editor */
   clear(): void;
 
-  /** Get the current cursor position */
+  /** Get the current cursor position
+   * @returns A {@linkcode Position} containing:
+   *          - Success: The current cursor coordinates and line information
+   *          - Error: Never throws or returns an error
+   */
   getPosition(): Position;
 
-  /** Check if the cursor is currently visible */
+  /** Check if the cursor is currently visible
+   * @returns A {@linkcode boolean} indicating:
+   *          - Success: `true` if the cursor is visible, `false` otherwise
+   *          - Error: Never throws or returns an error
+   */
   getVisible(): boolean;
 
-  /** Move the cursor to the specified position */
+  /** Move the cursor to the specified position
+   * @param position - The target position to move the cursor to
+   * @param option - Optional settings for the cursor movement. See {@linkcode SetPositionOptions}
+   */
   setPosition(
     position: Position,
     option?: SetPositionOptions,
@@ -67,10 +85,18 @@ export declare class Cursor extends BaseStore<
   /** Adjust cursor position to stay within valid line and column boundaries */
   fixPosition(): void;
 
-  /** Returns `true` if the cursor is visible and at the start of a line */
+  /** Check if the cursor is at the start of a line
+   * @returns A {@linkcode boolean} indicating:
+   *          - Success: `true` if the cursor is visible and at line start, `false` otherwise
+   *          - Error: Never throws or returns an error
+   */
   isAtLineHead(): boolean;
 
-  /** Returns `true` if the cursor is visible and at the end of a line */
+  /** Check if the cursor is at the end of a line
+   * @returns A {@linkcode boolean} indicating:
+   *          - Success: `true` if the cursor is visible and at line end, `false` otherwise
+   *          - Error: Never throws or returns an error
+   */
   isAtLineTail(): boolean;
 
   /** Make the cursor visible
@@ -87,6 +113,7 @@ export declare class Cursor extends BaseStore<
 
   /** Cursor movement commands
    *
+   * @param action - The movement command to execute. Available commands:
    * | Command | Description |
    * | ------ | ----------- |
    * | go-up | Move cursor up one line |
@@ -122,10 +149,18 @@ export declare class Cursor extends BaseStore<
       | "go-pageup",
   ): void;
 
-  /** Get the content of the current page */
+  /** Get the content of the current page
+   * @returns An array of {@linkcode BaseLine} objects containing:
+   *          - Success: The current page's content as an array of line objects
+   *          - Error: Never throws or returns an error
+   */
   get lines(): BaseLine[];
 
-  /** Get the current page data */
+  /** Get the current page data
+   * @returns A {@linkcode Page} object containing:
+   *          - Success: The current page's metadata and content
+   *          - Error: Never throws or returns an error
+   */
   get page(): Page;
 
   private goUp(): void;
@@ -134,7 +169,16 @@ export declare class Cursor extends BaseStore<
   private goPageDown(): void;
   private getNextLineHead(): void;
   private getPrevLineTail(): void;
+  /** Move cursor backward one character
+   * @param init - Optional configuration object
+   * @param init.scrollInView - Whether to scroll the view to keep cursor visible
+   */
   private goBackward(init?: { scrollInView: boolean }): void;
+
+  /** Move cursor forward one character
+   * @param init - Optional configuration object
+   * @param init.scrollInView - Whether to scroll the view to keep cursor visible
+   */
   private goForward(init?: { scrollInView: boolean }): void;
   private goLeft(): void;
   private goRight(): void;
@@ -143,8 +187,18 @@ export declare class Cursor extends BaseStore<
   /** Jump to the end of the last line */
   private goBottom(): void;
   private goWordHead(): void;
+  /** Get the position of the next word's start
+   * @returns A {@linkcode Position} containing:
+   *          - Success: The coordinates and line information of the next word's start
+   *          - Error: Never throws or returns an error
+   */
   private getWordHead(): Position;
   private goWordTail(): void;
+  /** Get the position of the previous word's end
+   * @returns A {@linkcode Position} containing:
+   *          - Success: The coordinates and line information of the previous word's end
+   *          - Error: Never throws or returns an error
+   */
   private getWordTail(): Position;
   /** Jump to the position after indentation
    *

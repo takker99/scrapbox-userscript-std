@@ -10,8 +10,9 @@ const AnchorFMRegExp =
  * - https://anchor.fm/[show]/episodes/[episode-id]?[query-params]
  *
  * @param url - The URL to parse, can be any string including non-Anchor FM URLs
- * @returns The episode ID if the URL matches the Anchor FM pattern, undefined otherwise.
- *         For example, from "https://anchor.fm/show/episodes/abc123" returns "abc123"
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode undefined}> containing:
+ *          - Success: The episode ID (e.g., "abc123" from "https://anchor.fm/show/episodes/abc123")
+ *          - Error: {@linkcode undefined} if not a valid Anchor FM URL
  */
 export const parseAnchorFM = (url: string): string | undefined => {
   const matches = url.match(AnchorFMRegExp);

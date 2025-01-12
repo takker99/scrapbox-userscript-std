@@ -28,11 +28,11 @@ export type ReplaceLinksError =
  * > This function only replaces links, not page titles.
  * > If you need to replace page titles as well, use {@linkcode patch}
  *
- * @param project The project name where all links will be replaced
- * @param from The original link text to be replaced
- * @param to The new link text to replace with
- * @param init Options including `connect.sid` (session ID) and other configuration
- * @return The number of pages where links were replaced
+ * @param project - The project name where all links will be replaced
+ * @param from - The original link text to be replaced
+ * @param to - The new link text to replace with
+ * @param init - Options including `connect.sid` (session ID) and other configuration
+ * @returns A {@linkcode number} indicating the count of pages where links were replaced
  */
 export const replaceLinks = async (
   project: string,

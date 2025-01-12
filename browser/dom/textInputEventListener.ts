@@ -51,7 +51,7 @@ let reRegister: (() => void) | undefined = () => {
  * @param name - The event type to listen for (e.g., 'input', 'keydown')
  * @param listener - The callback function to execute when the event occurs
  * @param options - Standard addEventListener options or boolean for useCapture
- * @returns void
+ * @returns {@linkcode void}
  */
 export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
   name: K,

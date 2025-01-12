@@ -8,8 +8,8 @@ export type DeletePageOptions = PushOptions;
  * @param project - The project containing the page to delete
  * @param title - The title of the page to delete
  * @param options - Additional options for the delete operation
- * @returns A Promise that resolves to a Result containing either:
- *          - Success: The page title that was deleted
+ * @returns A {@linkcode Promise} that resolves to a {@linkcode Result} containing:
+ *          - Success: The page title that was deleted as a {@linkcode string}
  *          - Error: A {@linkcode PushError} describing what went wrong
  */
 export const deletePage = (

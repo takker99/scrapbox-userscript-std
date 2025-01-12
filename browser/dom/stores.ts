@@ -11,8 +11,8 @@ export type { Cursor, Selection };
  * - {@linkcode Cursor}: Managing text cursor position and movement
  * - {@linkcode Selection}: Handling text selection ranges and operations
  *
- * @throws {Error} If text input element or stores cannot be found
- * @returns Object containing cursor and selection store instances
+ * @throws {@linkcode Error} If text input element or stores cannot be found
+ * @returns Object containing {@linkcode CursorStore} and {@linkcode SelectionStore} instances
  */
 export const takeStores = (): { cursor: Cursor; selection: Selection } => {
   const textarea = textInput();

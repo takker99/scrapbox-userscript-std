@@ -12,8 +12,9 @@ const vimeoRegExp = /https?:\/\/vimeo\.com\/([0-9]+)/i;
  * - https://vimeo.com/channels/123 -> returns undefined (not a video URL)
  *
  * @param url - The URL to parse, can be any string including non-Vimeo URLs
- * @returns The numeric video ID if the URL matches the Vimeo video pattern,
- *          undefined otherwise
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode undefined}> containing:
+ *          - Success: The numeric video ID if the URL matches the {@linkcode Vimeo} video pattern
+ *          - Error: {@linkcode undefined} if not a valid Vimeo video URL
  */
 export const parseVimeo = (url: string): string | undefined => {
   const matches = url.match(vimeoRegExp);

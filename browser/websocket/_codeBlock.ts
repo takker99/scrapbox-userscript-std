@@ -21,9 +21,10 @@ export interface CodeTitle {
  * - `code:filename(lang)` - Explicit language specification
  * - `code:lang` - Direct language specification without filename
  *
- * @param lineText {string} The line text to parse
- * @return {CodeTitle | null} Returns a CodeTitle object if the line is a valid code block title,
- *                           null otherwise. The CodeTitle includes the filename, language,
+ * @param lineText - The line text to parse
+ * @returns A {@linkcode CodeTitle} | {@linkcode null}:
+ *          - Success: A {@linkcode CodeTitle} object containing filename and language info
+ *          - Error: {@linkcode null} if the line is not a valid code block title
  *                           and indentation level.
  */
 export const extractFromCodeTitle = (lineText: string): CodeTitle | null => {

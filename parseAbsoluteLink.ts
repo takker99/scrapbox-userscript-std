@@ -124,7 +124,9 @@ export interface AudioNode {
  * the embed in Scrapbox.
  *
  * @param link - Link node object from scrapbox-parser with absolute path type
- * @return - Parsed link object with specific embed type and metadata
+ * @returns A {@linkcode ParsedLink} containing:
+ *          - Success: Link object with specific embed type and metadata
+ *          - Error: {@linkcode null} if parsing fails
  */
 export const parseAbsoluteLink = (
   link: LinkNode & { pathType: "absolute" },

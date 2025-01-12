@@ -17,7 +17,7 @@ export interface OpenOptions {
    * - `true`: open in a new tab
    * - `false`: open in the same tab
    *
-   * @default {false}
+   * @default false
    */
   newTab?: boolean;
 
@@ -33,9 +33,9 @@ export interface OpenOptions {
 
 /** Open a page
  *
- * @param project Project name of the page to open
- * @param title Title of the page to open
- * @param options Configuration options for opening the page
+ * @param project - Project name of the page to open
+ * @param title - Title of the page to open
+ * @param options - Configuration options for opening the page
  */
 export const open = (
   project: string,
@@ -78,9 +78,9 @@ export const open = (
  *
  * The page will not be reloaded when opened
  *
- * @param project Project name of the page to open
- * @param title Title of the page to open
- * @param [body] Text to append to the page
+ * @param project - Project name of the page to open
+ * @param title - Title of the page to open
+ * @param [body] - Text to append to the page
  */
 export const openInTheSameTab = (
   project: string,

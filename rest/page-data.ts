@@ -32,8 +32,10 @@ export type ImportPagesError = HTTPError;
  *
  * @param project - Name of the target project to import pages into
  * @param data - Page data to import, following the {@linkcode ImportedData} format
- * @param init - Optional configuration for the import operation
- * @returns A {@linkcode Result} containing either a success message or an error
+ * @param init - Optional {@linkcode ImportOptions} configuration for the import operation
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode Error}> containing:
+ *          - Success: A success message
+ *          - Error: An error message
  */
 export const importPages = async (
   project: string,
@@ -100,8 +102,10 @@ export interface ExportInit<withMetadata extends true | false>
  * Requires appropriate authentication for private projects.
  *
  * @param project - Name of the project to export
- * @param init - Configuration options including metadata preference
- * @returns A {@linkcode Result} containing either the exported data or an error
+ * @param init - {@linkcode ExportOptions} configuration including metadata preference
+ * @returns A {@linkcode Result}<{@linkcode ExportedData}, {@linkcode Error}> containing:
+ *          - Success: The exported data
+ *          - Error: An error message
  */
 export const exportPages = async <withMetadata extends true | false>(
   project: string,

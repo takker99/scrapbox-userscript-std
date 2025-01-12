@@ -37,12 +37,17 @@ export interface EmitOptions {
 /**
  * Sends an event to the socket and returns a promise that resolves with the result.
  *
- * @template EventName - The name of the event to emit.
- * @param  socket - The socket to emit the event on.
- * @param  event - The name of the event to emit.
- * @param  data - The data to send with the event.
- * @param  options - Optional options for the emit operation.
- * @returns  A promise that resolves with the result of the emit operation.
+ * @template EventName - The name of the event to emit
+ * @param socket - The {@linkcode ScrapboxSocket} to emit the event on
+ * @param event - The name of the event to emit
+ * @param data - The data to send with the event
+ * @param options - Optional {@linkcode EmitOptions} for the operation
+ * @returns A {@linkcode Promise}<{@linkcode Result}<T, E>> containing:
+ *          - Success: The response data from the server
+ *          - Error: One of several possible errors:
+ *            - {@linkcode TimeoutError}: Request timed out
+ *            - {@linkcode SocketIOServerDisconnectError}: Server disconnected
+ *            - {@linkcode UnexpectedRequestError}: Unexpected response format
  */
 export const emit = <EventName extends keyof WrapperdEmitEvents>(
   socket: ScrapboxSocket,

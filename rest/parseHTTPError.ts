@@ -33,7 +33,9 @@ export interface RESTfullAPIErrorMap {
  * This function parses the response from a failed HTTP request to extract structured error information.
  * It handles various error types including authentication, permission, and validation errors.
  *
- * @return `{@link Maybe}<T>` where `T` is the specific error type requested in `errorNames`.
+ * @returns A {@linkcode Maybe}<T> containing:
+ *          - Success: The specific error type requested in `errorNames`
+ *          - Error: {@linkcode null} if the error type doesn't match
  */
 export const parseHTTPError = async <
   ErrorNames extends keyof RESTfullAPIErrorMap,

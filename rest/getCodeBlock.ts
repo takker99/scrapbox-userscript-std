@@ -52,11 +52,11 @@ const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
 export interface GetCodeBlock {
   /** Build a request for `/api/code/:project/:title/:filename`
    *
-   * @param project Name of the project containing the target page
-   * @param title Title of the target page (case-insensitive)
-   * @param filename Name of the code block file to retrieve
-   * @param options Configuration options
-   * @return {@linkcode Request} object
+   * @param project - Name of the project containing the target page
+   * @param title - Title of the target page (case-insensitive)
+   * @param filename - Name of the code block file to retrieve
+   * @param options - Configuration options
+   * @returns A {@linkcode Request} object for fetching code block content
    */
   toRequest: (
     project: string,
@@ -67,8 +67,14 @@ export interface GetCodeBlock {
 
   /** Extract code from the response
    *
-   * @param res Response from the API
-   * @return Code content as a string
+   * @param res - Response from the API
+   * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode Error}> containing:
+   *          - Success: The code block content as a string
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Code block not found
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
 

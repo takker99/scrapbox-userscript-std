@@ -39,8 +39,13 @@ export type UploadGCSError =
 /** Upload any file to scrapbox.io
  *
  * @param file File to upload
- * @param projectId ID of the target project
- * @return On success, returns the file's cloud URL and other metadata
+ * @param projectId - ID of the target project
+ * @returns A {@linkcode Result}<{@linkcode UploadResponse}, {@linkcode Error}> containing:
+ *          - Success: The file's cloud URL and metadata
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode NotMemberError}: User lacks access
+ *            - {@linkcode HTTPError}: Other HTTP errors
  */
 export const uploadToGCS = async (
   file: File,
@@ -74,8 +79,12 @@ interface UploadRequest {
  *
  * @param file File to upload
  * @param projectId ID of the target project
- * @param md5 MD5 hash of the file (hexadecimal)
- * @return Returns file URL if already uploaded, or upload destination URL if not
+ * @param md5 - MD5 hash of the file (hexadecimal)
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode Error}> containing:
+ *          - Success: File URL (if already uploaded) or upload destination URL
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode HTTPError}: Other HTTP errors
  */
 const uploadRequest = async (
   file: File,

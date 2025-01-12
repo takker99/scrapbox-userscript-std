@@ -28,10 +28,10 @@ export type WebPageTitleError =
  * Scrapbox's server. This approach helps handle various edge cases and
  * authentication requirements that might be needed to access certain pages.
  *
- * @param url The URL of the web page to fetch the title from. Can be either
- *           a string or URL object.
- * @param init Optional configuration including:
- * @returns A {@linkcode Result} containing either:
+ * @param url - The URL of the web page to fetch the title from. Can be either
+ *           a {@linkcode string} or {@linkcode URL} object.
+ * @param init - Optional {@linkcode RequestInit} configuration for customizing the request behavior
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode Error}> containing:
  *          - Success: The page title as a string
  *          - Error: One of several possible errors:
  *            - {@linkcode SessionError}: Authentication issues

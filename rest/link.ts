@@ -41,9 +41,21 @@ export type LinksError =
 
 /** Get the links of the specified project
  *
- * @param project The project to get the data from
- * @param options Options for the request
- * @return a promise that resolves to the parsed data
+ * This function retrieves all links from a Scrapbox project, with optional
+ * pagination support through the followingId parameter.
+ *
+ * @param project - The project to get the data from
+ * @param options - Options for the request including pagination and authentication
+ * @returns A {@linkcode Result}<{@linkcode GetLinksResult}, {@linkcode LinksError} | {@linkcode FetchError}> containing:
+ *          - Success: The link data with:
+ *            - pages: Array of {@linkcode SearchedTitle} objects
+ *            - followingId: ID for fetching the next page of results
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Project not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode InvalidFollowingIdError}: Invalid pagination ID
+ *            - {@linkcode HTTPError}: Network or server errors
+ *            - {@linkcode FetchError}: Request failed
  */
 export interface GetLinks {
   (
@@ -54,15 +66,17 @@ export interface GetLinks {
   /** Create a request to `GET /api/pages/:project/search/titles`
    *
    * @param project The project to get the data from
-   * @param options Options for the request
-   * @return The request object
+   * @param options - Options for the request
+   * @returns A {@linkcode Request} object for fetching link data
    */
   toRequest: (project: string, options?: GetLinksOptions) => Request;
 
   /** Parse the response from `GET /api/pages/:project/search/titles`
    *
-   * @param response The response object
-   * @return a promise that resolves to the parsed data
+   * @param response - The response object
+   * @returns A {@linkcode Result}<{@linkcode unknown}, {@linkcode Error}> containing:
+   *          - Success: The parsed link data
+   *          - Error: {@linkcode Error} if parsing fails
    */
   fromResponse: (
     response: Response,
@@ -110,7 +124,7 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
  *
  * @param project The project to retrieve link data from
  * @param options Configuration options
- * @returns A {@linkcode Result} containing either:
+ * @returns A {@linkcode Result}<{@linkcode GetLinksResult}, {@linkcode Error}> containing:
  *          - Success: {@linkcode GetLinksResult} with pages and next followingId
  *          - Error: One of several possible errors:
  *            - {@linkcode NotFoundError}: Project not found
@@ -157,7 +171,7 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
  *
  * @param project The project to retrieve link data from
  * @param options Configuration options
- * @returns An {@linkcode AsyncGenerator} that yields either:
+ * @returns An {@linkcode AsyncGenerator}<{@linkcode Result}<{@linkcode SearchedTitle}[], {@linkcode Error}>> that yields either:
  *          - Success: Array of {@linkcode SearchedTitle} objects (batch of links)
  *          - Error: Error if authentication fails or other issues occur
  *
@@ -203,7 +217,7 @@ export async function* readLinksBulk(
  *
  * @param project The project to retrieve link data from
  * @param options Configuration options
- * @returns An {@linkcode AsyncGenerator} that yields either:
+ * @returns An {@linkcode AsyncGenerator}<{@linkcode Result}<{@linkcode SearchedTitle}, {@linkcode Error}>> that yields either:
  *          - Success: Individual {@linkcode SearchedTitle} object (single link)
  *          - Error: Error if authentication fails or other issues occur
  *

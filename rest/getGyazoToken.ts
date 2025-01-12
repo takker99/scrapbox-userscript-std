@@ -40,10 +40,17 @@ export type GyazoTokenError = NotLoggedInError | HTTPError;
  * to Gyazo or Gyazo Teams. The token is obtained through Scrapbox's API, which
  * handles the OAuth flow with Gyazo.
  *
- * @param init Optional configuration
- * @returns A {@linkcode Result} containing either:
+ * @param init - Optional configuration for the Gyazo token request, including:
+ *               - gyazoTeamsName: Optional team name for Gyazo Teams workspace
+ *               - sid: Optional session ID for authentication
+ *               - hostName: Optional custom hostname (defaults to scrapbox.io)
+ *               - fetch: Optional custom fetch implementation
+ * @returns A {@linkcode Result} containing:
  *          - Success: The access token string, or `undefined` if no token is available
- *          - Error: {@linkcode NotLoggedInError} if not authenticated, or {@linkcode HTTPError} for other failures
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotLoggedInError}: User is not authenticated with Scrapbox
+ *            - {@linkcode HTTPError}: Network or server-side error occurred
+ *            - {@linkcode FetchError}: Network request failed
  *
  * @example
  * ```typescript

@@ -10,7 +10,7 @@ import type { ExtendedOptions } from "./options.ts";
  * session identifier, which is used for authentication in Scrapbox.
  *
  * @param sid - The session ID string stored in `connect.sid`
- * @returns A formatted cookie string in the format `"connect.sid={sid}"`
+ * @returns A formatted {@linkcode string} in the format `"connect.sid={@linkcode sid}"`
  */
 export const cookie = (sid: string): string => `connect.sid=${sid}`;
 
@@ -22,12 +22,17 @@ export const cookie = (sid: string): string => `connect.sid=${sid}`;
  * 2. `globalThis._csrf`
  * 3. The user profile (if neither of the above is available)
  *
- * @param init - Optional configuration including authentication details
+ * @param init - Optional {@linkcode ExtendedOptions} configuration including authentication details
  *              and CSRF token. If not provided, the function will attempt
  *              to get the token from other sources.
- * @returns A Result containing either:
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode NetworkError} | {@linkcode AbortError} | {@linkcode HTTPError}> containing:
+ *          - Success: The CSRF token as a {@linkcode string}
+ *          - Error: A {@linkcode NetworkError}, {@linkcode AbortError}, or {@linkcode HTTPError} describing what went wrong
  *          - Success: The CSRF token string
- *          - Error: {@linkcode NetworkError}, {@linkcode AbortError}, or {@linkcode HTTPError} if retrieval fails
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NetworkError}: Network connectivity issues
+ *            - {@linkcode AbortError}: Request was aborted
+ *            - {@linkcode HTTPError}: Server response error
  */
 export const getCSRFToken = async (
   init?: ExtendedOptions,

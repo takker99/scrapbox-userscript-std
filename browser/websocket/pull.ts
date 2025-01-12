@@ -25,7 +25,7 @@ import type { BaseOptions } from "../../rest/options.ts";
 
 /** Extended page metadata required for WebSocket operations
  *
- * This interface extends the basic Page type with additional identifiers
+ * This interface extends the basic {@linkcode Page} type with additional identifiers
  * needed for real-time collaboration and page modifications.
  */
 export interface PushMetadata extends Page {
@@ -39,10 +39,10 @@ export interface PushMetadata extends Page {
  *
  * This union type includes all possible errors that may occur when
  * fetching page data, including:
- * - Authentication errors ({@linkcode NotLoggedInError})
- * - Authorization errors ({@linkcode NotMemberError})
- * - Resource errors ({@linkcode NotFoundError}, {@linkcode TooLongURIError})
- * - Network errors ({@linkcode NetworkError}, {@linkcode AbortError}, {@linkcode HTTPError})
+ * - Authentication errors: {@linkcode NotLoggedInError}
+ * - Authorization errors: {@linkcode NotMemberError}
+ * - Resource errors: {@linkcode NotFoundError}, {@linkcode TooLongURIError}
+ * - Network errors: {@linkcode NetworkError}, {@linkcode AbortError}, {@linkcode HTTPError}
  */
 export type PullError =
   | NotFoundError
@@ -66,7 +66,16 @@ export type PullError =
  * @param project - Project containing the target page
  * @param title - Title of the page to fetch
  * @param options - Optional settings for the page request
- * @returns Result containing either {@linkcode PushMetadata} or {@linkcode PullError}
+ * @returns A {@linkcode Result} containing:
+ *          - Success: A {@linkcode PushMetadata} object with page data and required metadata
+ *          - Error: A {@linkcode PullError} which could be one of:
+ *            - {@linkcode NotFoundError}: Page not found
+ *            - {@linkcode NotLoggedInError}: User not authenticated
+ *            - {@linkcode NotMemberError}: User not authorized
+ *            - {@linkcode TooLongURIError}: Request URI too long
+ *            - {@linkcode HTTPError}: General HTTP error
+ *            - {@linkcode NetworkError}: Network connectivity issue
+ *            - {@linkcode AbortError}: Request aborted
  */
 export const pull = async (
   project: string,
@@ -98,7 +107,13 @@ let userId: string | undefined;
  * The cache is invalidated when the page is reloaded.
  *
  * @param init - Optional base request options
- * @returns Result containing either the user ID or an error
+ * @returns A {@linkcode Result} containing:
+ *          - Success: The user ID as a {@linkcode string}
+ *          - Error: One of the following:
+ *            - {@linkcode NotLoggedInError}: User not authenticated
+ *            - {@linkcode NetworkError}: Network connectivity issue
+ *            - {@linkcode AbortError}: Request aborted
+ *            - {@linkcode HTTPError}: General HTTP error
  */
 const getUserId = async (init?: BaseOptions): Promise<
   Result<
@@ -132,7 +147,15 @@ const projectMap = new Map<string, string>();
  *
  * @param project - Name of the project
  * @param options - Optional base request options
- * @returns Result containing either the project ID or an error
+ * @returns A {@linkcode Result} containing:
+ *          - Success: The project ID as a {@linkcode string}
+ *          - Error: One of the following:
+ *            - {@linkcode NotFoundError}: Project not found
+ *            - {@linkcode NotLoggedInError}: User not authenticated
+ *            - {@linkcode NotMemberError}: User not authorized
+ *            - {@linkcode NetworkError}: Network connectivity issue
+ *            - {@linkcode AbortError}: Request aborted
+ *            - {@linkcode HTTPError}: General HTTP error
  */
 export const getProjectId = async (
   project: string,

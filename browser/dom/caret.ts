@@ -39,8 +39,10 @@ interface ReactFiber {
 
 /** Retrieves the current cursor position and text selection information
  *
- * @return Information about cursor position and text selection
- * @throws {Error} When `#text-input` element or React Component's internal properties are not found
+ * @returns A {@linkcode CaretPosition} containing cursor position and text selection information
+ * @throws {@linkcode Error} when:
+ *         - `#text-input` element is not found
+ *         - React Component's internal properties are not found
  * @see {@linkcode CaretInfo} for return type details
  */
 export const caret = (): CaretInfo => {

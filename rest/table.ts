@@ -62,11 +62,11 @@ export type TableError =
 export interface GetTable {
   /** Build a request for `/api/table/:project/:title/:filename.csv` endpoint
    *
-   * @param project Name of the project containing the target page
-   * @param title Title of the page (case-insensitive)
-   * @param filename Name of the table to retrieve
-   * @param options Additional configuration options
-   * @return request object
+   * @param project - Name of the project containing the target page
+   * @param title - Title of the page (case-insensitive)
+   * @param filename - Name of the table to retrieve
+   * @param options - Additional configuration options
+   * @returns A {@linkcode Request} object for fetching the table data
    */
   toRequest: (
     project: string,
@@ -77,8 +77,14 @@ export interface GetTable {
 
   /** Extract page JSON data from the response
    *
-   * @param res Response from the server
-   * @return Page data in JSON format
+   * @param res - Response from the server
+   * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode TableError}> containing:
+   *          - Success: The table data in CSV format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Table not found
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<string, TableError>>;
 
@@ -90,12 +96,23 @@ export interface GetTable {
   ): Promise<Result<string, TableError | FetchError>>;
 }
 
-/** Retrieve a specified table in CSV format
+/** Retrieve a specified table in CSV format from a Scrapbox page
  *
- * @param project Name of the project containing the target page
- * @param title Title of the page (case-insensitive)
- * @param filename Name of the table to retrieve
- * @param options Additional configuration options
+ * This function fetches a table stored in a Scrapbox page and returns its contents
+ * in CSV format. The table must exist in the specified project and page.
+ *
+ * @param project - Name of the project containing the target page
+ * @param title - Title of the page (case-insensitive)
+ * @param filename - Name of the table to retrieve
+ * @param options - Additional configuration options including authentication
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode TableError} | {@linkcode FetchError}> containing:
+ *          - Success: The table data in CSV format
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Table not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode NotMemberError}: User lacks access
+ *            - {@linkcode HTTPError}: Other HTTP errors
+ *            - {@linkcode FetchError}: Network or request errors
  */
 export const getTable: GetTable = /* @__PURE__ */ (() => {
   const fn: GetTable = async (

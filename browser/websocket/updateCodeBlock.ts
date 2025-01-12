@@ -10,7 +10,7 @@ import type { Result } from "option-t/plain_result";
 
 /** Configuration options for code block updates
  *
- * Extends PushOptions to include debugging capabilities while
+ * Extends {@linkcode PushOptions} to include debugging capabilities while
  * maintaining all WebSocket connection and retry settings.
  */
 export interface UpdateCodeBlockOptions extends PushOptions {
@@ -21,7 +21,7 @@ export interface UpdateCodeBlockOptions extends PushOptions {
    * - New code content
    * - Generated change commits
    *
-   * @default {false}
+   * @default false
    */
   debug?: boolean;
 }
@@ -32,24 +32,23 @@ export interface UpdateCodeBlockOptions extends PushOptions {
  * 1. Content modification with proper indentation
  * 2. Diff generation for minimal changes
  * 3. Optional filename/language updates
- * 4. WebSocket-based synchronization
+ * 4. {@linkcode WebSocket}-based synchronization
  *
  * When provided with a {@linkcode SimpleCodeFile} object, this function will also
- * update the code block's filename and language settings. String or
- * string array inputs will only modify the content while preserving
+ * update the code block's filename and language settings. {@linkcode string} or
+ * {@linkcode string}[] inputs will only modify the content while preserving
  * the existing filename and language.
  *
  * @param newCode - New content for the code block:
- *                 - `string`: Single-line content
- *                 - `string[]`: Multi-line content
- *                 - {@linkcode SimpleCodeFile}: Content with metadata (filename, language)
- * @param target - Existing code block to update, including its current
- *                state and page information
- * @param options - Optional configuration for debugging and WebSocket
- *                 connection management
- * @returns Promise resolving to:
- *          - Success: New commit ID
- *          - Failure: Various error types (see {@linkcode PushError})
+ *          - {@linkcode string}: Single-line content
+ *          - {@linkcode string}[]: Multi-line content
+ *          - {@linkcode SimpleCodeFile}: Content with metadata (filename, language)
+ * @param target - Existing code block to update, including its current state and page information
+ * @param options - Optional configuration for debugging and WebSocket connection management
+ * @returns A {@linkcode Promise}<{@linkcode Result}<{@linkcode string}, {@linkcode PushError}>> containing:
+ *          - Success: The new commit ID string
+ *          - Error: One of several possible errors:
+ *            - {@linkcode PushError}: WebSocket connection or synchronization error
  */
 export const updateCodeBlock = (
   newCode: string | string[] | SimpleCodeFile,
@@ -70,7 +69,7 @@ export const updateCodeBlock = (
     target.pageInfo.pageTitle,
     (page) => {
       // Generate minimal changes between old and new code
-      // The diffGenerator creates a sequence of Insert/Update/Delete
+      // The diffGenerator creates a sequence of {@linkcode InsertChange}/{@linkcode UpdateChange}/{@linkcode DeleteChange}
       // operations that transform the old code into the new code
       const diffGenerator = diffToChanges(
         oldCodeWithoutIndent, // Original code without indentation
@@ -78,8 +77,8 @@ export const updateCodeBlock = (
         page, // Page metadata for line IDs
       );
 
-      // Process the changes to restore proper indentation
-      // and handle special cases like end-of-block insertions
+      // Process the {@linkcode DeleteChange}/{@linkcode InsertChange}/{@linkcode UpdateChange} operations
+      // to restore proper indentation and handle special cases like end-of-block insertions
       const commits = [...fixCommits([...diffGenerator], target)];
 
       // If we're updating from a SimpleCodeFile, check if the
@@ -108,10 +107,13 @@ export const updateCodeBlock = (
 /** Extract the actual code content from various input formats
  *
  * Handles different input types uniformly by converting them into
- * an array of code lines:
- * - {@linkcode SimpleCodeFile}: Extracts content field
- * - `string[]`: Uses directly
- * - `string`: Splits into lines
+ * an array of code lines.
+ *
+ * @param code - The input code in one of several formats:
+ *          - {@linkcode SimpleCodeFile}: Content with metadata
+ *          - {@linkcode string}[]: Array of code lines
+ *          - {@linkcode string}: Single string to split into lines
+ * @returns An array of {@linkcode string} containing the code lines
  */
 const getCodeBody = (code: string | string[] | SimpleCodeFile): string[] => {
   const content = isSimpleCodeFile(code) ? code.content : code;
@@ -128,6 +130,13 @@ const getCodeBody = (code: string | string[] | SimpleCodeFile): string[] => {
  *
  * The function preserves the original block's indentation style
  * while applying changes, ensuring consistent code formatting.
+ *
+ * @param commits - Array of {@linkcode DeleteChange}, {@linkcode InsertChange}, or {@linkcode UpdateChange} operations
+ * @param target - The {@linkcode TinyCodeBlock} to modify
+ * @returns A {@linkcode Generator} yielding either:
+ *          - {@linkcode DeleteChange}: Remove lines from the code block
+ *          - {@linkcode InsertChange}: Add new lines with proper indentation
+ *          - {@linkcode UpdateChange}: Modify existing lines with indentation
  */
 function* fixCommits(
   commits: readonly (DeleteChange | InsertChange | UpdateChange)[],
@@ -191,6 +200,12 @@ function* fixCommits(
  * 2. Handle files without extensions
  * 3. Only show language tag when it differs from the extension
  * 4. Maintain proper indentation in the title line
+ *
+ * @param code - {@linkcode SimpleCodeFile} containing filename and optional language settings
+ * @param target - Existing code block with title line information
+ * @returns A {@linkcode Result}<{@linkcode UpdateChange} | null> containing:
+ *          - Success: An {@linkcode UpdateChange} for updating the title line
+ *          - Error: `null` if no changes are needed
  */
 const makeTitleChangeCommit = (
   code: SimpleCodeFile,

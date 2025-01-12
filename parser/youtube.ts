@@ -62,8 +62,11 @@ export type YoutubeProps = {
  * The function preserves all query parameters from the original URL.
  *
  * @param url - Any URL or string to parse
- * @returns A YoutubeProps object containing the extracted information if the URL
- *          is a valid YouTube URL, undefined otherwise
+ * @returns A {@linkcode Result}<{@linkcode YoutubeProps}, {@linkcode undefined}> containing:
+ *          - Success: The extracted video/playlist information with:
+ *            - For videos: videoId, params, and pathType ("com", "dotbe", or "short")
+ *            - For playlists: listId, params, and pathType ("list")
+ *          - Error: {@linkcode undefined} if not a valid YouTube URL
  */
 export const parseYoutube = (url: string): YoutubeProps | undefined => {
   if (youtubeRegExp.test(url)) {

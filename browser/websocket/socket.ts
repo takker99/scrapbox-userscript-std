@@ -8,8 +8,8 @@ export type ScrapboxSocket = Socket<ListenEvents, EmitEvents>;
 
 /** connect to websocket
  *
- * @param socket - The socket to be connected. If not provided, a new socket will be created
- * @returns A promise that resolves to a socket if connected successfully, or an error if failed
+ * @param socket - The {@linkcode Socket} to be connected. If not provided, a new socket will be created
+ * @returns A {@linkcode Promise}<{@linkcode Socket}> that resolves to a {@linkcode Socket} if connected successfully, or an {@linkcode Error} if failed
  */
 export const connect = (socket?: ScrapboxSocket): Promise<
   Result<ScrapboxSocket, Socket.DisconnectReason>
