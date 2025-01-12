@@ -91,7 +91,7 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
       reject(new Error("io client disconnect"));
       return;
     }
-    // 復帰不能なエラー
+    // Unrecoverable error state
     if (reason === "io server disconnect") {
       dispose();
       resolve(createErr({ name: "SocketIOError" }));

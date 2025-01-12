@@ -35,10 +35,10 @@ export interface CodeBlock {
   lines: string[];
 }
 
-/** `scrapbox.Page.lines`からcode blocksを取り出す
+/** Extract code blocks from {@linkcode scrapbox.Page.lines}
  *
- * @param lines ページの行
- * @return filenameをkeyにしたソースコードのMap
+ * @param lines Page lines to process
+ * @return A Map of source code files with filename as key
  */
 export const extractCodeFiles = (
   lines: Iterable<Line>,

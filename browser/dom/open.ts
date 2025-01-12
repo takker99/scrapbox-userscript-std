@@ -31,11 +31,11 @@ export interface OpenOptions {
   context?: Omit<PageTransitionContext, "to">;
 }
 
-/** ページを開く
+/** Open a page
  *
- * @param project 開くページのproject名
- * @param title 開くページのタイトル
- * @param options
+ * @param project Project name of the page to open
+ * @param title Title of the page to open
+ * @param options Configuration options for opening the page
  */
 export const open = (
   project: string,
@@ -74,13 +74,13 @@ export const open = (
   a.remove();
 };
 
-/** 同じタブでページを開く
+/** Open a page in the same tab
  *
- * このとき、ページは再読み込みされない
+ * The page will not be reloaded when opened
  *
- * @param project 開くページのproject名
- * @param title 開くページのタイトル
- * @param [body] ページに追記するテキスト
+ * @param project Project name of the page to open
+ * @param title Title of the page to open
+ * @param [body] Text to append to the page
  */
 export const openInTheSameTab = (
   project: string,

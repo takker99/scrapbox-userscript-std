@@ -125,7 +125,7 @@ export const updateCodeFile = (
   title: string,
   options?: UpdateCodeFileOptions,
 ): Promise<Result<string, PushError>> => {
-  /** optionsの既定値はこの中に入れる */
+  /** Set default values for options here */
   const defaultOptions: Required<
     Omit<UpdateCodeFileOptions, "maxAttempts" | "socket">
   > = {
@@ -225,13 +225,13 @@ function* makeCommits(
   >[] = [..._codeBlocks];
   const codeBodies = flatCodeBodies(_codeBlocks);
   if (codeBlocks.length <= 0) {
-    // ページ内にコードブロックが無かった場合は新しく作成
+    // Create a new code block if none exists in the page
     if (insertPositionIfNotExist === "notInsert") return;
     const nextLine = insertPositionIfNotExist === "top" && lines.length > 1
       ? lines[1]
       : null;
     const title = {
-      // コードブロックのタイトル行
+      // Code block title line
       _insert: nextLine?.id ?? "_end",
       lines: {
         id: createNewLineId(userId),

@@ -50,13 +50,13 @@ const getCodeBlock_fromResponse: GetCodeBlock["fromResponse"] = async (res) =>
   );
 
 export interface GetCodeBlock {
-  /** `/api/code/:project/:title/:filename` の要求を組み立てる
+  /** Build a request for `/api/code/:project/:title/:filename`
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param filename 取得したいコードブロックのファイル名
-   * @param options オプション
-   * @return request
+   * @param project Name of the project containing the target page
+   * @param title Title of the target page (case-insensitive)
+   * @param filename Name of the code block file to retrieve
+   * @param options Configuration options
+   * @return {@linkcode Request} object
    */
   toRequest: (
     project: string,
@@ -65,10 +65,10 @@ export interface GetCodeBlock {
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からコードを取得する
+  /** Extract code from the response
    *
-   * @param res 応答
-   * @return コード
+   * @param res Response from the API
+   * @return Code content as a string
    */
   fromResponse: (res: Response) => Promise<Result<string, CodeBlockError>>;
 
@@ -85,12 +85,12 @@ export type CodeBlockError =
   | NotMemberError
   | HTTPError;
 
-/** 指定したコードブロック中のテキストを取得する
+/** Retrieve text content from a specified code block
  *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param filename 取得したいコードブロックのファイル名
- * @param options オプション
+ * @param project Name of the project containing the target page
+ * @param title Title of the target page (case-insensitive)
+ * @param filename Name of the code block file to retrieve
+ * @param options Configuration options
  */
 export const getCodeBlock: GetCodeBlock = /* @__PURE__ */ (() => {
   const fn: GetCodeBlock = async (

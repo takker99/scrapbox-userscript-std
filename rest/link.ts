@@ -24,7 +24,7 @@ export interface InvalidFollowingIdError extends ErrorLike {
 }
 
 export interface GetLinksOptions extends BaseOptions {
-  /** 次のリンクリストを示すID */
+  /** ID indicating the next list of links */
   followingId?: string;
 }
 

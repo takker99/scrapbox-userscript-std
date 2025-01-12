@@ -5,8 +5,7 @@
  *
  * > [!NOTE]
  * > Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
- * > {@see https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173}
-
+ * > For details, see the article "ServiceWorker and Cache Usage in Scrapbox" {@see https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173}
  *
  * @param request The request to find a cached response for
  * @param options Cache query options (e.g., to ignore search params)
