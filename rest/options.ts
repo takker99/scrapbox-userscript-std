@@ -20,7 +20,7 @@ export interface BaseOptions {
    * Allows overriding the default fetch behavior for testing
    * or custom networking requirements.
    *
-   * @default globalThis.fetch
+   * @default {globalThis.fetch}
    */
   fetch?: RobustFetch;
 
@@ -30,7 +30,7 @@ export interface BaseOptions {
    * with self-hosted Scrapbox instances or other custom deployments that
    * don't use the default scrapbox.io domain.
    *
-   * @default scrapbox.io
+   * @default {"scrapbox.io"}
    */
   hostName?: string;
 }

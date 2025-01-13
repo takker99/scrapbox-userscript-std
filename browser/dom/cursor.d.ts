@@ -9,7 +9,7 @@ import type { Page } from "./page.d.ts";
 export interface SetPositionOptions {
   /** Whether to auto-scroll the page when the cursor moves outside the viewport
    *
-   * @default true
+   * @default {true}
    * @type {boolean}
    */
   scrollInView?: boolean;

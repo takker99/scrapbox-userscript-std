@@ -150,7 +150,7 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
 export interface ListPagesOption extends BaseOptions {
   /** the sort of page list to return
    *
-   * @default updated
+   * @default {"updated"}
    */
   sort?:
     | "updatedWithMe"
@@ -163,12 +163,12 @@ export interface ListPagesOption extends BaseOptions {
     | "title";
   /** the index getting page list from
    *
-   * @default 0
+   * @default {0}
    */
   skip?: number;
   /** threshold of the length of page list
    *
-   * @default 100
+   * @default {100}
    */
   limit?: number;
 }

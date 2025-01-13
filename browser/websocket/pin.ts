@@ -11,7 +11,7 @@ export interface PinOptions extends PushOptions {
    * This is useful when you want to create and pin placeholder pages
    * that will be filled with content later.
    *
-   * @default false
+   * @default {false}
    */
   create?: boolean;
 }

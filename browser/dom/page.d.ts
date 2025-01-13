@@ -5,7 +5,7 @@ export interface SetPositionOptions {
   /** Whether to auto-scroll the page when the cursor moves outside the viewport
    * When `true`, the page will automatically scroll to keep the cursor visible
    *
-   * @default true
+   * @default {true}
    */
   scrollInView?: boolean;
 

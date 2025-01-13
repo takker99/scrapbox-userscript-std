@@ -17,7 +17,7 @@ export interface OpenOptions {
    * - `true`: open in a new tab
    * - `false`: open in the same tab
    *
-   * @default false
+   * @default {false}
    */
   newTab?: boolean;
 

@@ -21,7 +21,7 @@ export interface UpdateCodeBlockOptions extends PushOptions {
    * - New code content
    * - Generated change commits
    *
-   * @default false
+   * @default {false}
    */
   debug?: boolean;
 }

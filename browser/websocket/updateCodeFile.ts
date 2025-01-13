@@ -49,7 +49,7 @@ export interface UpdateCodeFileOptions extends PushOptions {
    * This option is particularly useful when you want to ensure code blocks
    * are created in a consistent location across multiple pages.
    *
-   * @default notInsert
+   * @default {"notInsert"}
    */
   insertPositionIfNotExist?: "top" | "bottom" | "notInsert";
 
@@ -61,7 +61,7 @@ export interface UpdateCodeFileOptions extends PushOptions {
    * - Making it easier to add new content after the code block
    * - Maintaining consistent spacing across all pages
    *
-   * @default true
+   * @default {true}
    */
   isInsertEmptyLineInTail?: boolean;
 
