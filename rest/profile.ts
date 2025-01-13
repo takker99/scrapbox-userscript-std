@@ -11,17 +11,24 @@ import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProfile {
-  /** /api/users/me の要求を組み立てる
+  /** Constructs a request for the `/api/users/me endpoint`
    *
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves the current user's profile information,
+   * which can be either a {@linkcode MemberUser} or {@linkcode GuestUser} profile.
+   *
+   * @param init - Options including `connect.sid` (session ID) and other configuration
+   * @returns A {@linkcode Request} object for fetching user profile data
    */
   toRequest: (init?: BaseOptions) => Request;
 
   /** get the user profile from the given response
    *
-   * @param res response
-   * @return user profile
+   * @param res - Response from the API
+   * @returns A {@linkcode Result}<{@linkcode UserProfile}, {@linkcode Error}> containing:
+   *          - Success: The user's profile data
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (
     res: Response,

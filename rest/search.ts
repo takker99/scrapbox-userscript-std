@@ -26,11 +26,11 @@ export type SearchForPagesError =
   | NoQueryError
   | HTTPError;
 
-/** search a project for pages
+/** Search for pages within a specific project
  *
- * @param query 検索語句
- * @param project 検索範囲とするprojectの名前
- * @param init connect.sid etc.
+ * @param query The search query string to match against pages
+ * @param project The name of the project to search within
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForPages = async (
   query: string,
@@ -69,10 +69,10 @@ export type SearchForJoinedProjectsError =
   | NoQueryError
   | HTTPError;
 
-/** search for joined projects
+/** Search across all projects that the user has joined
  *
- * @param query 検索語句
- * @param init connect.sid etc.
+ * @param query The search query string to match against projects
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForJoinedProjects = async (
   query: string,
@@ -110,15 +110,19 @@ export const searchForJoinedProjects = async (
 
 export type SearchForWatchListError = SearchForJoinedProjectsError;
 
-/** search for watch list
+/** Search within a list of watched projects
  *
- * watch listと銘打っているが、実際には参加していないpublic projectならどれでも検索できる
+ * > [!NOTE]
+ * > Despite the name "watch list", this function can search any public project,
+ * > even those the user hasn't joined.
  *
- * 参加しているprojectのidは指定しても無視されるだけ
+ * > [!NOTE]
+ * > If you include IDs of projects the user has already joined,
+ * > these IDs will be ignored in the search.
  *
- * @param query 検索語句
- * @param projectIds 検索候補のprojectのidのリスト
- * @param init connect.sid etc.
+ * @param query The search query string to match
+ * @param projectIds List of project IDs to search within (for non-joined public projects)
+ * @param init Options including `connect.sid` (session ID) and other configuration
  */
 export const searchForWatchList = async (
   query: string,

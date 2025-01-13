@@ -9,60 +9,77 @@ export interface Range {
 export declare class Selection extends BaseStore<undefined> {
   constructor();
 
-  /** 現在のページ本文を取得する */
+  /**
+   * A class that manages text selection in Scrapbox pages.
+   * It handles selection ranges, provides utilities for text manipulation,
+   * and maintains the selection state across user interactions.
+   */
+
+  /** Get the current page content as an array of lines */
   get lines(): BaseLine[];
 
-  /** 現在の選択範囲を取得する
+  /** Get the current selection range
    *
-   * @param init 選択範囲の先頭位置がRange.startになるよう並び替えたいときは`init.normalizeOrder`を`true`にする
-   * @return 現在の選択範囲
+   * @param init Set `init.normalizeOrder` to `true` to ensure Range.start is
+   *            the beginning of the selection (useful for consistent text processing)
+   * @returns The current {@linkcode Range} object representing the selection
    */
   getRange(init?: { normalizeOrder: boolean }): Range;
 
-  /** 選択範囲を変更する */
+  /** Update the current selection range */
   setRange(range: Range): void;
 
-  /** 選択を解除する */
+  /** Clear the current selection */
   clear(): void;
 
-  /** 選択範囲の先頭位置がrange.startになるよう並び替える
+  /** Normalize the selection range order to ensure start position comes before end
    *
-   * @param range 並び替えたい選択範囲
-   * @return 並び替えた選択範囲
+   * @param range - The selection range to normalize
+   * @returns A normalized {@linkcode Range} with start position at the beginning
+   *
+   * This is useful when you need consistent text processing regardless of
+   * whether the user selected text from top-to-bottom or bottom-to-top.
    */
   normalizeOrder(range: Range): Range;
 
-  /** 選択範囲の文字列を取得する */
+  /** Get the text content of the current selection */
   getSelectedText(): string;
 
-  /** 選択範囲の描画上の高さを取得する */
+  /** Get the visual height of the selection in pixels */
   getSelectionsHeight(): number;
 
-  /** 選択範囲の右上のy座標を取得する */
+  /** Get the Y-coordinate of the selection's top-right corner */
   getSelectionTop(): number;
 
-  /** 全選択する */
+  /** Select all content in the current page */
   selectAll(): void;
 
-  /** 与えられた選択範囲が空かどうか判定する
+  /** Check if there is any active selection
    *
-   * defaultだと、このclassが持っている選択範囲を判定する
+   * @param range Optional range to check. If not provided,
+   *              checks this class's current selection
    */
   hasSelection(range?: Range): boolean;
 
-  /** 与えられた範囲が1行だけ選択しているかどうか判定する
+  /** Check if exactly one line is selected
    *
-   * defaultだと、このclassが持っている選択範囲を判定する
+   * @param range Optional range to check. If not provided,
+   *              checks this class's current selection
    */
   hasSingleLineSelection(range?: Range): boolean;
 
-  /** 与えられた範囲が2行以上選択しているかどうか判定する
+  /** Check if multiple lines are selected (2 or more)
    *
-   * defaultだと、このclassが持っている選択範囲を判定する
+   * @param range Optional range to check. If not provided,
+   *              checks this class's current selection
    */
   hasMultiLinesSelection(range?: Range): boolean;
 
-  /** 全選択しているかどうか */
+  /** Check if all content in the current page is selected
+   *
+   * This is equivalent to checking if the selection spans
+   * from the beginning of the first line to the end of the last line
+   */
   hasSelectionAll(): boolean;
 
   private fixPosition(position: Position): void;

@@ -1,28 +1,44 @@
 import { type RobustFetch, robustFetch } from "./robustFetch.ts";
 
-/** 全てのREST APIに共通するopitons */
+/** Common options shared across all REST API endpoints
+ *
+ * These options configure authentication, network behavior, and host settings
+ * for all API requests in the library.
+ */
 export interface BaseOptions {
-  /** connect.sid
+  /** Scrapbox session ID (connect.sid)
    *
-   * private projectのデータやscrapbox accountに紐付いたデータを取得する際に必要な認証情報
+   * Authentication token required to access:
+   * - Private project data
+   * - User-specific data linked to Scrapbox accounts
+   * - Protected API endpoints
    */
   sid?: string;
 
-  /** データの取得に使う処理
+  /** Custom fetch implementation for making HTTP requests
    *
-   * @default fetch
+   * Allows overriding the default fetch behavior for testing
+   * or custom networking requirements.
+   *
+   * @default {globalThis.fetch}
    */
   fetch?: RobustFetch;
 
-  /** REST APIのdomain
+  /** Domain for REST API endpoints
    *
-   * オンプレ版scrapboxなどだと、scrapbox.io以外のhost nameになるので、予め変えられるようにしておく
+   * Configurable host name for API requests. This allows using the library
+   * with self-hosted Scrapbox instances or other custom deployments that
+   * don't use the default scrapbox.io domain.
    *
-   * @default "scrapbox.io"
+   * @default {"scrapbox.io"}
    */
   hostName?: string;
 }
-/** BaseeOptionsにCSRF情報を入れたもの */
+/** Extended options including CSRF token configuration
+ *
+ * Extends BaseOptions with CSRF token support for endpoints
+ * that require CSRF protection.
+ */
 export interface ExtendedOptions extends BaseOptions {
   /** CSRF token
    *
@@ -31,7 +47,14 @@ export interface ExtendedOptions extends BaseOptions {
   csrf?: string;
 }
 
-/** BaseOptionsの既定値を埋める */
+/** Set default values for {@linkcode BaseOptions}
+ *
+ * Ensures all required fields have appropriate default values while
+ * preserving any user-provided options.
+ *
+ * @param options - User-provided {@linkcode Options} to merge with defaults
+ * @returns {@linkcode Options} object with all required fields populated
+ */
 export const setDefaults = <T extends BaseOptions = BaseOptions>(
   options: T,
 ): Omit<T, "fetch" | "hostName"> & Required<Omit<BaseOptions, "sid">> => {

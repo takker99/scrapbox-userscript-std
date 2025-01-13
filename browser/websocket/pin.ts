@@ -3,20 +3,33 @@ import type { Change } from "./change.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
-  /** ピン留め対象のページが存在しないときの振る舞いを変えるoption
+  /** Option to control behavior when the target page doesn't exist
    *
-   * -`true`: タイトルのみのページを作成してピン留めする
-   * - `false`: ピン留めしない
+   * - `true`: Create a new page with just the title and pin it
+   * - `false`: Do not pin (skip the operation)
    *
-   * @default false
+   * This is useful when you want to create and pin placeholder pages
+   * that will be filled with content later.
+   *
+   * @default {false}
    */
   create?: boolean;
 }
-/** 指定したページをピン留めする
+
+/** Pin a Scrapbox page to keep it at the top of the project
  *
- * @param project ピン留めしたいページのproject
- * @param title ピン留めしたいページのタイトル
- * @param options 使用したいSocketがあれば指定する
+ * Pinned pages are sorted by their pin number, which is calculated
+ * based on the current timestamp to maintain a stable order.
+ * Higher pin numbers appear first in the list.
+ *
+ * @param project - Project containing the target page
+ * @param title - Title of the page to pin
+ * @param options - Optional settings:
+ *                 - socket: Custom WebSocket connection
+ *                 - create: Whether to create non-existent pages
+ * @returns A {@linkcode Promise} that resolves to a {@linkcode Result} containing:
+ *          - Success: The title of the pinned page as a {@linkcode string}
+ *          - Error: A {@linkcode PushError} describing what went wrong
  */
 export const pin = (
   project: string,
@@ -27,12 +40,13 @@ export const pin = (
     project,
     title,
     (page) => {
-      // 既にピン留めされている場合は何もしない
+      // Skip if already pinned or if page doesn't exist and create=false
       if (
         page.pin > 0 || (!page.persistent && !(options?.create ?? false))
       ) return [];
-      // @ts-ignore 多分ページ作成とピン留めを同時に行っても怒られない……はず
-      const changes: Change[] = [{ pin: pinNumber() }] as Change[];
+      // Create page and pin it in a single operation
+      // @ts-ignore The server is expected to accept combined creation and pin operations
+      const changes: Change[] = [{ pin: pinNumber() }];
       if (!page.persistent) changes.unshift({ title });
       return changes;
     },
@@ -40,10 +54,16 @@ export const pin = (
   );
 
 export interface UnPinOptions extends PushOptions {}
-/** 指定したページのピン留めを外す
+
+/** Unpin a Scrapbox page, removing it from the pinned list
  *
- * @param project ピン留めを外したいページのproject
- * @param title ピン留めを外したいページのタイトル
+ * This sets the page's pin number to `0`, which effectively unpins it.
+ *
+ * @param project - Project containing the target page
+ * @param title - Title of the page to unpin
+ * @returns A {@linkcode Promise} that resolves to a {@linkcode Result} containing:
+ *          - Success: The title of the unpinned page as a {@linkcode string}
+ *          - Error: A {@linkcode PushError} describing what went wrong
  */
 export const unpin = (
   project: string,
@@ -54,10 +74,20 @@ export const unpin = (
     project,
     title,
     (page) =>
-      // 既にピンが外れているか、そもそも存在しないページの場合は何もしない
+      // Skip if already unpinned or if page doesn't exist
       page.pin == 0 || !page.persistent ? [] : [{ pin: 0 }],
     options,
   );
 
+/** Calculate a pin number for sorting pinned pages
+ *
+ * The pin number is calculated as:
+ * the {@linkcode Number.MAX_SAFE_INTEGER} - (current Unix timestamp in seconds)
+ *
+ * This ensures that:
+ * 1. More recently pinned pages appear lower in the pinned list
+ * 2. Pin numbers are unique and stable
+ * 3. There's enough room for future pins (the {@linkcode Number.MAX_SAFE_INTEGER} is very large)
+ */
 export const pinNumber = (): number =>
   Number.MAX_SAFE_INTEGER - Math.floor(Date.now() / 1000);

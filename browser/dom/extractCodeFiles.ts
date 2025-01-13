@@ -1,6 +1,6 @@
 import type { Line } from "@cosense/types/userscript";
 
-/** 一つのソースコードを表す */
+/** Represents a single source code file with its code blocks */
 export interface CodeFile {
   /** file name */
   filename: string;
@@ -12,33 +12,35 @@ export interface CodeFile {
   blocks: CodeBlock[];
 }
 
-/** 一つのコードブロックを表す */
+/** Represents a single code block within a source file */
 export interface CodeBlock {
-  /** 開始行のID */
+  /** ID of the first line in the code block */
   startId: string;
 
-  /** 末尾の行のID */
+  /** ID of the last line in the code block */
   endId: string;
 
-  /** コードブロックの最終更新日時 */
+  /** Last update timestamp of the code block */
   updated: number;
 
-  /** .code-titleのindent数 */
+  /** Indentation level of the .code-title element in Scrapbox */
   indent: number;
 
-  /** ブロック中のコード
+  /** Lines of code within the block
    *
-   * .code-titleは含まない
+   * Excludes `.code-title`
    *
-   * 予めindentは削ってある
+   * Indentation is already removed from each line
    */
   lines: string[];
 }
 
-/** `scrapbox.Page.lines`からcode blocksを取り出す
+/** Extract code blocks from {@linkcode scrapbox.Page.lines}
  *
- * @param lines ページの行
- * @return filenameをkeyにしたソースコードのMap
+ * @param lines - Page lines to process
+ * @returns A {@linkcode Map}<{@linkcode string}, {@linkcode string}> containing:
+ *          - Key: The filename
+ *          - Value: The source code content
  */
 export const extractCodeFiles = (
   lines: Iterable<Line>,
@@ -54,7 +56,7 @@ export const extractCodeFiles = (
         startId: line.id,
         endId: line.id,
         updated: line.updated,
-        // 本文ではなく、.code-titleのインデント数を登録する
+        // Register the indentation level of `.code-title`, not the content
         indent: rest.indent - 1,
         lines: [],
       });

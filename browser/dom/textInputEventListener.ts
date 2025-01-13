@@ -3,9 +3,13 @@ import { textInput } from "./dom.ts";
 import { decode, encode } from "./_internal.ts";
 declare const scrapbox: Scrapbox;
 
-/** - first key: event name
- * - second key: listener
- * - value: encoded options
+/** Map structure for tracking event listeners and their options
+ *
+ * Structure:
+ * - First level: Maps event names to their listeners
+ * - Second level: Maps each listener to its set of encoded options
+ * - The encoded options allow tracking multiple registrations of the same
+ *   listener with different options
  */
 const listenerMap = /* @__PURE__ */ new Map<
   keyof HTMLElementEventMap,
@@ -36,14 +40,18 @@ let reRegister: (() => void) | undefined = () => {
   reRegister = undefined;
 };
 
-/** `#text-input`に対してイベントリスナーを追加する
+/** Add an event listener to the `#text-input` element with automatic re-registration
  *
- * `#text-input`はページレイアウトが変わると削除されるため、登録したイベントリスナーの記憶と再登録をこの関数で行っている
+ * In Scrapbox, the `#text-input` element is recreated when the page layout changes.
+ * This function manages event listeners by:
+ * 1. Storing the listener and its options in a persistent map
+ * 2. Automatically re-registering all listeners when layout changes
+ * 3. Handling both regular and once-only event listeners
  *
- * @param name event name
- * @param listener event listener
- * @param options event listener options
- * @returns
+ * @param name - The event type to listen for (e.g., 'input', 'keydown')
+ * @param listener - The callback function to execute when the event occurs
+ * @param options - Standard addEventListener options or boolean for useCapture
+ * @returns {@linkcode void}
  */
 export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
   name: K,
@@ -65,7 +73,11 @@ export const addTextInputEventListener = <K extends keyof HTMLElementEventMap>(
       new Map<number, EventListener>();
     const encoded = encode(options);
 
-    /** 呼び出し時に、`listenerMap`からの登録も解除するwrapper listener */
+    /** A wrapper listener that removes itself from the `listenerMap` when called
+     *
+     * This wrapper ensures proper cleanup of both the DOM event listener and our
+     * internal listener tracking when a 'once' listener is triggered.
+     */
     const onceListener = function (
       this: HTMLTextAreaElement,
       event: HTMLElementEventMap[K],

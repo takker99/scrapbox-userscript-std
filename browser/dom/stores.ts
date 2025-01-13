@@ -3,6 +3,17 @@ import type { Cursor } from "./cursor.d.ts";
 import type { Selection } from "./selection.d.ts";
 export type { Cursor, Selection };
 
+/** Retrieve Scrapbox's internal cursor and selection stores from the DOM
+ *
+ * This function accesses React's internal fiber tree to obtain references to
+ * the Cursor and Selection store instances that Scrapbox uses to manage
+ * text input state. These stores provide APIs for:
+ * - {@linkcode Cursor}: Managing text cursor position and movement
+ * - {@linkcode Selection}: Handling text selection ranges and operations
+ *
+ * @throws {@linkcode Error} If text input element or stores cannot be found
+ * @returns Object containing {@linkcode CursorStore} and {@linkcode SelectionStore} instances
+ */
 export const takeStores = (): { cursor: Cursor; selection: Selection } => {
   const textarea = textInput();
   if (!textarea) {
@@ -17,7 +28,9 @@ export const takeStores = (): { cursor: Cursor; selection: Selection } => {
     );
   }
 
-  // @ts-ignore DOMを無理矢理objectとして扱っている
+  // @ts-ignore Treating DOM element as an object to access React's internal fiber tree.
+  // This is a hack to access Scrapbox's internal stores, but it's currently the only way
+  // to obtain references to the cursor and selection management instances.
   const stores = (textarea[
     reactKey
   ] as ReactFiber).return.return.stateNode._stores as (Cursor | Selection)[];
@@ -38,6 +51,12 @@ export const takeStores = (): { cursor: Cursor; selection: Selection } => {
   return { cursor, selection };
 };
 
+/** Internal React Fiber node structure
+ *
+ * This interface represents the minimal structure we need from React's
+ * internal fiber tree to access Scrapbox's store instances. Note that
+ * this is an implementation detail and might change with React updates.
+ */
 interface ReactFiber {
   return: {
     return: {

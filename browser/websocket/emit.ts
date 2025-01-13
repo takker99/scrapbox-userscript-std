@@ -37,12 +37,17 @@ export interface EmitOptions {
 /**
  * Sends an event to the socket and returns a promise that resolves with the result.
  *
- * @template EventName - The name of the event to emit.
- * @param  socket - The socket to emit the event on.
- * @param  event - The name of the event to emit.
- * @param  data - The data to send with the event.
- * @param  options - Optional options for the emit operation.
- * @returns  A promise that resolves with the result of the emit operation.
+ * @template EventName - The name of the event to emit
+ * @param socket - The {@linkcode ScrapboxSocket} to emit the event on
+ * @param event - The name of the event to emit
+ * @param data - The data to send with the event
+ * @param options - Optional {@linkcode EmitOptions} for the operation
+ * @returns A {@linkcode Promise}<{@linkcode Result}<T, E>> containing:
+ *          - Success: The response data from the server
+ *          - Error: One of several possible errors:
+ *            - {@linkcode TimeoutError}: Request timed out
+ *            - {@linkcode SocketIOServerDisconnectError}: Server disconnected
+ *            - {@linkcode UnexpectedRequestError}: Unexpected response format
  */
 export const emit = <EventName extends keyof WrapperdEmitEvents>(
   socket: ScrapboxSocket,
@@ -63,8 +68,12 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     return Promise.resolve(createOk<void>(undefined));
   }
 
-  // [socket.io-request](https://github.com/shokai/socket.io-request)で処理されているイベント
-  // 同様の実装をすればいい
+  // This event is processed using the socket.io-request protocol
+  // (see: https://github.com/shokai/socket.io-request)
+  // We implement a similar request-response pattern here:
+  // 1. Send event with payload
+  // 2. Wait for response with timeout
+  // 3. Handle success/error responses
   const { resolve, promise, reject } = Promise.withResolvers<
     Result<
       WrapperdEmitEvents[EventName]["res"],
@@ -80,13 +89,14 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     clearTimeout(timeoutId);
   };
   const onDisconnect = (reason: Socket.DisconnectReason) => {
-    // "commit"および"room:join"で"io client disconnect"が発生することはない
+    // "io client disconnect" should never occur during "commit" or "room:join" operations
+    // This is an unexpected state that indicates a client-side connection issue
     if (reason === "io client disconnect") {
       dispose();
       reject(new Error("io client disconnect"));
       return;
     }
-    // 復帰不能なエラー
+    // Unrecoverable error state
     if (reason === "io server disconnect") {
       dispose();
       resolve(createErr({ name: "SocketIOError" }));

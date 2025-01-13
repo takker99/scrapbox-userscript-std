@@ -2,15 +2,17 @@ import { BaseStore } from "@cosense/types/userscript";
 import type { Page as PageData } from "@cosense/types/rest";
 
 export interface SetPositionOptions {
-  /** カーソルが画面外に移動したとき、カーソルが見える位置までページをスクロールするかどうか
+  /** Whether to auto-scroll the page when the cursor moves outside the viewport
+   * When `true`, the page will automatically scroll to keep the cursor visible
    *
-   * @default true
+   * @default {true}
    */
   scrollInView?: boolean;
 
-  /** カーソル移動イベントの発生箇所？
+  /** Source of the cursor movement event
    *
-   * コード内だと、"mouse"が指定されていた場合があった。詳細は不明
+   * Can be set to `"mouse"` when the cursor movement is triggered by mouse interaction
+   * This parameter helps distinguish between different types of cursor movements
    */
   source?: "mouse";
 }
@@ -31,9 +33,10 @@ export interface ApplySnapshotInit {
 
 export type PageWithCache = PageData & { cachedAt: number | undefined };
 
-/** Scrapboxのページデータを管理する内部クラス
+/** Internal class for managing Scrapbox page data
  *
- * 一部型定義は書きかけ
+ * > [!NOTE]
+ * > Some type definitions are still in progress and may be incomplete
  */
 export declare class Page extends BaseStore<
   { source: "mouse" | undefined } | "focusTextInput" | "scroll" | undefined

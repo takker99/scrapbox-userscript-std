@@ -18,13 +18,13 @@ import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 import type { FetchError } from "./mod.ts";
 
-/** 不正なfollowingIdを渡されたときに発生するエラー */
+/** Error that occurs when an invalid followingId is provided for pagination */
 export interface InvalidFollowingIdError extends ErrorLike {
   name: "InvalidFollowingIdError";
 }
 
 export interface GetLinksOptions extends BaseOptions {
-  /** 次のリンクリストを示すID */
+  /** ID indicating the next list of links */
   followingId?: string;
 }
 
@@ -41,9 +41,21 @@ export type LinksError =
 
 /** Get the links of the specified project
  *
- * @param project The project to get the data from
- * @param options Options for the request
- * @return a promise that resolves to the parsed data
+ * This function retrieves all links from a Scrapbox project, with optional
+ * pagination support through the followingId parameter.
+ *
+ * @param project - The project to get the data from
+ * @param options - Options for the request including pagination and authentication
+ * @returns A {@linkcode Result}<{@linkcode GetLinksResult}, {@linkcode LinksError} | {@linkcode FetchError}> containing:
+ *          - Success: The link data with:
+ *            - pages: Array of {@linkcode SearchedTitle} objects
+ *            - followingId: ID for fetching the next page of results
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Project not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode InvalidFollowingIdError}: Invalid pagination ID
+ *            - {@linkcode HTTPError}: Network or server errors
+ *            - {@linkcode FetchError}: Request failed
  */
 export interface GetLinks {
   (
@@ -54,15 +66,17 @@ export interface GetLinks {
   /** Create a request to `GET /api/pages/:project/search/titles`
    *
    * @param project The project to get the data from
-   * @param options Options for the request
-   * @return The request object
+   * @param options - Options for the request
+   * @returns A {@linkcode Request} object for fetching link data
    */
   toRequest: (project: string, options?: GetLinksOptions) => Request;
 
   /** Parse the response from `GET /api/pages/:project/search/titles`
    *
-   * @param response The response object
-   * @return a promise that resolves to the parsed data
+   * @param response - The response object
+   * @returns A {@linkcode Result}<{@linkcode unknown}, {@linkcode Error}> containing:
+   *          - Success: The parsed link data
+   *          - Error: {@linkcode Error} if parsing fails
    */
   fromResponse: (
     response: Response,
@@ -102,9 +116,39 @@ const getLinks_fromResponse: GetLinks["fromResponse"] = async (response) =>
       })),
   );
 
-/** 指定したprojectのリンクデータを取得する
+/** Retrieve link data from a specified Scrapbox project
  *
- * @param project データを取得したいproject
+ * This function fetches link data from a project, supporting pagination through
+ * the {@linkcode GetLinksOptions.followingId} parameter. It returns both the link data and the next
+ * followingId for subsequent requests.
+ *
+ * @param project The project to retrieve link data from
+ * @param options Configuration options
+ * @returns A {@linkcode Result}<{@linkcode GetLinksResult}, {@linkcode Error}> containing:
+ *          - Success: {@linkcode GetLinksResult} with pages and next followingId
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Project not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode InvalidFollowingIdError}: Invalid pagination ID
+ *            - {@linkcode HTTPError}: Network or server errors
+ *
+ * @example
+ * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
+ * // Get first page of links
+ * const result = await getLinks("project-name");
+ * if (isErr(result)) {
+ *   throw new Error(`Failed to get links: ${unwrapErr(result)}`);
+ * }
+ * const { pages, followingId } = unwrapOk(result);
+ *
+ * // Get next page if available
+ * if (followingId) {
+ *   const nextResult = await getLinks("project-name", { followingId });
+ *   // Handle next page result...
+ * }
+ * ```
  */
 export const getLinks: GetLinks = /* @__PURE__ */ (() => {
   const fn: GetLinks = async (project, options) => {
@@ -120,12 +164,28 @@ export const getLinks: GetLinks = /* @__PURE__ */ (() => {
   return fn;
 })();
 
-/** 指定したprojectの全てのリンクデータを取得する
+/** Retrieve all link data from a specified project in bulk
  *
- * responseで返ってきたリンクデータの塊ごとに返す
+ * This async generator yields arrays of link data, automatically handling
+ * pagination. Each yield returns a batch of links as received from the API.
  *
- * @param project データを取得したいproject
- * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
+ * @param project The project to retrieve link data from
+ * @param options Configuration options
+ * @returns An {@linkcode AsyncGenerator}<{@linkcode Result}<{@linkcode SearchedTitle}[], {@linkcode Error}>> that yields either:
+ *          - Success: Array of {@linkcode SearchedTitle} objects (batch of links)
+ *          - Error: Error if authentication fails or other issues occur
+ *
+ * @example
+ * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
+ * for await (const result of readLinksBulk("project-name")) {
+ *   if (isErr(result)) {
+ *     throw new Error(`Failed to get links: ${unwrapErr(result)}`);
+ *   }
+ *   console.log(`Got ${unwrapOk(result).length} links`);
+ * }
+ * ```
  */
 export async function* readLinksBulk(
   project: string,
@@ -149,10 +209,30 @@ export async function* readLinksBulk(
   } while (followingId);
 }
 
-/** 指定したprojectの全てのリンクデータを取得し、一つづつ返す
+/** Retrieve all link data from a specified project one by one
  *
- * @param project データを取得したいproject
- * @return 認証が通らなかったらエラーを、通ったらasync generatorを返す
+ * This async generator yields individual link entries, automatically handling
+ * pagination. Unlike {@linkcode readLinksBulk}, this yields one {@linkcode SearchedTitle} at a time,
+ * making it ideal for processing links individually.
+ *
+ * @param project The project to retrieve link data from
+ * @param options Configuration options
+ * @returns An {@linkcode AsyncGenerator}<{@linkcode Result}<{@linkcode SearchedTitle}, {@linkcode Error}>> that yields either:
+ *          - Success: Individual {@linkcode SearchedTitle} object (single link)
+ *          - Error: Error if authentication fails or other issues occur
+ *
+ * @example
+ * ```typescript
+ * import { isErr, unwrapErr, unwrapOk } from "option-t/plain_result";
+ *
+ * for await (const result of readLinks("project-name")) {
+ *   if (isErr(result)) {
+ *     throw new Error(`Failed to get link: ${unwrapErr(result)}`);
+ *   }
+ *   // Single link entry
+ *   console.log("Processing link:", unwrapOk(result).title);
+ * }
+ * ```
  */
 export async function* readLinks(
   project: string,

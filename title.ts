@@ -1,29 +1,28 @@
-/** 文字列をtitleLc形式に変換する
+/** Convert a string to titleLc format
  *
- * - ` ` -> `_`
+ * - Converts spaces (` `) to underscores (`_`)
+ * - Converts uppercase to lowercase
  *
- * - 大文字 -> 小文字
+ * Primarily used for comparing links for equality
  *
- * リンクの等値比較をする際に主に使われる
- *
- * @param text 変換する文字列
- * @return 変換後の文字列
+ * @param text - String to convert
+ * @returns A {@linkcode string} containing the converted text in titleLc format
  */
 export const toTitleLc = (text: string): string =>
   text.replaceAll(" ", "_").toLowerCase();
 
-/** `_`を半角スペースに変換する
+/** Convert underscores (`_`) to single-byte spaces
  *
- * @param text 変換する文字列
- * @return 変換後の文字列
+ * @param text - String to convert
+ * @returns A {@linkcode string} with underscores converted to spaces
  */
 export const revertTitleLc = (text: string): string =>
   text.replaceAll("_", " ");
 
-/** titleをURIで使える形式にEncodeする
+/** Encode a title into a URI-safe format
  *
- * @param title 変換するtitle
- * @return 変換後の文字列
+ * @param title - Title to encode
+ * @returns A {@linkcode string} containing the URI-safe encoded title
  */
 export const encodeTitleURI = (title: string): string => {
   return [...title].map((char, index) => {
@@ -41,10 +40,10 @@ export const encodeTitleURI = (title: string): string => {
 const noEncodeChars = '@$&+=:;",';
 const noTailChars = ':;",';
 
-/** titleをできるだけpercent encodingせずにURIで使える形式にする
+/** Convert a title to a URI-safe format while minimizing percent encoding
  *
- * @param title 変換するtitle
- * @return 変換後の文字列
+ * @param title - Title to convert
+ * @returns A {@linkcode string} containing the URI-safe title with minimal percent encoding
  */
 export const toReadableTitleURI = (title: string): string => {
   return title.replaceAll(" ", "_")

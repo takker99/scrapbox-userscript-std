@@ -29,32 +29,70 @@ import type {
   UnexpectedRequestError,
 } from "./error.ts";
 
+/** Configuration options for the push operation */
 export interface PushOptions {
-  /** 外部からSocketを指定したいときに使う */
+  /** Optional Socket instance for external WebSocket connection control
+   *
+   * This allows providing an existing Socket instance instead of creating
+   * a new one. Useful for reusing connections or custom Socket configurations.
+   */
   socket?: Socket;
 
-  /** pushの再試行回数
+  /** Maximum number of push retry attempts
    *
-   * これを上回ったら、`RetryError`を返す
+   * When this limit is exceeded, the operation fails with a {@linkcode RetryError}.
+   * Each retry occurs when there's a conflict ({@linkcode NotFastForwardError}) or
+   * duplicate title issue, allowing the client to resolve the conflict
+   * by fetching the latest page state and recreating the changes.
    */
   maxAttempts?: number;
 }
 
+/** Error returned when push retry attempts are exhausted
+ *
+ * This error indicates that the maximum number of retry attempts was
+ * reached without successfully applying the changes, usually due to
+ * concurrent modifications or persistent conflicts.
+ */
 export interface RetryError {
   name: "RetryError";
   message: string;
+  /** Number of attempts made before giving up */
   attempts: number;
 }
 
+/** Extended page metadata required for WebSocket operations
+ *
+ * This interface extends the basic Page type with additional identifiers
+ * needed for real-time collaboration and page modifications.
+ */
 export interface PushMetadata extends Page {
+  /** Unique identifier of the project containing the page */
   projectId: string;
+  /** Unique identifier of the current user */
   userId: string;
 }
 
+/** Error for unexpected conditions during push operations
+ *
+ * This error type is used when the push operation encounters an
+ * unexpected state or receives an invalid response.
+ */
 export interface UnexpectedError extends ErrorLike {
   name: "UnexpectedError";
 }
 
+/** Comprehensive error type for push operations
+ *
+ * This union type includes all possible errors that may occur during
+ * a push operation, including:
+ * - Operation errors ({@linkcode RetryError}, {@linkcode UnexpectedError})
+ * - WebSocket errors ({@linkcode SocketIOServerDisconnectError}, {@linkcode UnexpectedRequestError})
+ * - Authentication errors ({@linkcode NotLoggedInError})
+ * - Authorization errors ({@linkcode NotMemberError})
+ * - Resource errors ({@linkcode NotFoundError}, {@linkcode TooLongURIError})
+ * - Network errors ({@linkcode NetworkError}, {@linkcode AbortError}, {@linkcode HTTPError})
+ */
 export type PushError =
   | RetryError
   | SocketIOServerDisconnectError
@@ -68,16 +106,20 @@ export type PushError =
   | NetworkError
   | AbortError;
 
-/**
- * pushしたいcommitを作る関数
+/** Function type for creating commits to be pushed
  *
- * {@linkcode push} で使う
+ * This handler is called by {@linkcode push} to generate the changes
+ * that should be applied to the page. It may be called multiple times
+ * if conflicts occur, allowing the changes to be recreated based on
+ * the latest page state.
  *
- * @param page ページのメタデータ
- * @param attempts 何回目の試行か
- * @param prev 前回のcommitの変更
- * @param reason 再試行した場合、その理由が渡される
- * @returns commits
+ * @param page - Current page metadata including latest commit ID
+ * @param attempts - Current attempt number (starts from 1)
+ * @param prev - Changes from the previous attempt (empty on first try)
+ * @param reason - If retrying, explains why the previous attempt failed:
+ *                - `"NotFastForwardError"`: Concurrent modification detected
+ *                - `"DuplicateTitleError"`: Page title already exists
+ * @returns Array of changes to apply, or empty array to cancel the push
  */
 export type CommitMakeHandler = (
   page: PushMetadata,
@@ -90,15 +132,26 @@ export type CommitMakeHandler = (
   | [DeletePageChange]
   | [PinChange];
 
-/** 特定のページのcommitをpushする
+/** Push changes to a specific page using WebSocket
  *
- * serverからpush errorが返ってきた場合、エラーに応じてpushを再試行する
+ * This function implements a robust page modification mechanism with:
+ * - Automatic conflict resolution through retries
+ * - Concurrent modification detection
+ * - WebSocket connection management
+ * - Error recovery strategies
  *
- * @param project project name
- * @param title page title
- * @param makeCommit pushしたいcommitを作る関数。空配列を返すとpushを中断する
- * @param options
- * @retrun 成功 or キャンセルのときは`commitId`を返す。再試行回数が上限に達したときは`RetryError`を返す
+ * The function will retry the push operation if server-side conflicts
+ * occur, allowing the client to fetch the latest page state and
+ * recreate the changes accordingly.
+ *
+ * @param project - Name of the project containing the page
+ * @param title - Title of the page to modify
+ * @param makeCommit - Function that generates the changes to apply.
+ *                    Return empty array to cancel the operation.
+ * @param options - Optional configuration for push behavior
+ * @returns On success/cancel: new commit ID
+ *          On max retries: {@linkcode RetryError}
+ *          On other errors: Various error types (see {@linkcode PushError})
  */
 export const push = async (
   project: string,
@@ -123,65 +176,89 @@ export const push = async (
     let changes: Change[] | [DeletePageChange] | [PinChange] = [];
     let reason: "NotFastForwardError" | "DuplicateTitleError" | undefined;
 
-    // loop for create Diff
+    // Outer loop: handles diff creation and conflict resolution
+    // This loop continues until either:
+    // 1. Changes are successfully pushed
+    // 2. Operation is cancelled (empty changes)
+    // 3. Maximum attempts are reached
     while (
       options?.maxAttempts === undefined || attempts < options.maxAttempts
     ) {
+      // Generate changes based on current page state
+      // If retrying, previous changes and failure reason are provided
       const pending = makeCommit(metadata, attempts, changes, reason);
       changes = pending instanceof Promise ? await pending : pending;
       attempts++;
+
+      // Empty changes indicate operation cancellation
       if (changes.length === 0) return createOk(metadata.commitId);
 
+      // Prepare commit data for WebSocket transmission
       const data: PageCommit = {
-        kind: "page",
-        projectId: metadata.projectId,
-        pageId: metadata.id,
-        parentId: metadata.commitId,
-        userId: metadata.userId,
-        changes,
-        cursor: null,
-        freeze: true,
+        kind: "page", // Indicates page modification
+        projectId: metadata.projectId, // Project scope
+        pageId: metadata.id, // Target page
+        parentId: metadata.commitId, // Base commit for change
+        userId: metadata.userId, // Change author
+        changes, // Actual modifications
+        cursor: null, // No cursor position
+        freeze: true, // Prevent concurrent edits
       };
 
-      // loop for push changes
+      // Inner loop: handles WebSocket communication and error recovery
+      // This loop continues until either:
+      // 1. Changes are successfully pushed
+      // 2. Fatal error occurs
+      // 3. Conflict requires regenerating changes
       while (true) {
         const result = await emit(socket, "commit", data);
         if (isOk(result)) {
+          // Update local commit ID on successful push
           metadata.commitId = unwrapOk(result).commitId;
-          // success
           return createOk(metadata.commitId);
         }
+
         const error = unwrapErr(result);
         const name = error.name;
+
+        // Fatal errors: connection or protocol issues
         if (
           name === "SocketIOServerDisconnectError" ||
           name === "UnexpectedRequestError"
         ) {
           return createErr(error);
         }
+
+        // Temporary errors: retry after delay
         if (name === "TimeoutError" || name === "SocketIOError") {
-          await delay(3000);
-          // go back to the push loop
-          continue;
+          await delay(3000); // Wait 3 seconds before retry
+          continue; // Retry push with same changes
         }
+
+        // Conflict error: page was modified by another user
         if (name === "NotFastForwardError") {
-          await delay(1000);
+          await delay(1000); // Brief delay to avoid rapid retries
+          // Fetch latest page state
           const pullResult = await pull(project, title);
           if (isErr(pullResult)) return pullResult;
           metadata = unwrapOk(pullResult);
         }
+
+        // Store error for next attempt and regenerate changes
         reason = name;
-        // go back to the diff loop
-        break;
+        break; // Exit push loop, retry with new changes
       }
     }
+
+    // All retry attempts exhausted
     return createErr({
       name: "RetryError",
       attempts,
-      // from https://github.com/denoland/deno_std/blob/0.223.0/async/retry.ts#L23
+      // Error message format from [Deno standard library](https://github.com/denoland/deno_std/blob/0.223.0/async/retry.ts#L23)
       message: `Retrying exceeded the maxAttempts (${attempts}).`,
     });
   } finally {
+    // Clean up WebSocket connection if we created it
     if (!options?.socket) await disconnect(socket);
   }
 };

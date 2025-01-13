@@ -1,7 +1,19 @@
 import { parseYoutube } from "./youtube.ts";
 import { assertSnapshot } from "@std/testing/snapshot";
 
+/** Test suite for YouTube URL parsing functionality
+ * This test suite verifies the parseYoutube function's ability to handle various
+ * YouTube URL formats and invalid inputs using snapshot testing.
+ */
 Deno.test("youtube links", async (t) => {
+  /** Test valid YouTube URL formats
+   * Verifies parsing of:
+   * - Standard watch URLs (youtube.com/watch?v=...)
+   * - Playlist URLs (youtube.com/playlist?list=...)
+   * - Watch URLs within playlists
+   * - YouTube Music URLs (music.youtube.com)
+   * - Short URLs (youtu.be/...)
+   */
   await t.step("is", async (t) => {
     await assertSnapshot(
       t,
@@ -33,6 +45,13 @@ Deno.test("youtube links", async (t) => {
     );
   });
 
+  /** Test invalid URL formats
+   * Verifies that the function correctly returns undefined for:
+   * - URLs from other services (e.g., Gyazo)
+   * - Non-URL strings (including Japanese text)
+   * - Similar but invalid domains (e.g., "yourtube.com")
+   * - Generic URLs
+   */
   await t.step("is not", async (t) => {
     await assertSnapshot(
       t,
@@ -43,7 +62,7 @@ Deno.test("youtube links", async (t) => {
     await assertSnapshot(
       t,
       parseYoutube(
-        "ほげほげ",
+        "test_text",
       ),
     );
     await assertSnapshot(

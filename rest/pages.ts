@@ -20,7 +20,7 @@ import { unwrapOrForMaybe } from "option-t/maybe";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./robustFetch.ts";
 
-/** Options for `getPage()` */
+/** Options for {@linkcode getPage} */
 export interface GetPageOption extends BaseOptions {
   /** use `followRename` */
   followRename?: boolean;
@@ -81,12 +81,12 @@ const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
   );
 
 export interface GetPage {
-  /** /api/pages/:project/:title の要求を組み立てる
+  /** Constructs a request for the `/api/pages/:project/:title` endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param options オプション
-   * @return request
+   * @param project The project name containing the desired page
+   * @param title The page title to retrieve (case insensitive)
+   * @param options - Additional configuration options
+   * @returns A {@linkcode Request} object for fetching page data
    */
   toRequest: (
     project: string,
@@ -94,10 +94,16 @@ export interface GetPage {
     options?: GetPageOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extracts page JSON data from the API response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res - The response from the API
+   * @returns A {@linkcode Result}<{@linkcode unknown}, {@linkcode Error}> containing:
+   *          - Success: The page data in JSON format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Page not found
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
 
@@ -115,11 +121,11 @@ export type PageError =
   | TooLongURIError
   | HTTPError;
 
-/** 指定したページのJSONデータを取得する
+/** Retrieves JSON data for a specified page
  *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param options オプション
+ * @param project The project name containing the desired page
+ * @param title The page title to retrieve (case insensitive)
+ * @param options Additional configuration options for the request
  */
 export const getPage: GetPage = /* @__PURE__ */ (() => {
   const fn: GetPage = async (
@@ -140,11 +146,11 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
   return fn;
 })();
 
-/** Options for `listPages()` */
+/** Options for {@linkcode listPages} */
 export interface ListPagesOption extends BaseOptions {
   /** the sort of page list to return
    *
-   * @default "updated"
+   * @default {"updated"}
    */
   sort?:
     | "updatedWithMe"
@@ -157,32 +163,37 @@ export interface ListPagesOption extends BaseOptions {
     | "title";
   /** the index getting page list from
    *
-   * @default 0
+   * @default {0}
    */
   skip?: number;
   /** threshold of the length of page list
    *
-   * @default 100
+   * @default {100}
    */
   limit?: number;
 }
 
 export interface ListPages {
-  /** /api/pages/:project の要求を組み立てる
+  /** Constructs a request for the `/api/pages/:project` endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param options オプション
-   * @return request
+   * @param project The project name to list pages from
+   * @param options - Additional configuration options (sorting, pagination, etc.)
+   * @returns A {@linkcode Request} object for fetching pages data
    */
   toRequest: (
     project: string,
     options?: ListPagesOption,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extracts page list JSON data from the API response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res - The response from the API
+   * @returns A {@linkcode Result}<{@linkcode Page[]}, {@linkcode ListPagesError}> containing:
+   *          - Success: Array of page data in JSON format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<PageList, ListPagesError>>;
 
@@ -230,10 +241,10 @@ const listPages_fromResponse: ListPages["fromResponse"] = async (res) =>
       ),
   );
 
-/** 指定したprojectのページを一覧する
+/** Lists pages from a specified project
  *
- * @param project 一覧したいproject
- * @param options オプション 取得範囲や並び順を決める
+ * @param project The project name to list pages from
+ * @param options Configuration options for pagination and sorting
  */
 export const listPages: ListPages = /* @__PURE__ */ (() => {
   const fn: ListPages = async (

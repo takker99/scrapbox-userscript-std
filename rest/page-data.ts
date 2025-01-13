@@ -25,10 +25,17 @@ import type { FetchError } from "./mod.ts";
 
 export type ImportPagesError = HTTPError;
 
-/** projectにページをインポートする
+/** Import pages into a Scrapbox project
  *
- * @param project - インポート先のprojectの名前
- * @param data - インポートするページデータ
+ * Imports multiple pages into a specified project. The pages are provided as a structured
+ * data object that follows the {@linkcode ImportedData} format.
+ *
+ * @param project - Name of the target project to import pages into
+ * @param data - Page data to import, following the {@linkcode ImportedData} format
+ * @param init - Optional {@linkcode ImportOptions} configuration for the import operation
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode Error}> containing:
+ *          - Success: A success message
+ *          - Error: An error message
  */
 export const importPages = async (
   project: string,
@@ -80,14 +87,25 @@ export type ExportPagesError =
   | NotLoggedInError
   | HTTPError;
 
-/** `exportPages`の認証情報 */
+/** Configuration options for the {@linkcode exportPages} function
+ *
+ * Extends {@linkcode BaseOptions} with metadata control for page exports.
+ */
 export interface ExportInit<withMetadata extends true | false>
   extends BaseOptions {
-  /** whether to includes metadata */ metadata: withMetadata;
+  /** whether to includes metadata */
+  metadata: withMetadata;
 }
-/** projectの全ページをエクスポートする
+/** Export all pages from a Scrapbox project
  *
- * @param project exportしたいproject
+ * Retrieves all pages from the specified project, optionally including metadata.
+ * Requires appropriate authentication for private projects.
+ *
+ * @param project - Name of the project to export
+ * @param init - {@linkcode ExportOptions} configuration including metadata preference
+ * @returns A {@linkcode Result}<{@linkcode ExportedData}, {@linkcode Error}> containing:
+ *          - Success: The exported data
+ *          - Error: An error message
  */
 export const exportPages = async <withMetadata extends true | false>(
   project: string,

@@ -21,21 +21,33 @@ import type { FetchError } from "./robustFetch.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
 
 export interface GetProject {
-  /** /api/project/:project の要求を組み立てる
+  /** Constructs a request for the `/api/project/:project` endpoint
    *
-   * @param project project name to get
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves detailed information about a specific project,
+   * which can be either a {@linkcode MemberProject} or {@linkcode NotMemberProject} depending on the user's access level.
+   *
+   * @param project - The project name to retrieve information for
+   * @param init - Options including connect.sid (session ID) and other configuration
+   * @returns A {@linkcode Request} object for fetching project data
    */
   toRequest: (
     project: string,
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Extracts project JSON data from the API response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * Processes the API response and extracts the project information.
+   * Handles various error cases including {@linkcode NotFoundError}, {@linkcode NotMemberError}, and {@linkcode NotLoggedInError}.
+   *
+   * @param res - The API response object
+   * @returns A {@linkcode Result}<{@linkcode MemberProject} | {@linkcode NotMemberProject}, {@linkcode ProjectError}> containing:
+   *          - Success: The project data with access level information
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Project does not exist
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (
     res: Response,
@@ -78,10 +90,24 @@ const getProject_fromResponse: GetProject["fromResponse"] = async (res) =>
     (res) => res.json() as Promise<MemberProject | NotMemberProject>,
   );
 
-/** get the project information
+/** Get detailed information about a Scrapbox project
  *
- * @param project project name to get
- * @param init connect.sid etc.
+ * This function retrieves detailed information about a project, including its
+ * access level, settings, and metadata. The returned data type depends on
+ * whether the user has member access to the project.
+ *
+ * @param project - Project name to retrieve information for
+ * @param init - Options including `connect.sid` for authentication
+ * @returns A {@linkcode Result}<{@linkcode MemberProject} | {@linkcode NotMemberProject}, {@linkcode ProjectError} | {@linkcode FetchError}> containing:
+ *          - Success: Project information based on access level:
+ *            - {@linkcode MemberProject}: Full project data for members
+ *            - {@linkcode NotMemberProject}: Limited data for non-members
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Project does not exist
+ *            - {@linkcode NotMemberError}: User lacks access
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode HTTPError}: Server errors
+ *            - {@linkcode FetchError}: Network errors
  */
 export const getProject: GetProject = /* @__PURE__ */ (() => {
   const fn: GetProject = async (
@@ -104,21 +130,31 @@ export const getProject: GetProject = /* @__PURE__ */ (() => {
 })();
 
 export interface ListProjects {
-  /** /api/project の要求を組み立てる
+  /** Constructs a request for the `/api/projects` endpoint
    *
-   * @param projectIds project ids. This must have more than 1 id
-   * @param init connect.sid etc.
-   * @return request
+   * This endpoint retrieves information for multiple projects in a single request.
+   * The endpoint requires at least one project ID to be provided.
+   *
+   * @param projectIds - Array of project IDs to retrieve information for (must contain at least one ID)
+   * @param init - Options including `connect.sid` (session ID) and other configuration
+   * @returns A {@linkcode Request} object for fetching multiple projects' data
    */
   toRequest: (
     projectIds: ProjectId[],
     init?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からprojectのJSONデータを取得する
+  /** Extracts projects JSON data from the API response
    *
-   * @param res 応答
-   * @return projectのJSONデータ
+   * Processes the API response and extracts information for multiple projects.
+   * Handles authentication errors ({@linkcode NotLoggedInError}) and other HTTP errors.
+   *
+   * @param res - The API response object
+   * @returns A {@linkcode Result}<{@linkcode ProjectData}, {@linkcode ProjectError}> containing:
+   *          - Success: The project data
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Project not found
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (
     res: Response,
@@ -154,10 +190,19 @@ const ListProject_fromResponse: ListProjects["fromResponse"] = async (res) =>
     (res) => res.json() as Promise<ProjectResponse>,
   );
 
-/** list the projects' information
+/** List information for multiple Scrapbox projects
  *
- * @param projectIds project ids. This must have more than 1 id
- * @param init connect.sid etc.
+ * This function retrieves information for multiple projects in a single request.
+ * At least one project ID must be provided.
+ *
+ * @param projectIds - Array of project IDs to retrieve (must contain at least one ID)
+ * @param init - Options including `connect.sid` for authentication
+ * @returns A {@linkcode Result}<{@linkcode ProjectResponse}, {@linkcode ListProjectsError} | {@linkcode FetchError}> containing:
+ *          - Success: Project data for all requested projects
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode HTTPError}: Server errors
+ *            - {@linkcode FetchError}: Network errors
  */
 export const listProjects: ListProjects = /* @__PURE__ */ (() => {
   const fn: ListProjects = async (

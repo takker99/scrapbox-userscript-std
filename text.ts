@@ -1,13 +1,17 @@
 import { isString } from "@core/unknownutil/is/string";
 
-/** インデント数を数える */
+/** Count the number of leading whitespace characters (indentation level)
+ *
+ * @param text - The input {@linkcode string} to analyze
+ * @returns The {@linkcode number} of leading whitespace characters
+ */
 export const getIndentCount = (text: string): number =>
   text.match(/^(\s*)/)?.[1]?.length ?? 0;
 
-/** 指定した行の配下にある行の数を返す
+/** Count the number of subsequent lines that are indented under the specified line
  *
- * @param index 指定したい行の行番号
- * @param lines 行のリスト
+ * @param index - Line number of the target line
+ * @param lines - List of lines (can be strings or objects with text property)
  */
 export const getIndentLineCount = (
   index: number,

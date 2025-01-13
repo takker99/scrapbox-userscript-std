@@ -10,11 +10,13 @@ let initialize: (() => void) | undefined = () => {
   initialize = undefined;
 };
 
-/** scrapbox.Page.linesをcacheして取得する
+/** Get cached version of `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}`
  *
- * scrapbox.Page.linesの生成には時間がかかるので、実際に必要になるまで呼び出さないようにする
+ * This function caches the result of `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}` to improve performance,
+ * as generating the lines array is computationally expensive.
+ * The cache is automatically invalidated when the page content changes.
  *
- * @return `scrapbox.Page.lines`と同じ。常に最新のものが返される
+ * @returns Same as `{@linkcode https://jsr.io/@cosense/types/doc/userscript/~/Page.lines scrapbox.Page.lines}`. Always returns the latest data through cache management
  */
 export const getCachedLines = (): readonly Line[] | null => {
   initialize?.();

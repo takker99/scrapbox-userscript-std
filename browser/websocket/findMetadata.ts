@@ -3,10 +3,20 @@ import type { BaseLine } from "@cosense/types/userscript";
 import { toTitleLc } from "../../title.ts";
 import { parseYoutube } from "../../parser/youtube.ts";
 
-/** テキストに含まれているメタデータを取り出す
+/** Extract metadata from Scrapbox page text
  *
- * @param text Scrapboxのテキスト
- * @return 順に、links, projectLinks, icons, image, files, helpfeels, infoboxDefinition
+ * This function parses a Scrapbox page and extracts various types of metadata:
+ * - links: Regular page links and hashtags
+ * - projectLinks: Links to pages in other projects
+ * - icons: User icons and decorative icons
+ * - image: First image or YouTube thumbnail for page preview
+ * - files: Attached file IDs
+ * - helpfeels: Questions or help requests (lines starting with "?")
+ * - infoboxDefinition: Structured data from infobox tables
+ *
+ * @param text - Raw text content of a Scrapbox page
+ * @returns A tuple containing [links, projectLinks, icons, image, files, helpfeels, infoboxDefinition]
+ *          where image can be null if no suitable preview image is found
  */
 export const findMetadata = (
   text: string,
@@ -30,12 +40,14 @@ export const findMetadata = (
     }
   });
 
-  /** 重複判定用map
+  /** Map for detecting duplicate links while preserving link type information
    *
-   * bracket link とhashtagを区別できるようにしている
-   * - bracket linkならtrue
+   * This map stores lowercase page titles and tracks their link type:
+   * - true: Link is a bracket link [like this]
+   * - false: Link is a hashtag #like-this
    *
-   * linkの形状はbracket linkを優先している
+   * When the same page is referenced by both formats,
+   * we prioritize the bracket link format in the final output
    */
   const linksLc = new Map<string, boolean>();
   const links = [] as string[];
@@ -174,7 +186,12 @@ export const findMetadata = (
 
 const cutId = (link: string): string => link.replace(/#[a-f\d]{24,32}$/, "");
 
-/** テキストからHelpfeel記法のentryだけ取り出す */
+/** Extract Helpfeel entries from text
+ *
+ * Helpfeel is a Scrapbox notation for questions and help requests.
+ * Lines starting with "?" are considered Helpfeel entries and are
+ * used to collect questions and support requests within a project.
+ */
 export const getHelpfeels = (lines: Pick<BaseLine, "text">[]): string[] =>
   lines.flatMap(({ text }) =>
     /^\s*\? .*$/.test(text) ? [text.trimStart().slice(2)] : []

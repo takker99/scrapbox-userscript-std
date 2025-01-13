@@ -15,11 +15,11 @@ import { isHeightViewable } from "./isHeightViewable.ts";
 import { range } from "../../range.ts";
 
 /** @deprecated
- * カーソル行の行末を長押ししてfocusを得る
+ * Long press at the end of cursor line to gain focus
  *
- * mobile版scrapbox用
+ * This function is specifically for mobile version of Scrapbox
  *
- * @param [holding=1000] 長押しする時間(ミリ秒単位)
+ * @param [holding=1000] - Duration of long press in milliseconds
  */
 export const focusEnd = async (holding = 1000): Promise<void> => {
   const target = getLineDOM(caret().position.line)
@@ -33,36 +33,36 @@ export const focusEnd = async (holding = 1000): Promise<void> => {
   await holdDown(target, { X: right + 1, Y: top + height / 2, holding });
 };
 
-/** カーソルを左に動かす
+/** Move the cursor left using `ArrowLeft` key
  *
- * @param [count=1] 動かす回数
+ * @param [count=1] - Number of moves to perform
  */
 export const moveLeft = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowLeft");
   }
 };
-/** カーソルを上に動かす
+/** Move the cursor up using `ArrowUp` key
  *
- * @param [count=1] 動かす回数
+ * @param [count=1] - Number of moves to perform
  */
 export const moveUp = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowUp");
   }
 };
-/** カーソルを下に動かす
+/** Move the cursor down using `ArrowDown` key
  *
- * @param [count=1] 動かす回数
+ * @param [count=1] - Number of moves to perform
  */
 export const moveDown = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("ArrowDown");
   }
 };
-/** カーソルを右に動かす
+/** Move the cursor right using `ArrowRight` key
  *
- * @param [count=1] 動かす回数
+ * @param [count=1] - Number of moves to perform
  */
 export const moveRight = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -70,29 +70,29 @@ export const moveRight = (count = 1): void => {
   }
 };
 
-/** インデントを除いた行頭に移動する */
+/** Move to the start of line excluding indentation */
 export const goHeadWithoutBlank = (): void => {
   press("End");
   press("Home");
 };
-/** 最後の非空白文字に移動する */
+/** Move to the last non-whitespace character */
 export const goEndWithoutBlank = (): void => {
   press("End");
   moveLeft(
     getText(caret().position.line)?.match?.(/(\s*)$/)?.[1]?.length ?? 0,
   );
 };
-/** 行頭に移動する */
+/** Move to the start of line */
 export const goHead = (): void => {
   press("Home");
   press("Home");
 };
-/** 行末に移動する */
+/** Move to the end of line */
 export const goEnd = (): void => {
   press("End");
 };
 
-/** 最初の行の行頭に移動する */
+/** Move to the start of the first line */
 export const goHeadLine = async (): Promise<void> => {
   const target = getHeadLineDOM();
   if (!target) throw Error(".line:first-of-type can't be found.");
@@ -103,13 +103,13 @@ export const goHeadLine = async (): Promise<void> => {
   const { left, top } = charDOM.getBoundingClientRect();
   await click(target, { X: left, Y: top });
 };
-/** 最後の行の行末に移動する */
+/** Move to the end of the last line */
 export const goLastLine = async (): Promise<void> => {
   await _goLine(getTailLineDOM());
 };
-/** 任意の行の行末に移動する
+/** Move to the end of a specified line
  *
- * @param value 移動したい行の行番号 or 行ID or 行のDOM
+ * @param value - Target line number, line ID, or {@linkcode HTMLElement}
  */
 export const goLine = async (
   value: string | number | HTMLElement | undefined,
@@ -125,12 +125,12 @@ const _goLine = async (target: HTMLDivElement | undefined) => {
   await click(target, { X: right + 1, Y: top + height / 2 });
 };
 
-/** 任意の文字に移動する
+/** Move cursor to a specific character position
  *
- * クリックで移動できない文字に移動しようとすると失敗するので注意
+ * Note: This operation will fail if attempting to move to characters that cannot be clicked in the UI
  *
- * @param line 移動したい文字がある行
- * @param pos 移動したい文字の列
+ * @param line - Target line (can be line number, line ID, or line DOM element)
+ * @param pos - Character position (column) in the target line
  */
 export const goChar = async (
   line: string | number | HTMLElement,
@@ -148,9 +148,9 @@ export const goChar = async (
   await click(charDOM, { X: left, Y: top });
 };
 
-/** 画面に収まる最大行数を計算する
+/** Calculate the maximum number of lines that can fit in the viewport
  *
- * 行の高さは最後の行を基準とする
+ * Uses the height of the last line as a reference for calculation
  */
 const getVisibleLineCount = (): number => {
   const clientHeight = getTailLineDOM()?.clientHeight;
@@ -160,9 +160,9 @@ const getVisibleLineCount = (): number => {
   return Math.round(globalThis.innerHeight / clientHeight);
 };
 
-/** 半ページ上にスクロールする
+/** Scroll half a page up
  *
- * @param [count=1] スクロール回数
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollHalfUp = async (count = 1): Promise<void> => {
   const lineNo = getLineNo(caret().position.line);
@@ -174,9 +174,9 @@ export const scrollHalfUp = async (count = 1): Promise<void> => {
   );
   await goLine(Math.max(index, 0));
 };
-/** 半ページ下にスクロールする
+/** Scroll half a page down
  *
- * @param [count=1] スクロール回数
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollHalfDown = async (count = 1): Promise<void> => {
   const lineNo = getLineNo(caret().position.line);
@@ -188,18 +188,18 @@ export const scrollHalfDown = async (count = 1): Promise<void> => {
   );
   await goLine(Math.min(index, getLineCount() - 1));
 };
-/** 1ページ上にスクロールする
+/** Scroll one page up using `PageUp` key
  *
- * @param [count=1] スクロール回数
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollUp = (count = 1): void => {
   for (const _ of range(0, count)) {
     press("PageUp");
   }
 };
-/** 1ページ下にスクロールする
+/** Scroll one page down using `PageDown` key
  *
- * @param [count=1] スクロール回数
+ * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollDown = (count = 1): void => {
   for (const _ of range(0, count)) {

@@ -10,30 +10,32 @@ export interface OpenOptions {
   /** line id */
   id?: string;
 
-  /** ページに追記するテキスト */
+  /** Text to append to the page content */
   body?: string;
 
-  /** 新しいタブで開くかどうか
+  /** Whether to open the page in a new tab
+   * - `true`: open in a new tab
+   * - `false`: open in the same tab
    *
-   * @default 同じタブで開く
+   * @default {false}
    */
   newTab?: boolean;
 
-  /** 同じタブでページを開く場合、ページを再読込するかどうか
+  /** Whether to reload the page when opening in the same tab
    *
-   * @default 同じprojectの場合は再読み込みせず、違うprojectの場合は再読込する
+   * Default value is `false` for same project (no reload) and `true` for different project (force reload)
    */
   reload?: boolean;
 
-  /** リンク先へスクロールする機能を使うために必要な情報 */
+  /** Context information required for the auto-scroll feature when navigating to linked content */
   context?: Omit<PageTransitionContext, "to">;
 }
 
-/** ページを開く
+/** Open a page
  *
- * @param project 開くページのproject名
- * @param title 開くページのタイトル
- * @param options
+ * @param project - Project name of the page to open
+ * @param title - Title of the page to open
+ * @param options - Configuration options for opening the page
  */
 export const open = (
   project: string,
@@ -72,13 +74,13 @@ export const open = (
   a.remove();
 };
 
-/** 同じタブでページを開く
+/** Open a page in the same tab
  *
- * このとき、ページは再読み込みされない
+ * The page will not be reloaded when opened
  *
- * @param project 開くページのproject名
- * @param title 開くページのタイトル
- * @param [body] ページに追記するテキスト
+ * @param project - Project name of the page to open
+ * @param title - Title of the page to open
+ * @param [body] - Text to append to the page
  */
 export const openInTheSameTab = (
   project: string,

@@ -1,10 +1,15 @@
-/** scrapbox.ioが管理しているcache storageから、最新のresponseを取得する
+/** Retrieves the latest response from the cache storage managed by scrapbox.io
  *
- * ほぼ https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173 のパクリ
+ * This function searches through the cache storage in reverse chronological order
+ * to find the most recent cached response for a given request.
  *
- * @param request このrequestに対応するresponseが欲しい
- * @param options search paramsを無視したいときとかに使う
- * @return cacheがあればそのresponseを、なければ`undefined`を返す
+ * > [!NOTE]
+ * > Implementation inspired by Scrapbox's ServiceWorker and Cache usage pattern.
+ * > For details, see the article "ServiceWorker and Cache Usage in Scrapbox" {@see https://scrapbox.io/daiiz/ScrapboxでのServiceWorkerとCacheの活用#5d2efaffadf4e70000651173}
+ *
+ * @param request - The {@linkcode Request} to find a cached response for
+ * @param options - {@linkcode CacheQueryOptions} (e.g., to ignore search params)
+ * @returns A {@linkcode Response} if found, otherwise {@linkcode undefined}
  */
 export const findLatestCache = async (
   request: Request,
@@ -19,10 +24,10 @@ export const findLatestCache = async (
   }
 };
 
-/** scrapbox.ioが管理しているREST API系のcache storageにresponseを保存する
+/** Saves a response to the REST API cache storage managed by scrapbox.io
  *
- * @param request このrequestに対応するresponseを保存する
- * @param response 保存するresponse
+ * @param request The {@linkcode Request} to associate with the cached response
+ * @param response The {@linkcode Response} to cache
  */
 export const saveApiCache = async (
   request: Request,
@@ -38,15 +43,16 @@ export const generateCacheName = (date: Date): string =>
     `${date.getDate()}`.padStart(2, "0")
   }`;
 
-/** prefetchを実行する
+/** Executes prefetch operations for specified API URLs
  *
- * prefetchしたデータは`"prefetch"`と`"api-yyyy-MM-dd"`に格納される
+ * Prefetched data is stored in two locations:
+ * 1. `"prefetch"` cache - temporary storage, cleared after first use
+ * 2. `"api-yyyy-MM-dd"` cache - date-based persistent storage
  *
- * `"prefetch"`に格納されたデータは、次回のリクエストで返却されたときに削除される
+ * > [!NOTE]
+ * > Throws an exception if the network connection is slow
  *
- * 回線が遅いときは例外を投げる
- *
- * @param urls prefetchしたいAPIのURLのリスト
+ * @param urls List of API URLs to prefetch
  */
 export const prefetch = (urls: (string | URL)[]): Promise<void> =>
   postMessage({
@@ -54,11 +60,11 @@ export const prefetch = (urls: (string | URL)[]): Promise<void> =>
     body: { urls: urls.map((url) => url.toString()) },
   });
 
-/** 指定したAPIのcacheの更新を依頼する
+/** Requests a cache update for the specified API
  *
- * 更新は10秒ごとに1つずつ実行される
+ * Updates are processed one at a time with a 10-second interval between each update
  *
- * @param cacheしたいAPIのURL
+ * @param url The URL of the API to cache
  */
 export const fetchApiCache = (url: string): Promise<void> =>
   postMessage({ title: "fetchApiCache", body: { url } });

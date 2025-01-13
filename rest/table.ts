@@ -41,7 +41,7 @@ const getTable_fromResponse: GetTable["fromResponse"] = async (res) =>
       async (error) =>
         error.response.status === 404
           ? {
-            // responseが空文字の時があるので、自前で組み立てる
+            // Build error manually since response may be an empty string
             name: "NotFoundError",
             message: "Table not found.",
           }
@@ -60,13 +60,13 @@ export type TableError =
   | HTTPError;
 
 export interface GetTable {
-  /** /api/table/:project/:title/:filename.csv の要求を組み立てる
+  /** Build a request for `/api/table/:project/:title/:filename.csv` endpoint
    *
-   * @param project 取得したいページのproject名
-   * @param title 取得したいページのtitle 大文字小文字は問わない
-   * @param filename テーブルの名前
-   * @param options オプション
-   * @return request
+   * @param project - Name of the project containing the target page
+   * @param title - Title of the page (case-insensitive)
+   * @param filename - Name of the table to retrieve
+   * @param options - Additional configuration options
+   * @returns A {@linkcode Request} object for fetching the table data
    */
   toRequest: (
     project: string,
@@ -75,10 +75,16 @@ export interface GetTable {
     options?: BaseOptions,
   ) => Request;
 
-  /** 帰ってきた応答からページのJSONデータを取得する
+  /** Extract page JSON data from the response
    *
-   * @param res 応答
-   * @return ページのJSONデータ
+   * @param res - Response from the server
+   * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode TableError}> containing:
+   *          - Success: The table data in CSV format
+   *          - Error: One of several possible errors:
+   *            - {@linkcode NotFoundError}: Table not found
+   *            - {@linkcode NotLoggedInError}: Authentication required
+   *            - {@linkcode NotMemberError}: User lacks access
+   *            - {@linkcode HTTPError}: Other HTTP errors
    */
   fromResponse: (res: Response) => Promise<Result<string, TableError>>;
 
@@ -90,12 +96,23 @@ export interface GetTable {
   ): Promise<Result<string, TableError | FetchError>>;
 }
 
-/** 指定したテーブルをCSV形式で得る
+/** Retrieve a specified table in CSV format from a Scrapbox page
  *
- * @param project 取得したいページのproject名
- * @param title 取得したいページのtitle 大文字小文字は問わない
- * @param filename テーブルの名前
- * @param options オプション
+ * This function fetches a table stored in a Scrapbox page and returns its contents
+ * in CSV format. The table must exist in the specified project and page.
+ *
+ * @param project - Name of the project containing the target page
+ * @param title - Title of the page (case-insensitive)
+ * @param filename - Name of the table to retrieve
+ * @param options - Additional configuration options including authentication
+ * @returns A {@linkcode Result}<{@linkcode string}, {@linkcode TableError} | {@linkcode FetchError}> containing:
+ *          - Success: The table data in CSV format
+ *          - Error: One of several possible errors:
+ *            - {@linkcode NotFoundError}: Table not found
+ *            - {@linkcode NotLoggedInError}: Authentication required
+ *            - {@linkcode NotMemberError}: User lacks access
+ *            - {@linkcode HTTPError}: Other HTTP errors
+ *            - {@linkcode FetchError}: Network or request errors
  */
 export const getTable: GetTable = /* @__PURE__ */ (() => {
   const fn: GetTable = async (
