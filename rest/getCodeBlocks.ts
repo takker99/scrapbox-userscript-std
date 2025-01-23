@@ -2,7 +2,7 @@ import type { BaseLine } from "@cosense/types/rest";
 import {
   type CodeTitle,
   extractFromCodeTitle,
-} from "../browser/websocket/_codeBlock.ts";
+} from "../websocket/_codeBlock.ts";
 
 /** Minimal information about a code block that can be extracted from pull() response
  *

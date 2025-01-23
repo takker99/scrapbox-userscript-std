@@ -1,33 +1,32 @@
 {
-  "name": "@cosense/std",
-  "version": "0.0.0",
-  "tasks": {
-    "fix": {
-      "command": "deno fmt && deno lint --fix && deno publish --dry-run --allow-dirty",
-      "dependencies": [
-        "type-check",
-        "test"
-      ]
-    },
-    "check": {
-      "command": "deno fmt --check && deno lint && deno publish --dry-run",
-      "dependencies": [
-        "type-check",
-        "test"
-      ]
-    },
-    "type-check": "deno check --remote **/*.ts",
-    "test": "deno test --allow-read=./ --doc --parallel --shuffle --no-check",
-    "coverage": "deno test --allow-read=./ --parallel --shuffle --coverage --no-check && deno coverage --html",
-    "doc": "deno doc --html mod.ts",
-    // from https://github.com/jsr-core/unknownutil/blob/v4.2.2/deno.jsonc#L84-L85
-    "update": "deno outdated --update",
-    "update:commit": "deno task -q update --commit --prefix deps: --pre-commit=fix"
+  "compilerOptions": {
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "deno.ns"
+    ]
+  },
+  "exclude": [
+    "coverage/",
+    "docs/"
+  ],
+  "exports": {
+    ".": "./mod.ts",
+    "./browser": "./browser/mod.ts",
+    "./browser/dom": "./browser/dom/mod.ts",
+    "./browser/websocket": "./websocket/mod.ts",
+    "./parseAbsoluteLink": "./parseAbsoluteLink.ts",
+    "./rest": "./rest/mod.ts",
+    "./text": "./text.ts",
+    "./title": "./title.ts",
+    "./websocket": "./websocket/mod.ts"
   },
   "imports": {
-    "@cosense/std/rest": "./rest/mod.ts",
-    "@cosense/std/browser/websocket": "./browser/websocket/mod.ts",
     "@core/unknownutil": "jsr:@core/unknownutil@^4.0.0",
+    "@cosense/std/browser/websocket": "./websocket/mod.ts",
+    "@cosense/std/rest": "./rest/mod.ts",
+    "@cosense/std/websocket": "./websocket/mod.ts",
     "@cosense/types": "jsr:@cosense/types@^0.10.4",
     "@cosense/types/rest": "jsr:@cosense/types@0.10/rest",
     "@cosense/types/userscript": "jsr:@cosense/types@0.10/userscript",
@@ -42,38 +41,40 @@
     "option-t": "npm:option-t@^51.0.0",
     "socket.io-client": "npm:socket.io-client@^4.7.5"
   },
-  "exports": {
-    ".": "./mod.ts",
-    "./rest": "./rest/mod.ts",
-    "./browser": "./browser/mod.ts",
-    "./browser/dom": "./browser/dom/mod.ts",
-    "./browser/websocket": "./browser/websocket/mod.ts",
-    "./parseAbsoluteLink": "./parseAbsoluteLink.ts",
-    "./title": "./title.ts",
-    "./text": "./text.ts"
-  },
-  "compilerOptions": {
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "deno.ns"
-    ]
-  },
-  "exclude": [
-    "coverage/",
-    "docs/"
-  ],
   "lint": {
     "exclude": [
       "vendor/"
     ]
   },
+  "name": "@cosense/std",
+  "tasks": {
+    "check": {
+      "command": "deno fmt --check && deno lint && deno publish --dry-run",
+      "dependencies": [
+        "type-check",
+        "test"
+      ]
+    },
+    "coverage": "deno test --allow-read=./ --parallel --shuffle --coverage --no-check && deno coverage --html",
+    "doc": "deno doc --html mod.ts",
+    "fix": {
+      "command": "deno fmt && deno lint --fix && deno publish --dry-run --allow-dirty",
+      "dependencies": [
+        "type-check",
+        "test"
+      ]
+    },
+    "test": "deno test --allow-read=./ --doc --parallel --shuffle --no-check",
+    "type-check": "deno check --remote **/*.ts",
+    // from https://github.com/jsr-core/unknownutil/blob/v4.2.2/deno.jsonc#L84-L85
+    "update": "deno outdated --update",
+    "update:commit": "deno task -q update --commit --prefix deps: --pre-commit=fix"
+  },
   "test": {
     "exclude": [
       "README.md",
-      "./browser/websocket/listen.ts",
-      "./browser/websocket/updateCodeFile.ts",
+      "./websocket/listen.ts",
+      "./websocket/updateCodeFile.ts",
       "./rest/getCachedAt.ts",
       "./rest/getCodeBlocks.ts",
       "./rest/getGyazoToken.ts",
@@ -81,5 +82,6 @@
       "./rest/getWebPageTitle.ts",
       "./rest/link.ts"
     ]
-  }
+  },
+  "version": "0.0.0"
 }

@@ -1,8 +1,8 @@
 import type { BaseLine } from "@cosense/types/rest";
 import type { DeleteChange, InsertChange, UpdateChange } from "./change.ts";
-import { getCodeBlocks, type TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
+import { getCodeBlocks, type TinyCodeBlock } from "../rest/getCodeBlocks.ts";
 import { createNewLineId } from "./id.ts";
-import { diff, toExtendedChanges } from "../../deps/onp.ts";
+import { diff, toExtendedChanges } from "../deps/onp.ts";
 import { countBodyIndent } from "./_codeBlock.ts";
 import { push, type PushError, type PushOptions } from "./push.ts";
 import type { Result } from "option-t/plain_result";
@@ -127,7 +127,10 @@ export const updateCodeFile = (
 ): Promise<Result<string, PushError>> => {
   /** Set default values for options here */
   const defaultOptions: Required<
-    Omit<UpdateCodeFileOptions, "maxAttempts" | "socket">
+    Pick<
+      UpdateCodeFileOptions,
+      "insertPositionIfNotExist" | "isInsertEmptyLineInTail" | "debug"
+    >
   > = {
     insertPositionIfNotExist: "notInsert",
     isInsertEmptyLineInTail: true,
