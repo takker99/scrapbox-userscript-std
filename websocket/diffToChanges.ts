@@ -1,4 +1,4 @@
-import { diff, toExtendedChanges } from "../../deps/onp.ts";
+import { diff, toExtendedChanges } from "../deps/onp.ts";
 import type { Line } from "@cosense/types/userscript";
 import type { DeleteChange, InsertChange, UpdateChange } from "./change.ts";
 import { createNewLineId } from "./id.ts";

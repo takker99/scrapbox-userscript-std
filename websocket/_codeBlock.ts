@@ -1,4 +1,4 @@
-import type { TinyCodeBlock } from "../../rest/getCodeBlocks.ts";
+import type { TinyCodeBlock } from "../rest/getCodeBlocks.ts";
 
 /** Interface for storing code block title line information
  *

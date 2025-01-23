@@ -21,16 +21,17 @@ import {
   unwrapErr,
   unwrapOk,
 } from "option-t/plain_result";
-import type { HTTPError } from "../../rest/responseIntoResult.ts";
-import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
-import type { TooLongURIError } from "../../rest/pages.ts";
+import type { HTTPError } from "../rest/responseIntoResult.ts";
+import type { AbortError, NetworkError } from "../rest/robustFetch.ts";
+import type { TooLongURIError } from "../rest/pages.ts";
 import type {
   SocketIOServerDisconnectError,
   UnexpectedRequestError,
 } from "./error.ts";
+import type { BaseOptions } from "../rest/options.ts";
 
 /** Configuration options for the push operation */
-export interface PushOptions {
+export interface PushOptions extends BaseOptions {
   /** Optional Socket instance for external WebSocket connection control
    *
    * This allows providing an existing Socket instance instead of creating
@@ -159,7 +160,7 @@ export const push = async (
   makeCommit: CommitMakeHandler,
   options?: PushOptions,
 ): Promise<Result<string, PushError>> => {
-  const result = await connect(options?.socket);
+  const result = await connect(options?.socket, options?.sid);
   if (isErr(result)) {
     return createErr({
       name: "UnexpectedRequestError",
@@ -167,7 +168,7 @@ export const push = async (
     });
   }
   const socket = unwrapOk(result);
-  const pullResult = await pull(project, title);
+  const pullResult = await pull(project, title, options);
   if (isErr(pullResult)) return pullResult;
   let metadata = unwrapOk(pullResult);
 
@@ -239,7 +240,7 @@ export const push = async (
         if (name === "NotFastForwardError") {
           await delay(1000); // Brief delay to avoid rapid retries
           // Fetch latest page state
-          const pullResult = await pull(project, title);
+          const pullResult = await pull(project, title, options);
           if (isErr(pullResult)) return pullResult;
           metadata = unwrapOk(pullResult);
         }

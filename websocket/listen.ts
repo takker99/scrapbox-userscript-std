@@ -3,8 +3,8 @@ import type {
   NotLoggedInError,
   NotMemberError,
 } from "@cosense/types/rest";
-import type { HTTPError } from "../../rest/responseIntoResult.ts";
-import type { AbortError, NetworkError } from "../../rest/robustFetch.ts";
+import type { HTTPError } from "../rest/responseIntoResult.ts";
+import type { AbortError, NetworkError } from "../rest/robustFetch.ts";
 import type { ScrapboxSocket } from "./socket.ts";
 import type { ListenEvents } from "./listen-events.ts";
 
