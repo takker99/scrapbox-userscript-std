@@ -11,6 +11,8 @@ export type Change =
   | HelpFeelsChange
   | infoboxDefinitionChange
   | TitleChange
+  | LinesCountChange
+  | charsCountChange
   | PinChange;
 export interface InsertChange {
   _insert: string;
@@ -72,6 +74,13 @@ export interface infoboxDefinitionChange {
    */
   infoboxDefinition: string[];
 }
+export interface LinesCountChange {
+  linesCount: number;
+}
+export interface charsCountChange {
+  charsCount: number;
+}
+
 export interface PinChange {
   pin: number;
 }

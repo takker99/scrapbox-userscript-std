@@ -1,6 +1,8 @@
-import { findMetadata, getHelpfeels } from "./findMetadata.ts";
-import { assertEquals } from "@std/assert";
-import { assertSnapshot } from "@std/testing/snapshot";
+import {
+  getHelpfeels,
+  getPageMetadataFromLines,
+} from "./getPageMetadataFromLines.ts";
+import { assertEquals } from "@std/assert/equals";
 
 // Test data for metadata extraction from a Scrapbox page
 // This sample includes various Scrapbox syntax elements:
@@ -38,8 +40,47 @@ Prepare thumbnail
 
 [https://scrapbox.io/files/65e7f4413bc95600258481fb.svg https://scrapbox.io/files/65e7f82e03949c0024a367d0.svg]`;
 
-// Test findMetadata function's ability to extract various metadata from a page
-Deno.test("findMetadata()", (t) => assertSnapshot(t, findMetadata(text)));
+Deno.test("getPageMetadataFromLines()", () => {
+  assertEquals(getPageMetadataFromLines(text), [
+    "test page",
+    [
+      "normal",
+      "link2",
+      "hashtag",
+    ],
+    [
+      "/help-en/external-link",
+    ],
+    [
+      "scrapbox",
+      "takker",
+    ],
+    "https://scrapbox.io/files/65f29c24974fd8002333b160.svg",
+    [
+      "[normal]link",
+      "but `this [link]` is not a link",
+      "`Links [link] and images [https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg] in code blocks should be ignored`",
+      "`? Need help with setup!!`",
+      "#hashtag is recommended",
+    ],
+    [
+      "65f29c24974fd8002333b160",
+      "65e7f82e03949c0024a367d0",
+      "65e7f4413bc95600258481fb",
+    ],
+    [
+      "Need help with setup!!",
+    ],
+    [
+      "Name\t[scrapbox.icon]",
+      "Address\tAdd [link2] here",
+      "Phone\tAdding # won't create a link",
+      "Strengths\tList about 3 items",
+    ],
+    26,
+    659,
+  ]);
+});
 
 // Test Helpfeel extraction (lines starting with "?")
 // These are used for collecting questions and help requests in Scrapbox
