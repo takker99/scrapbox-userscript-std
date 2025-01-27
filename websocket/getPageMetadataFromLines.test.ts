@@ -1,4 +1,4 @@
-import { getHelpfeels, getPageMetadataFromLines } from "./findMetadata.ts";
+import { getHelpfeels, getPageMetadataFromLines } from "./getPageMetadataFromLines.ts";
 import { assertEquals } from "@std/assert/equals";
 
 // Test data for metadata extraction from a Scrapbox page

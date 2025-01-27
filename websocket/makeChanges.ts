@@ -1,7 +1,7 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
 import type { Change } from "./change.ts";
-import { getHelpfeels, getPageMetadataFromLines } from "./findMetadata.ts";
+import { getHelpfeels, getPageMetadataFromLines } from "./getPageMetadataFromLines.ts";
 import { isSameArray } from "./isSameArray.ts";
 import { isString } from "@core/unknownutil/is/string";
 
