@@ -22,6 +22,9 @@ export interface PinOptions extends PushOptions {
  * based on the current timestamp to maintain a stable order.
  * Higher pin numbers appear first in the list.
  *
+ * > [!NOTE]
+ * > If you want to modify the page content while pinning it, {@linkcode patch} is more suitable.
+ *
  * @param project - Project containing the target page
  * @param title - Title of the page to pin
  * @param options - Optional settings:
@@ -57,6 +60,9 @@ export interface UnPinOptions extends PushOptions {}
 /** Unpin a Scrapbox page, removing it from the pinned list
  *
  * This sets the page's pin number to `0`, which effectively unpins it.
+ *
+ * > [!NOTE]
+ * > If you want to modify the page content while unpinning it, {@linkcode patch} is more suitable.
  *
  * @param project - Project containing the target page
  * @param title - Title of the page to unpin
