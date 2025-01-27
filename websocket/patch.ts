@@ -1,4 +1,4 @@
-import type { Change, DeletePageChange, PinChange } from "./change.ts";
+import type { Change, DeletePageChange } from "./change.ts";
 import { makeChanges } from "./makeChanges.ts";
 import type { BaseLine, Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";
@@ -73,7 +73,7 @@ export const patch = (
         return prev.map((change) => {
           if ("title" in change) change.title = fallbackTitle;
           return change;
-        }) as Change[] | [DeletePageChange] | [PinChange];
+        }) as Change[] | [DeletePageChange];
       }
       const pending = update(page.lines, { ...page, attempts });
       const newLines = pending instanceof Promise ? await pending : pending;
