@@ -61,8 +61,10 @@ export const findMetadata = (
 
   const fileUrlPattern = new RegExp(
     `${
-      location?.origin ?? "https://scrapbox.io"
-    }/files/([a-z0-9]{24})(?:|\\.[a-zA-Z0-9]+)(?:|\\?[^\\s]*)$`,
+      // For Node compatibility, we need to access `location` via `globalThis`
+      // deno-lint-ignore no-explicit-any
+      (globalThis as any).location?.origin ??
+        "https://scrapbox.io"}/files/([a-z0-9]{24})(?:|\\.[a-zA-Z0-9]+)(?:|\\?[^\\s]*)$`,
   );
 
   const lookup = (node: Node) => {
