@@ -45,7 +45,6 @@ export const pin = (
         page.pin > 0 || (!page.persistent && !(options?.create ?? false))
       ) return [];
       // Create page and pin it in a single operation
-      // @ts-ignore The server is expected to accept combined creation and pin operations
       const changes: Change[] = [{ pin: pinNumber() }];
       if (!page.persistent) changes.unshift({ title });
       return changes;

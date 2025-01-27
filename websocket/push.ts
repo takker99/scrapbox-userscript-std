@@ -1,4 +1,4 @@
-import type { Change, DeletePageChange, PinChange } from "./change.ts";
+import type { Change, DeletePageChange } from "./change.ts";
 import type { PageCommit } from "./emit-events.ts";
 import { connect, disconnect } from "./socket.ts";
 import type { Socket } from "socket.io-client";
@@ -125,13 +125,12 @@ export type PushError =
 export type CommitMakeHandler = (
   page: PushMetadata,
   attempts: number,
-  prev: Change[] | [DeletePageChange] | [PinChange],
+  prev: Change[] | [DeletePageChange],
   reason?: "NotFastForwardError" | "DuplicateTitleError",
 ) =>
-  | Promise<Change[] | [DeletePageChange] | [PinChange]>
+  | Promise<Change[] | [DeletePageChange]>
   | Change[]
-  | [DeletePageChange]
-  | [PinChange];
+  | [DeletePageChange];
 
 /** Push changes to a specific page using WebSocket
  *
@@ -174,7 +173,7 @@ export const push = async (
 
   try {
     let attempts = 0;
-    let changes: Change[] | [DeletePageChange] | [PinChange] = [];
+    let changes: Change[] | [DeletePageChange] = [];
     let reason: "NotFastForwardError" | "DuplicateTitleError" | undefined;
 
     // Outer loop: handles diff creation and conflict resolution
