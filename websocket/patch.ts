@@ -6,8 +6,6 @@ import { suggestUnDupTitle } from "./suggestUnDupTitle.ts";
 import type { Result } from "option-t/plain_result";
 import type { Socket } from "socket.io-client";
 
-export type PatchOptions = PushOptions;
-
 export interface PatchMetadata extends Page {
   /** Number of retry attempts for page modification
    *
@@ -16,6 +14,30 @@ export interface PatchMetadata extends Page {
    */
   attempts: number;
 }
+
+/**
+ * Function used in {@linkcode patch} to generate a patch from the current page state
+ *
+ * This function is used to generate a patch from the current page state.
+ * It receives the current page lines and metadata and returns the new page content.
+ * The function can be synchronous or asynchronous.
+ *
+ * @param lines - Current page lines
+ * @param metadata - Current page metadata
+ * @returns one of the following or a {@linkcode Promise} resolving to one:
+ * - `(string | { text: string; })[]`: New page content
+ * - `[]`: Delete the page
+ * - `undefined`: Abort modification
+ */
+export type MakePatchFn = (
+  lines: BaseLine[],
+  metadata: PatchMetadata,
+) =>
+  | (string | { text: string })[]
+  | undefined
+  | Promise<(string | { text: string })[] | undefined>;
+
+export type PatchOptions = PushOptions;
 
 /** Modify an entire Scrapbox page by computing and sending only the differences
  *
@@ -26,32 +48,20 @@ export interface PatchMetadata extends Page {
  * 4. Handles errors (e.g., duplicate titles)
  * 5. Retries on conflicts
  *
- * @param project - Project ID containing the target page
- * @param title - Title of the page to modify
- * @param update - Function to generate new content:
- *                - Input: Current page lines and metadata
- *                - Return values:
- *                  - `string[]`: New page content
- *                  - `undefined`: Abort modification
- *                  - `[]`: Delete the page
- *                Can be async (returns `Promise`)
- * @param options - Optional WebSocket configuration
+ * @param project Project ID containing the target page
+ * @param title Title of the page to modify
+ * @param update Function to generate new content
+ * @param options Optional WebSocket configuration
  *
  * Special cases:
- * - If update returns undefined: Operation is cancelled
- * - If update returns []: Page is deleted
+ * - If `update` returns `undefined`: Operation is cancelled
+ * - If `update` returns `[]`: Page is deleted
  * - On duplicate title: Automatically suggests non-conflicting title
  */
 export const patch = (
   project: string,
   title: string,
-  update: (
-    lines: BaseLine[],
-    metadata: PatchMetadata,
-  ) =>
-    | (string | { text: string })[]
-    | undefined
-    | Promise<(string | { text: string })[] | undefined>,
+  update: MakePatchFn,
   options?: PatchOptions,
 ): Promise<Result<string, PushError | Socket.DisconnectReason>> =>
   push(
