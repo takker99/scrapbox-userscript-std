@@ -3,15 +3,18 @@ import type { Page } from "@cosense/types/rest";
 import type { Change } from "./change.ts";
 import { findMetadata, getHelpfeels } from "./findMetadata.ts";
 import { isSameArray } from "./isSameArray.ts";
+import { isString } from "@core/unknownutil/is/string";
 
 export function* makeChanges(
   before: Page,
-  after: string[],
+  after: (string | { text: string })[],
   userId: string,
 ): Generator<Change, void, unknown> {
   // Prevent newline characters from being included in the text
   // This ensures consistent line handling across different platforms
-  const after_ = after.flatMap((text) => text.split("\n"));
+  const after_ = after.flatMap((text) =>
+    (isString(text) ? text : text.text).split("\n")
+  );
 
   // First, yield changes in the main content
   // Content changes must be processed before metadata to maintain consistency
