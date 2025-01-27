@@ -1,7 +1,7 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
 import type { Change } from "./change.ts";
-import { findMetadata, getHelpfeels } from "./findMetadata.ts";
+import { getPageMetadataFromLines, getHelpfeels } from "./findMetadata.ts";
 import { isSameArray } from "./isSameArray.ts";
 import { isString } from "@core/unknownutil/is/string";
 
@@ -55,7 +55,7 @@ export function* makeChanges(
     files,
     helpfeels,
     infoboxDefinition,
-  ] = findMetadata(after_.join("\n"));
+  ] = getPageMetadataFromLines(after_.join("\n"));
   if (!isSameArray(before.links, links)) yield { links };
   if (!isSameArray(before.projectLinks, projectLinks)) yield { projectLinks };
   if (!isSameArray(before.icons, icons)) yield { icons };

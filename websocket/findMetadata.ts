@@ -18,7 +18,7 @@ import { parseYoutube } from "../parser/youtube.ts";
  * @returns A tuple containing [links, projectLinks, icons, image, files, helpfeels, infoboxDefinition]
  *          where image can be null if no suitable preview image is found
  */
-export const findMetadata = (
+export const getPageMetadataFromLines = (
   text: string,
 ): [
   string[],
