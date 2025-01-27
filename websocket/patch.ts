@@ -48,7 +48,10 @@ export const patch = (
   update: (
     lines: BaseLine[],
     metadata: PatchMetadata,
-  ) => string[] | undefined | Promise<string[] | undefined>,
+  ) =>
+    | (string | { text: string })[]
+    | undefined
+    | Promise<(string | { text: string })[] | undefined>,
   options?: PatchOptions,
 ): Promise<Result<string, PushError | Socket.DisconnectReason>> =>
   push(
