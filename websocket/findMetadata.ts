@@ -21,24 +21,17 @@ import { parseYoutube } from "../parser/youtube.ts";
 export const getPageMetadataFromLines = (
   text: string,
 ): [
-  string[],
-  string[],
-  string[],
-  string | null,
-  string[],
-  string[],
-  string[],
+  title: string,
+  links: string[],
+  projectLinks: string[],
+  icons: string[],
+  image: string | null,
+  descriptions: string[],
+  files: string[],
+  helpfeels: string[],
+  infoboxDefinition: string[],
 ] => {
-  const blocks = parse(text, { hasTitle: true }).flatMap((block) => {
-    switch (block.type) {
-      case "codeBlock":
-      case "title":
-        return [];
-      case "line":
-      case "table":
-        return block;
-    }
-  });
+  const blocks = parse(text, { hasTitle: true });
 
   /** Map for detecting duplicate links while preserving link type information
    *
@@ -49,6 +42,7 @@ export const getPageMetadataFromLines = (
    * When the same page is referenced by both formats,
    * we prioritize the bracket link format in the final output
    */
+  let title = "";
   const linksLc = new Map<string, boolean>();
   const links = [] as string[];
   const projectLinksLc = new Set<string>();
@@ -56,6 +50,7 @@ export const getPageMetadataFromLines = (
   const iconsLc = new Set<string>();
   const icons = [] as string[];
   let image: string | null = null;
+  const descriptions = [] as string[];
   const files = new Set<string>();
   const helpfeels = new Set<string>();
 
@@ -150,9 +145,29 @@ export const getPageMetadataFromLines = (
 
   for (const block of blocks) {
     switch (block.type) {
+      case "title": {
+        title = block.text;
+        continue;
+      }
       case "line":
+        if (descriptions.length < 5 && block.nodes.length > 0) {
+          descriptions.push(
+            block.nodes[0].type === "helpfeel" ||
+              block.nodes[0].type === "commandLine"
+              ? makeInlineCodeForDescription(block.nodes[0].raw)
+              : block.nodes.map((node) => node.raw).join("").trim().slice(
+                0,
+                200,
+              ),
+          );
+        }
         for (const node of block.nodes) {
           lookup(node);
+        }
+        continue;
+      case "codeBlock":
+        if (descriptions.length < 5) {
+          descriptions.push(makeInlineCodeForDescription(block.content));
         }
         continue;
       case "table": {
@@ -176,15 +191,20 @@ export const getPageMetadataFromLines = (
   }
 
   return [
+    title,
     links,
     projectLinks,
     icons,
     image,
+    descriptions,
     [...files],
     [...helpfeels],
     infoboxDefinition,
   ];
 };
+
+const makeInlineCodeForDescription = (text: string): `\`${string}\`` =>
+  `\`${text.trim().replaceAll("`", "\\`").slice(0, 198)}\``;
 
 const cutId = (link: string): string => link.replace(/#[a-f\d]{24,32}$/, "");
 
