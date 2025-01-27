@@ -1,4 +1,7 @@
-import { getHelpfeels, getPageMetadataFromLines } from "./getPageMetadataFromLines.ts";
+import {
+  getHelpfeels,
+  getPageMetadataFromLines,
+} from "./getPageMetadataFromLines.ts";
 import { assertEquals } from "@std/assert/equals";
 
 // Test data for metadata extraction from a Scrapbox page
@@ -74,6 +77,8 @@ Deno.test("getPageMetadataFromLines()", () => {
       "Phone\tAdding # won't create a link",
       "Strengths\tList about 3 items",
     ],
+    26,
+    659,
   ]);
 });
 

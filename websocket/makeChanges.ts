@@ -1,7 +1,10 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
 import type { Change } from "./change.ts";
-import { getHelpfeels, getPageMetadataFromLines } from "./getPageMetadataFromLines.ts";
+import {
+  getHelpfeels,
+  getPageMetadataFromLines,
+} from "./getPageMetadataFromLines.ts";
 import { isSameArray } from "./isSameArray.ts";
 import { isString } from "@core/unknownutil/is/string";
 
@@ -41,6 +44,8 @@ export function* makeChanges(
     files,
     helpfeels,
     infoboxDefinition,
+    linesCount,
+    charsCount,
   ] = getPageMetadataFromLines(after_.join("\n"));
   // Handle title changes
   // Note: We always include title change commits for new pages (`persistent === false`)
@@ -56,4 +61,6 @@ export function* makeChanges(
   if (!isSameArray(before.infoboxDefinition, infoboxDefinition)) {
     yield { infoboxDefinition };
   }
+  yield { linesCount };
+  yield { charsCount };
 }

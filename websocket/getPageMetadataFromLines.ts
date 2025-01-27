@@ -30,6 +30,8 @@ export const getPageMetadataFromLines = (
   files: string[],
   helpfeels: string[],
   infoboxDefinition: string[],
+  linesCount: number,
+  charsCount: number,
 ] => {
   const blocks = parse(text, { hasTitle: true });
 
@@ -190,6 +192,7 @@ export const getPageMetadataFromLines = (
     }
   }
 
+  const lines = text.split("\n");
   return [
     title,
     links,
@@ -200,6 +203,8 @@ export const getPageMetadataFromLines = (
     [...files],
     [...helpfeels],
     infoboxDefinition,
+    lines.length,
+    lines.reduce((acc, line) => acc + [...line].length, 0),
   ];
 };
 
