@@ -10,7 +10,8 @@ export type Change =
   | FilesChange
   | HelpFeelsChange
   | infoboxDefinitionChange
-  | TitleChange;
+  | TitleChange
+  | PinChange;
 export interface InsertChange {
   _insert: string;
   lines: {
