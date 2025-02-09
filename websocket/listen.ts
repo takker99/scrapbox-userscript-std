@@ -6,12 +6,7 @@ import type {
 import type { HTTPError } from "../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../rest/robustFetch.ts";
 import type { ScrapboxSocket } from "./socket.ts";
-import type { ListenEvents } from "./listen-events.ts";
-
-export type {
-  ProjectUpdatesStreamCommit,
-  ProjectUpdatesStreamEvent,
-} from "./listen-events.ts";
+import type { ListenEventMap } from "@cosense/types/websocket";
 
 export interface ListenStreamOptions {
   signal?: AbortSignal;
@@ -34,7 +29,7 @@ export type ListenStreamError =
  * - Supports automatic cleanup with AbortSignal
  *
  * @param socket - ScrapboxSocket instance for WebSocket communication
- * @param event - Event name to listen for (from {@linkcode ListenEvents} type)
+ * @param event - Event name to listen for (from {@linkcode ListenEventMap} type)
  * @param listener - Callback function to handle the event
  * @param options - Optional configuration
  *
@@ -52,10 +47,10 @@ export type ListenStreamError =
  * });
  * ```
  */
-export const listen = <EventName extends keyof ListenEvents>(
+export const listen = <EventName extends keyof ListenEventMap>(
   socket: ScrapboxSocket,
   event: EventName,
-  listener: ListenEvents[EventName],
+  listener: ListenEventMap[EventName],
   options?: ListenStreamOptions,
 ): void => {
   if (options?.signal?.aborted) return;

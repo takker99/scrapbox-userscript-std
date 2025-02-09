@@ -1,11 +1,10 @@
 import { io, type Socket } from "socket.io-client";
 import { createErr, createOk, type Result } from "option-t/plain_result";
-import type { ListenEvents } from "./listen-events.ts";
-import type { EmitEvents } from "./emit-events.ts";
+import type { EmitEventMap, ListenEventMap } from "@cosense/types/websocket";
 import { cookie } from "../rest/auth.ts";
 
 /** A pre-configured {@linkcode Socket} type for Scrapbox */
-export type ScrapboxSocket = Socket<ListenEvents, EmitEvents>;
+export type ScrapboxSocket = Socket<ListenEventMap, EmitEventMap>;
 
 /** connect to websocket
  *

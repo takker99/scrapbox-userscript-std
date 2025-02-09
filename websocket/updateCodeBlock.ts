@@ -1,5 +1,6 @@
 import type { BaseLine } from "@cosense/types/rest";
-import type { DeleteChange, InsertChange, UpdateChange } from "./change.ts";
+import type { UpdateChange } from "@cosense/types/websocket";
+import type { DeleteChange, InsertChange } from "@cosense/types/rest";
 import type { TinyCodeBlock } from "../rest/getCodeBlocks.ts";
 import { diffToChanges } from "./diffToChanges.ts";
 import { isSimpleCodeFile } from "./isSimpleCodeFile.ts";

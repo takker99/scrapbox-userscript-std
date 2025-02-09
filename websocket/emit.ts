@@ -2,10 +2,11 @@ import { createErr, createOk, type Result } from "option-t/plain_result";
 import type { Socket } from "socket.io-client";
 import type {
   JoinRoomRequest,
+  JoinRoomResponse,
   MoveCursorData,
   PageCommit,
   PageCommitResponse,
-} from "./emit-events.ts";
+} from "@cosense/types/websocket";
 import {
   isPageCommitError,
   type PageCommitError,
@@ -13,7 +14,6 @@ import {
   type TimeoutError,
   type UnexpectedRequestError,
 } from "./error.ts";
-import type { JoinRoomResponse } from "./emit-events.ts";
 import type { ScrapboxSocket } from "./socket.ts";
 
 export interface WrapperdEmitEvents {
