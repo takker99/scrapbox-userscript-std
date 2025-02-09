@@ -1,4 +1,4 @@
-import type { Change, DeletePageChange } from "./change.ts";
+import type { ChangeToPush, DeletePageChange } from "@cosense/types/websocket";
 import { makeChanges } from "./makeChanges.ts";
 import type { BaseLine, Page } from "@cosense/types/rest";
 import { push, type PushError, type PushOptions } from "./push.ts";
@@ -86,7 +86,7 @@ export const patch = (
         return prev.map((change) => {
           if ("title" in change) change.title = fallbackTitle;
           return change;
-        }) as Change[] | [DeletePageChange];
+        }) as ChangeToPush[] | [DeletePageChange];
       }
       const pending = update(page.lines, { ...page, attempts });
       const newContent = pending instanceof Promise ? await pending : pending;

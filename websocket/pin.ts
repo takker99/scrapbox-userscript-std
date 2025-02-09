@@ -1,5 +1,5 @@
 import type { Result } from "option-t/plain_result";
-import type { Change } from "./change.ts";
+import type { ChangeToPush } from "@cosense/types/websocket";
 import { push, type PushError, type PushOptions } from "./push.ts";
 
 export interface PinOptions extends PushOptions {
@@ -48,7 +48,7 @@ export const pin = (
         page.pin > 0 || (!page.persistent && !(options?.create ?? false))
       ) return [];
       // Create page and pin it in a single operation
-      const changes: Change[] = [{ pin: pinNumber() }];
+      const changes: ChangeToPush[] = [{ pin: pinNumber() }];
       if (!page.persistent) changes.unshift({ title });
       return changes;
     },

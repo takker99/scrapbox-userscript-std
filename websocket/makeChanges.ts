@@ -1,6 +1,6 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
-import type { Change } from "./change.ts";
+import type { ChangeToPush } from "@cosense/types/websocket";
 import {
   getHelpfeels,
   getPageMetadataFromLines,
@@ -12,7 +12,7 @@ export function* makeChanges(
   before: Page,
   after: (string | { text: string })[],
   userId: string,
-): Generator<Change, void, unknown> {
+): Generator<ChangeToPush, void, unknown> {
   // Prevent newline characters from being included in the text
   // This ensures consistent line handling across different platforms
   const after_ = after.flatMap((text) =>

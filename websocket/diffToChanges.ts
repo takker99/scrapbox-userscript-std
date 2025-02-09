@@ -1,6 +1,7 @@
 import { diff, toExtendedChanges } from "../deps/onp.ts";
 import type { Line } from "@cosense/types/userscript";
-import type { DeleteChange, InsertChange, UpdateChange } from "./change.ts";
+import type { UpdateChange } from "@cosense/types/websocket";
+import type { DeleteChange, InsertChange } from "@cosense/types/rest";
 import { createNewLineId } from "./id.ts";
 
 type Options = {

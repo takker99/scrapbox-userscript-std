@@ -27,7 +27,7 @@
     "@cosense/std/browser/websocket": "./websocket/mod.ts",
     "@cosense/std/rest": "./rest/mod.ts",
     "@cosense/std/websocket": "./websocket/mod.ts",
-    "@cosense/types": "jsr:@cosense/types@^0.10.4",
+    "@cosense/types": "jsr:@cosense/types@^0.10.7",
     "@cosense/types/rest": "jsr:@cosense/types@0.10/rest",
     "@cosense/types/userscript": "jsr:@cosense/types@0.10/userscript",
     "@progfay/scrapbox-parser": "jsr:@progfay/scrapbox-parser@9",

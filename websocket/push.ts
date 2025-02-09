@@ -1,5 +1,8 @@
-import type { Change, DeletePageChange } from "./change.ts";
-import type { PageCommit } from "./emit-events.ts";
+import type {
+  ChangeToPush,
+  DeletePageChange,
+  PageCommit,
+} from "@cosense/types/websocket";
 import { connect, disconnect } from "./socket.ts";
 import type { Socket } from "socket.io-client";
 import { emit } from "./emit.ts";
@@ -125,11 +128,11 @@ export type PushError =
 export type CommitMakeHandler = (
   page: PushMetadata,
   attempts: number,
-  prev: Change[] | [DeletePageChange],
+  prev: ChangeToPush[] | [DeletePageChange],
   reason?: "NotFastForwardError" | "DuplicateTitleError",
 ) =>
-  | Promise<Change[] | [DeletePageChange]>
-  | Change[]
+  | Promise<ChangeToPush[] | [DeletePageChange]>
+  | ChangeToPush[]
   | [DeletePageChange];
 
 /** Push changes to a specific page using WebSocket
@@ -173,7 +176,7 @@ export const push = async (
 
   try {
     let attempts = 0;
-    let changes: Change[] | [DeletePageChange] = [];
+    let changes: ChangeToPush[] | [DeletePageChange] = [];
     let reason: "NotFastForwardError" | "DuplicateTitleError" | undefined;
 
     // Outer loop: handles diff creation and conflict resolution
