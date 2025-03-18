@@ -8,6 +8,12 @@ import type {
 import { type BaseOptions, setDefaults } from "../../util.ts";
 import { cookie } from "../../rest/auth.ts";
 import type { ResponseOfEndpoint } from "../../targeted_response.ts";
+import {
+  type HTTPError,
+  makeError,
+  makeHTTPError,
+  type TypedError,
+} from "../../error.ts";
 
 /** Options for {@linkcode listPages} */
 export interface ListPagesOption<R extends Response | undefined>
@@ -99,7 +105,7 @@ export const get = <R extends Response | undefined = Response>(
  *
  * @param project The project name to list pages from
  * @param options Configuration options for pagination and sorting
- * @throws {HTTPError} If any requests in the pagination sequence fail
+ * @throws {HTTPError | TypedError<"NotLoggedInError" | "NotMemberError" | "NotFoundError">} If any requests in the pagination sequence fail
  */
 export async function* list(
   project: string,
@@ -108,8 +114,19 @@ export async function* list(
   const props = { ...(options ?? {}), skip: options?.skip ?? 0 };
   while (true) {
     const response = await get(project, props);
-    if (response.status !== 200) {
-      throw new Error(response.statusText, { cause: response }) as HTTPError;
+    switch (response.status) {
+      case 200:
+        break;
+      case 401:
+      case 403:
+      case 404: {
+        const error = await response.json();
+        throw makeError(error.name, error.message) satisfies TypedError<
+          "NotLoggedInError" | "NotMemberError" | "NotFoundError"
+        >;
+      }
+      default:
+        throw makeHTTPError(response) satisfies HTTPError;
     }
     const list = await response.json();
     yield* list.pages;
@@ -119,7 +136,3 @@ export async function* list(
 }
 
 export * as title from "./project/title.ts";
-
-export interface HTTPError extends Error {
-  readonly cause: Response;
-}
