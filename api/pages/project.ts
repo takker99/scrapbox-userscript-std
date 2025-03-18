@@ -76,24 +76,22 @@ export const get = <R extends Response | undefined = Response>(
   project: string,
   options?: ListPagesOption<R>,
 ): Promise<
-  | ResponseOfEndpoint<{
+  ResponseOfEndpoint<{
     200: PageList;
     404: NotFoundError;
     401: NotLoggedInError;
     403: NotMemberError;
-  }>
-  | (undefined extends R ? undefined : never)
+  }, R>
 > =>
   setDefaults(options ?? {}).fetch(
     makeGetRequest(project, options),
   ) as Promise<
-    | ResponseOfEndpoint<{
+    ResponseOfEndpoint<{
       200: PageList;
       404: NotFoundError;
       401: NotLoggedInError;
       403: NotMemberError;
-    }>
-    | (undefined extends R ? undefined : never)
+    }, R>
   >;
 
 /**

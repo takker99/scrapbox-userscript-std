@@ -86,21 +86,24 @@ export type { StatusCode, SuccessfulStatus };
  */
 export type ResponseOfEndpoint<
   ResponseBodyMap extends Record<number, unknown> = Record<StatusCode, string>,
-> = {
-  [Status in StatusCode | keyof ResponseBodyMap]: Status extends number
-    ? ResponseBodyMap[Status] extends
-      | string
-      | Exclude<
-        JsonCompatible<ResponseBodyMap[Status]>,
-        string | number | boolean | null
-      >
-      | Uint8Array
-      | FormData
-      | Blob ? TargetedResponse<Status, ResponseBodyMap[Status]>
-    : Status extends StatusCode ? TargetedResponse<Status, string>
-    : never
-    : never;
-}[StatusCode | keyof ResponseBodyMap];
+  R extends Response | undefined = Response,
+> =
+  | {
+    [Status in StatusCode | keyof ResponseBodyMap]: Status extends number
+      ? ResponseBodyMap[Status] extends
+        | string
+        | Exclude<
+          JsonCompatible<ResponseBodyMap[Status]>,
+          string | number | boolean | null
+        >
+        | Uint8Array
+        | FormData
+        | Blob ? TargetedResponse<Status, ResponseBodyMap[Status]>
+      : Status extends StatusCode ? TargetedResponse<Status, string>
+      : never
+      : never;
+  }[StatusCode | keyof ResponseBodyMap]
+  | (undefined extends R ? undefined : never);
 
 /**
  * Type-safe {@linkcode Response} object
