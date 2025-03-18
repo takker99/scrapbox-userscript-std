@@ -2,24 +2,20 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-  Page,
 } from "@cosense/types/rest";
-import type { ResponseOfEndpoint } from "../../../targeted_response.ts";
-import { type BaseOptions, setDefaults } from "../../../util.ts";
-import { encodeTitleURI } from "../../../title.ts";
-import { cookie } from "../../../rest/auth.ts";
+import type { ResponseOfEndpoint } from "../../../../targeted_response.ts";
+import { type BaseOptions, setDefaults } from "../../../../util.ts";
+import { encodeTitleURI } from "../../../../title.ts";
+import { cookie } from "../../../../rest/auth.ts";
 
-/** Options for {@linkcode getPage} */
-export interface GetPageOption<R extends Response | undefined>
+/** Options for {@linkcode get} */
+export interface GetTextOption<R extends Response | undefined>
   extends BaseOptions<R> {
   /** use `followRename` */
   followRename?: boolean;
-
-  /** project ids to get External links */
-  projects?: string[];
 }
 
-/** Constructs a request for the `/api/pages/:project/:title` endpoint
+/** Constructs a request for the `/api/pages/:project/:title/text` endpoint
  *
  * @param project The project name containing the desired page
  * @param title The page title to retrieve (case insensitive)
@@ -29,42 +25,32 @@ export interface GetPageOption<R extends Response | undefined>
 export const makeGetRequest = <R extends Response | undefined>(
   project: string,
   title: string,
-  options?: GetPageOption<R>,
+  options?: GetTextOption<R>,
 ): Request => {
-  const { sid, hostName, followRename, projects } = setDefaults(options ?? {});
-
-  const params = new URLSearchParams([
-    ["followRename", `${followRename ?? true}`],
-    ...(projects?.map?.((id) => ["projects", id]) ?? []),
-  ]);
+  const { sid, hostName, followRename } = setDefaults(options ?? {});
 
   return new Request(
     `https://${hostName}/api/pages/${project}/${
       encodeTitleURI(title)
-    }?${params}`,
+    }/text?followRename=${followRename ?? true}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
 
-/** Retrieves JSON data for a specified page
+/** Retrieves a specified page text
  *
  * @param project The project name containing the desired page
  * @param title The page title to retrieve (case insensitive)
  * @param options Additional configuration options for the request
- * @returns A {@linkcode Result}<{@linkcode unknown}, {@linkcode Error}> containing:
- *          - Success: The page data in JSON format
- *          - Error: One of several possible errors:
- *            - {@linkcode NotFoundError}: Page not found
- *            - {@linkcode NotLoggedInError}: Authentication required
- *            - {@linkcode NotMemberError}: User lacks access
+ * @returns A {@linkcode Response} object containing the page text
  */
 export const get = <R extends Response | undefined = Response>(
   project: string,
   title: string,
-  options?: GetPageOption<R>,
+  options?: GetTextOption<R>,
 ): Promise<
   ResponseOfEndpoint<{
-    200: Page;
+    200: string;
     404: NotFoundError;
     401: NotLoggedInError;
     403: NotMemberError;
@@ -74,11 +60,9 @@ export const get = <R extends Response | undefined = Response>(
     makeGetRequest(project, title, options),
   ) as Promise<
     ResponseOfEndpoint<{
-      200: Page;
+      200: string;
       404: NotFoundError;
       401: NotLoggedInError;
       403: NotMemberError;
     }, R>
   >;
-
-export * as text from "./title/text.ts";
