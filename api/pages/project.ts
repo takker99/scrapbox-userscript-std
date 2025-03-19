@@ -135,5 +135,6 @@ export async function* list(
   }
 }
 
-export * as title from "./project/title.ts";
 export * as replace from "./project/replace.ts";
+export * as search from "./project/search.ts";
+export * as title from "./project/title.ts";
