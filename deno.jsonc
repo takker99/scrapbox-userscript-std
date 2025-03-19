@@ -27,6 +27,8 @@
     "./unstable-api/pages/project/title": "./api/pages/project/title.ts",
     "./unstable-api/pages/project/title/text": "./api/pages/project/title/text.ts",
     "./unstable-api/pages/project/title/icon": "./api/pages/project/title/icon.ts",
+    "./unstable-api/pages/project/replace": "./api/pages/project/replace.ts",
+    "./unstable-api/pages/project/replace/links": "./api/pages/project/replace/links.ts",
     "./unstable-api/users": "./api/users.ts",
     "./unstable-api/users/me": "./api/users/me.ts"
   },

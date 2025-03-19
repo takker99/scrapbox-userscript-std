@@ -54,6 +54,20 @@ export interface OAuthOptions<R extends Response | undefined>
   accessToken: string;
 }
 
+/** Extended options including CSRF token configuration
+ *
+ * Extends BaseOptions with CSRF token support for endpoints
+ * that require CSRF protection.
+ */
+export interface ExtendedOptions<R extends Response | undefined>
+  extends BaseOptions<R> {
+  /** CSRF token
+   *
+   * If it isn't set, automatically get CSRF token from scrapbox.io server.
+   */
+  csrf?: string;
+}
+
 /** Set default values for {@linkcode BaseOptions}
  *
  * Ensures all required fields have appropriate default values while
