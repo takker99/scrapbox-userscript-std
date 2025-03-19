@@ -28,6 +28,7 @@
     "./unstable-api/pages/project/replace/links": "./api/pages/project/replace/links.ts",
     "./unstable-api/pages/project/search": "./api/pages/project/search.ts",
     "./unstable-api/pages/project/search/query": "./api/pages/project/search/query.ts",
+    "./unstable-api/pages/project/search/titles": "./api/pages/project/search/titles.ts",
     "./unstable-api/pages/project/title": "./api/pages/project/title.ts",
     "./unstable-api/pages/project/title/text": "./api/pages/project/title/text.ts",
     "./unstable-api/pages/project/title/icon": "./api/pages/project/title/icon.ts",
