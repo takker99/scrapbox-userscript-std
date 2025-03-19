@@ -8,16 +8,6 @@ import type { ResponseOfEndpoint } from "../../../../targeted_response.ts";
 import { type BaseOptions, setDefaults } from "../../../../util.ts";
 import { cookie } from "../../../../rest/auth.ts";
 
-/** Options for {@linkcode getPage} */
-export interface GetPageOption<R extends Response | undefined>
-  extends BaseOptions<R> {
-  /** use `followRename` */
-  followRename?: boolean;
-
-  /** project ids to get External links */
-  projects?: string[];
-}
-
 /** Constructs a request for the `/api/pages/:project/search/query` endpoint
  *
  * @param project The name of the project to search within
