@@ -1,13 +1,14 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@core/iterutil@0.9": "0.9.0",
     "jsr:@core/unknownutil@4": "4.3.0",
     "jsr:@cosense/types@0.10": "0.10.7",
     "jsr:@cosense/types@~0.10.7": "0.10.7",
     "jsr:@progfay/scrapbox-parser@9": "9.2.0",
     "jsr:@std/assert@1": "1.0.11",
     "jsr:@std/assert@^1.0.10": "1.0.11",
-    "jsr:@std/async@1": "1.0.10",
+    "jsr:@std/async@^1.0.11": "1.0.11",
     "jsr:@std/cli@^1.0.12": "1.0.13",
     "jsr:@std/data-structures@^1.0.6": "1.0.6",
     "jsr:@std/encoding@1": "1.0.7",
@@ -30,6 +31,9 @@
     "npm:socket.io-client@^4.7.5": "4.8.1"
   },
   "jsr": {
+    "@core/iterutil@0.9.0": {
+      "integrity": "29a4ba1af8e79c2d63d96df4948bb995afb5256568401711ae97a1ef06cc67a8"
+    },
     "@core/unknownutil@4.3.0": {
       "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
     },
@@ -45,8 +49,8 @@
         "jsr:@std/internal"
       ]
     },
-    "@std/async@1.0.10": {
-      "integrity": "2ff1b1c7d33d1416159989b0f69e59ec7ee8cb58510df01e454def2108b3dbec"
+    "@std/async@1.0.11": {
+      "integrity": "eee0d3405275506638a9c8efaa849cf0d35873120c69b7caa1309c9a9e5b6f85"
     },
     "@std/cli@1.0.13": {
       "integrity": "5db2d95ab2dca3bca9fb6ad3c19908c314e93d6391c8b026725e4892d4615a69"
@@ -180,12 +184,13 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@core/iterutil@0.9",
       "jsr:@core/unknownutil@4",
       "jsr:@cosense/types@0.10",
       "jsr:@cosense/types@~0.10.7",
       "jsr:@progfay/scrapbox-parser@9",
       "jsr:@std/assert@1",
-      "jsr:@std/async@1",
+      "jsr:@std/async@^1.0.11",
       "jsr:@std/encoding@1",
       "jsr:@std/http@^1.0.13",
       "jsr:@std/json@1",

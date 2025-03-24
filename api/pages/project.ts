@@ -7,15 +7,21 @@ import type {
 } from "@cosense/types/rest";
 import { type BaseOptions, setDefaults } from "../../util.ts";
 import { cookie } from "../../rest/auth.ts";
-import type { ResponseOfEndpoint } from "../../targeted_response.ts";
+import type {
+  ResponseOfEndpoint,
+  TargetedResponse,
+} from "../../targeted_response.ts";
 import {
   type HTTPError,
   makeError,
   makeHTTPError,
   type TypedError,
 } from "../../error.ts";
+import { pooledMap } from "@std/async/pool";
+import { range } from "@core/iterutil/range";
+import { flatten } from "@core/iterutil/async/flatten";
 
-/** Options for {@linkcode listPages} */
+/** Options for {@linkcode get} */
 export interface ListPagesOption<R extends Response | undefined>
   extends BaseOptions<R> {
   /** the sort of page list to return
@@ -100,6 +106,16 @@ export const get = <R extends Response | undefined = Response>(
     }, R>
   >;
 
+/** Options for {@linkcode list} */
+export interface ListPagesStreamOption<R extends Response | undefined>
+  extends ListPagesOption<R> {
+  /** The number of requests to make concurrently
+   *
+   * @default {3}
+   */
+  poolLimit?: number;
+}
+
 /**
  * Lists pages from a given `project` with pagination
  *
@@ -109,31 +125,59 @@ export const get = <R extends Response | undefined = Response>(
  */
 export async function* list(
   project: string,
-  options?: ListPagesOption<Response>,
+  options?: ListPagesStreamOption<Response>,
 ): AsyncGenerator<BasePage, void, unknown> {
-  const props = { ...(options ?? {}), skip: options?.skip ?? 0 };
-  while (true) {
-    const response = await get(project, props);
-    switch (response.status) {
-      case 200:
-        break;
-      case 401:
-      case 403:
-      case 404: {
-        const error = await response.json();
-        throw makeError(error.name, error.message) satisfies TypedError<
-          "NotLoggedInError" | "NotMemberError" | "NotFoundError"
-        >;
-      }
-      default:
-        throw makeHTTPError(response) satisfies HTTPError;
-    }
-    const list = await response.json();
-    yield* list.pages;
-    props.skip += props.limit ?? 100;
-    if (list.skip + list.limit >= list.count) break;
-  }
+  const props = {
+    ...(options ?? {}),
+    skip: options?.skip ?? 0,
+    limit: options?.limit ?? 100,
+  };
+  const response = await ensureResponse(await get(project, props));
+  const list = await response.json();
+  yield* list.pages;
+
+  const limit = list.limit;
+  const skip = list.skip + limit;
+  const times = Math.ceil((list.count - skip) / limit);
+
+  yield* flatten(
+    pooledMap(
+      options?.poolLimit ?? 3,
+      range(0, times - 1),
+      async (i) => {
+        const response = await ensureResponse(
+          await get(project, { ...props, skip: skip + i * limit, limit }),
+        );
+        const list = await response.json();
+        return list.pages;
+      },
+    ),
+  );
 }
+
+const ensureResponse = async (
+  response: ResponseOfEndpoint<{
+    200: PageList;
+    404: NotFoundError;
+    401: NotLoggedInError;
+    403: NotMemberError;
+  }, Response>,
+): Promise<TargetedResponse<200, PageList>> => {
+  switch (response.status) {
+    case 200:
+      return response;
+    case 401:
+    case 403:
+    case 404: {
+      const error = await response.json();
+      throw makeError(error.name, error.message) satisfies TypedError<
+        "NotLoggedInError" | "NotMemberError" | "NotFoundError"
+      >;
+    }
+    default:
+      throw makeHTTPError(response) satisfies HTTPError;
+  }
+};
 
 export * as replace from "./project/replace.ts";
 export * as search from "./project/search.ts";
