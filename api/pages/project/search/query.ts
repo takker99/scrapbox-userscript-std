@@ -20,10 +20,10 @@ export const makeGetRequest = <R extends Response | undefined>(
   query: string,
   options?: BaseOptions<R>,
 ): Request => {
-  const { sid, hostName } = setDefaults(options ?? {});
+  const { sid, baseURL } = setDefaults(options ?? {});
 
   return new Request(
-    `https://${hostName}/api/pages/${project}/search/query?q=${
+    `${baseURL}api/pages/${project}/search/query?q=${
       encodeURIComponent(query)
     }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,

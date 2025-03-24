@@ -27,10 +27,10 @@ export const makeGetRequest = <R extends Response | undefined>(
   title: string,
   options?: GetTextOption<R>,
 ): Request => {
-  const { sid, hostName, followRename } = setDefaults(options ?? {});
+  const { sid, baseURL, followRename } = setDefaults(options ?? {});
 
   return new Request(
-    `https://${hostName}/api/pages/${project}/${
+    `${baseURL}api/pages/${project}/${
       encodeTitleURI(title)
     }/text?followRename=${followRename ?? true}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,

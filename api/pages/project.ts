@@ -53,7 +53,7 @@ export const makeGetRequest = <R extends Response | undefined>(
   project: string,
   options?: ListPagesOption<R>,
 ): Request => {
-  const { sid, hostName, sort, limit, skip } = setDefaults(
+  const { sid, baseURL, sort, limit, skip } = setDefaults(
     options ?? {},
   );
   const params = new URLSearchParams();
@@ -62,7 +62,7 @@ export const makeGetRequest = <R extends Response | undefined>(
   if (skip !== undefined) params.append("skip", `${skip}`);
 
   return new Request(
-    `https://${hostName}/api/pages/${project}?${params}`,
+    `${baseURL}api/pages/${project}?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };

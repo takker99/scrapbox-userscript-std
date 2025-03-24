@@ -36,15 +36,11 @@ export interface BaseOptions<R extends Response | undefined> {
    */
   fetch?: Fetch<R>;
 
-  /** Domain for REST API endpoints
+  /** Base URL for REST API endpoints
    *
-   * Configurable host name for API requests. This allows using the library
-   * with self-hosted Scrapbox instances or other custom deployments that
-   * don't use the default scrapbox.io domain.
-   *
-   * @default {"scrapbox.io"}
+   * @default {"https://scrapbox.io/"}
    */
-  hostName?: string;
+  baseURL?: string;
 }
 
 /** Options for Gyazo API which requires OAuth */
@@ -83,8 +79,11 @@ export const setDefaults = <
   T extends BaseOptions<any> = BaseOptions<Response>,
 >(
   options: T,
-): Omit<T, "fetch" | "hostName"> & Required<Pick<T, "fetch" | "hostName">> => {
-  const { fetch = globalThis.fetch, hostName = "scrapbox.io", ...rest } =
-    options;
-  return { fetch, hostName, ...rest };
+): Omit<T, "fetch" | "baseURL"> & Required<Pick<T, "fetch" | "baseURL">> => {
+  const {
+    fetch = globalThis.fetch,
+    baseURL = "https://scrapbox.io/",
+    ...rest
+  } = options;
+  return { fetch, baseURL, ...rest };
 };

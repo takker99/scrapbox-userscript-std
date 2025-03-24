@@ -19,10 +19,10 @@ export const makeGetRequest = <R extends Response | undefined>(
   project: string,
   options?: BaseOptions<R>,
 ): Request => {
-  const { sid, hostName } = setDefaults(options ?? {});
+  const { sid, baseURL } = setDefaults(options ?? {});
 
   return new Request(
-    `https://${hostName}/api/projects/${project}`,
+    `${baseURL}api/projects/${project}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };

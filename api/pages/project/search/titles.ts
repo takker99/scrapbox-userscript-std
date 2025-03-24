@@ -31,10 +31,10 @@ export const makeGetRequest = <R extends Response | undefined>(
   project: string,
   options?: GetLinksOptions<R>,
 ): Request => {
-  const { sid, hostName, followingId } = setDefaults(options ?? {});
+  const { sid, baseURL, followingId } = setDefaults(options ?? {});
 
   return new Request(
-    `https://${hostName}/api/pages/${project}/search/titles${
+    `${baseURL}api/pages/${project}/search/titles${
       followingId ? `?followingId=${followingId}` : ""
     }`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,

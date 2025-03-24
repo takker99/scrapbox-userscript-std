@@ -14,9 +14,9 @@ import { cookie } from "../../rest/auth.ts";
 export const makeGetRequest = <R extends Response | undefined>(
   init?: BaseOptions<R>,
 ): Request => {
-  const { sid, hostName } = setDefaults(init ?? {});
+  const { sid, baseURL } = setDefaults(init ?? {});
   return new Request(
-    `https://${hostName}/api/users/me`,
+    `${baseURL}api/users/me`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };

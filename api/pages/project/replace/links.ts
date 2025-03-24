@@ -22,10 +22,10 @@ export const makePostRequest = <R extends Response | undefined>(
   to: string,
   init?: ExtendedOptions<R>,
 ): Request => {
-  const { sid, hostName, csrf } = setDefaults(init ?? {});
+  const { sid, baseURL, csrf } = setDefaults(init ?? {});
 
   return new Request(
-    `https://${hostName}/api/pages/${project}/replace/links`,
+    `${baseURL}api/pages/${project}/replace/links`,
     {
       method: "POST",
       headers: {

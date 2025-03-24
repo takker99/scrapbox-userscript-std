@@ -31,7 +31,7 @@ export const makeGetRequest = <R extends Response | undefined>(
   title: string,
   options?: GetPageOption<R>,
 ): Request => {
-  const { sid, hostName, followRename, projects } = setDefaults(options ?? {});
+  const { sid, baseURL, followRename, projects } = setDefaults(options ?? {});
 
   const params = new URLSearchParams([
     ["followRename", `${followRename ?? true}`],
@@ -39,9 +39,7 @@ export const makeGetRequest = <R extends Response | undefined>(
   ]);
 
   return new Request(
-    `https://${hostName}/api/pages/${project}/${
-      encodeTitleURI(title)
-    }?${params}`,
+    `${baseURL}api/pages/${project}/${encodeTitleURI(title)}?${params}`,
     sid ? { headers: { Cookie: cookie(sid) } } : undefined,
   );
 };
