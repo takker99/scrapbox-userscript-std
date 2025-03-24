@@ -1,6 +1,8 @@
 export * as pages from "./api/pages.ts";
 export * as projects from "./api/projects.ts";
 export * as users from "./api/users.ts";
+export type { HTTPError, TypedError } from "./error.ts";
+export type { BaseOptions, ExtendedOptions, OAuthOptions } from "./util.ts";
 
 export {
   get as listPages,
