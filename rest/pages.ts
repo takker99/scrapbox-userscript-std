@@ -161,16 +161,23 @@ export interface ListPagesOption extends BaseOptions {
     | "linked"
     | "views"
     | "title";
+
   /** the index getting page list from
    *
    * @default {0}
    */
   skip?: number;
+
   /** threshold of the length of page list
    *
    * @default {100}
    */
   limit?: number;
+
+  /**
+   * The title of an icon to filter the page list by
+   */
+  filterValue?: string;
 }
 
 export interface ListPages {
@@ -210,13 +217,17 @@ export type ListPagesError =
   | HTTPError;
 
 const listPages_toRequest: ListPages["toRequest"] = (project, options) => {
-  const { sid, hostName, sort, limit, skip } = setDefaults(
+  const { sid, hostName, sort, limit, skip, filterValue } = setDefaults(
     options ?? {},
   );
   const params = new URLSearchParams();
   if (sort !== undefined) params.append("sort", sort);
   if (limit !== undefined) params.append("limit", `${limit}`);
   if (skip !== undefined) params.append("skip", `${skip}`);
+  if (filterValue) {
+    params.append("filterType", "icon");
+    params.append("filterValue", filterValue);
+  }
 
   return new Request(
     `https://${hostName}/api/pages/${project}?${params}`,
