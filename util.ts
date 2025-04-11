@@ -81,7 +81,7 @@ export const setDefaults = <
   options: T,
 ): Omit<T, "fetch" | "baseURL"> & Required<Pick<T, "fetch" | "baseURL">> => {
   const {
-    fetch = globalThis.fetch,
+    fetch = (input, init) => globalThis.fetch(input, init),
     baseURL = "https://scrapbox.io/",
     ...rest
   } = options;
