@@ -6,7 +6,8 @@ import { textInput } from "./dom.ts";
 import { isArray } from "@core/unknownutil/is/array";
 import { isNumber } from "@core/unknownutil/is/number";
 import { isString } from "@core/unknownutil/is/string";
-import { delay } from "@std/async/delay";
+import type { Scrapbox } from "@cosense/types/userscript";
+declare const scrapbox: Scrapbox;
 
 export const undo = (count = 1): void => {
   for (const _ of range(0, count)) {
@@ -157,7 +158,7 @@ export const downBlocks = (count = 1): void => {
   }
 };
 
-export const insertText = async (text: string): Promise<void> => {
+export const insertText = (text: string): Promise<void> => {
   const cursor = textInput();
   if (!cursor) {
     throw Error("#text-input is not ditected.");
@@ -167,5 +168,5 @@ export const insertText = async (text: string): Promise<void> => {
 
   const event = new InputEvent("input", { bubbles: true });
   cursor.dispatchEvent(event);
-  await delay(1); // 1ms delay to ensure event processing completes
+  return scrapbox.Page.waitForSave();
 };
