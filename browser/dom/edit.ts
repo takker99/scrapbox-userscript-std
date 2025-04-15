@@ -1,7 +1,7 @@
 import { goHead, goLine } from "./motion.ts";
 import { press } from "./press.ts";
 import { getLineCount } from "./node.ts";
-import { range } from "../../range.ts";
+import { range } from "@core/iterutil/range";
 import { textInput } from "./dom.ts";
 import { isArray } from "@core/unknownutil/is/array";
 import { isNumber } from "@core/unknownutil/is/number";
@@ -10,24 +10,24 @@ import type { Scrapbox } from "@cosense/types/userscript";
 declare const scrapbox: Scrapbox;
 
 export const undo = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("z", { ctrlKey: true });
   }
 };
 export const redo = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("z", { shiftKey: true, ctrlKey: true });
   }
 };
 
 export const insertIcon = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("i", { ctrlKey: true });
   }
 };
 
 export const insertTimestamp = (index = 1): void => {
-  for (const _ of range(0, index)) {
+  for (const _ of range(1, index)) {
     press("t", { altKey: true });
   }
 };
@@ -94,12 +94,12 @@ export const deleteLines = async (
 };
 
 export const indentLines = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowRight", { ctrlKey: true });
   }
 };
 export const outdentLines = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowLeft", { ctrlKey: true });
   }
 };
@@ -120,23 +120,23 @@ export const moveLinesBefore = (from: number, to: number): void => {
   }
 };
 export const upLines = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowUp", { ctrlKey: true });
   }
 };
 export const downLines = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowDown", { ctrlKey: true });
   }
 };
 
 export const indentBlocks = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowRight", { altKey: true });
   }
 };
 export const outdentBlocks = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowLeft", { altKey: true });
   }
 };
@@ -148,12 +148,12 @@ export const moveBlocks = (count: number): void => {
   }
 };
 export const upBlocks = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowUp", { altKey: true });
   }
 };
 export const downBlocks = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowDown", { altKey: true });
   }
 };
