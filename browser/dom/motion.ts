@@ -12,7 +12,7 @@ import {
 } from "./node.ts";
 import { caret } from "./caret.ts";
 import { isHeightViewable } from "./isHeightViewable.ts";
-import { range } from "../../range.ts";
+import { range } from "@core/iterutil/range";
 
 /** @deprecated
  * Long press at the end of cursor line to gain focus
@@ -38,7 +38,7 @@ export const focusEnd = async (holding = 1000): Promise<void> => {
  * @param [count=1] - Number of moves to perform
  */
 export const moveLeft = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowLeft");
   }
 };
@@ -47,7 +47,7 @@ export const moveLeft = (count = 1): void => {
  * @param [count=1] - Number of moves to perform
  */
 export const moveUp = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowUp");
   }
 };
@@ -56,7 +56,7 @@ export const moveUp = (count = 1): void => {
  * @param [count=1] - Number of moves to perform
  */
 export const moveDown = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowDown");
   }
 };
@@ -65,7 +65,7 @@ export const moveDown = (count = 1): void => {
  * @param [count=1] - Number of moves to perform
  */
 export const moveRight = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("ArrowRight");
   }
 };
@@ -193,7 +193,7 @@ export const scrollHalfDown = async (count = 1): Promise<void> => {
  * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollUp = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("PageUp");
   }
 };
@@ -202,7 +202,7 @@ export const scrollUp = (count = 1): void => {
  * @param [count=1] - Number of scroll operations to perform
  */
 export const scrollDown = (count = 1): void => {
-  for (const _ of range(0, count)) {
+  for (const _ of range(1, count)) {
     press("PageDown");
   }
 };
