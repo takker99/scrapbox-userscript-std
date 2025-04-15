@@ -10,6 +10,8 @@ import { cookie } from "../../../../rest/auth.ts";
 
 /** Constructs a request for the `/api/pages/:project/search/query` endpoint
  *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ *
  * @param project The name of the project to search within
  * @param query The search query string to match against pages
  * @param options - Additional configuration options
@@ -31,6 +33,8 @@ export const makeGetRequest = <R extends Response | undefined>(
 };
 
 /** Search for pages within a specific project
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The name of the project to search within
  * @param query The search query string to match against pages

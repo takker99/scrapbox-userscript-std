@@ -11,6 +11,8 @@ import { cookie } from "../../rest/auth.ts";
 
 /** Create a request to `GET /api/projects/:project`
  *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ *
  * @param project - Project name to retrieve information for
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching project data
@@ -32,6 +34,8 @@ export const makeGetRequest = <R extends Response | undefined>(
  * This function retrieves detailed information about a project, including its
  * access level, settings, and metadata. The returned data type depends on
  * whether the user has member access to the project.
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project - Project name to retrieve information for
  * @param options Additional configuration options for the request
