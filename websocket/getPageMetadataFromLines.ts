@@ -1,22 +1,88 @@
 import { type Node, parse } from "@progfay/scrapbox-parser";
-import type { BaseLine } from "@cosense/types/userscript";
 import { toTitleLc } from "../title.ts";
 import { parseYoutube } from "../parser/youtube.ts";
 
 /** Extract metadata from Scrapbox page text
  *
- * This function parses a Scrapbox page and extracts various types of metadata:
+ * ```ts
+ * import { assertEquals } from "@std/assert/equals";
+ *
+ * const text = `test page
+ * [normal]link
+ *  but \`this [link]\` is not a link
+ *
+ * code:code
+ *  Links [link] and images [https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg] in code blocks should be ignored
+ *
+ *    ? Need help with setup!!
+ *
+ *    table:infobox
+ *     Name	[scrapbox.icon]
+ *     Address	Add [link2] here
+ *     Phone	Adding # won't create a link
+ *     Strengths	List about 3 items
+ *
+ * \#hashtag is recommended
+ * [/forum-en] links should be excluded
+ *  [/help-en/] too
+ *  [/icons/example.icon][takker.icon]
+ * [/help-en/external-link]
+ *
+ * Prepare thumbnail
+ * [https://scrapbox.io/files/65f29c24974fd8002333b160.svg]
+ *
+ * [https://scrapbox.io/files/65e7f4413bc95600258481fb.svg https://scrapbox.io/files/65e7f82e03949c0024a367d0.svg]`;
+ *
+ * assertEquals(getPageMetadataFromLines(text), [
+ *   "test page",
+ *   [
+ *     "normal",
+ *     "link2",
+ *     "hashtag",
+ *   ],
+ *   [
+ *     "/help-en/external-link",
+ *   ],
+ *   [
+ *     "scrapbox",
+ *     "takker",
+ *   ],
+ *   "https://scrapbox.io/files/65f29c24974fd8002333b160.svg",
+ *   [
+ *     "[normal]link",
+ *     "but `this [link]` is not a link",
+ *     "`Links [link] and images [https://scrapbox.io/files/65f29c0c9045b5002522c8bb.svg] in code blocks should be ignored`",
+ *     "`? Need help with setup!!`",
+ *     "#hashtag is recommended",
+ *   ],
+ *   [
+ *     "65f29c24974fd8002333b160",
+ *     "65e7f82e03949c0024a367d0",
+ *     "65e7f4413bc95600258481fb",
+ *   ],
+ *   [
+ *     "Need help with setup!!",
+ *   ],
+ *   [
+ *     "Name\t[scrapbox.icon]",
+ *     "Address\tAdd [link2] here",
+ *     "Phone\tAdding # won't create a link",
+ *     "Strengths\tList about 3 items",
+ *   ],
+ *   25,
+ *   659,
+ * ]);
+ * ```
+ *
+ * @param text - Raw text content of a Scrapbox page
+ * @returns A tuple containing `[links, projectLinks, icons, image, files, helpfeels, infoboxDefinition]`
  * - links: Regular page links and hashtags
  * - projectLinks: Links to pages in other projects
  * - icons: User icons and decorative icons
- * - image: First image or YouTube thumbnail for page preview
+ * - image: First image or YouTube thumbnail for page preview, which can be null if no suitable preview image is found
  * - files: Attached file IDs
  * - helpfeels: Questions or help requests (lines starting with "?")
  * - infoboxDefinition: Structured data from infobox tables
- *
- * @param text - Raw text content of a Scrapbox page
- * @returns A tuple containing [links, projectLinks, icons, image, files, helpfeels, infoboxDefinition]
- *          where image can be null if no suitable preview image is found
  */
 export const getPageMetadataFromLines = (
   text: string,
@@ -212,14 +278,3 @@ const makeInlineCodeForDescription = (text: string): `\`${string}\`` =>
   `\`${text.trim().replaceAll("`", "\\`").slice(0, 198)}\``;
 
 const cutId = (link: string): string => link.replace(/#[a-f\d]{24,32}$/, "");
-
-/** Extract Helpfeel entries from text
- *
- * Helpfeel is a Scrapbox notation for questions and help requests.
- * Lines starting with "?" are considered Helpfeel entries and are
- * used to collect questions and support requests within a project.
- */
-export const getHelpfeels = (lines: Pick<BaseLine, "text">[]): string[] =>
-  lines.flatMap(({ text }) =>
-    /^\s*\? .*$/.test(text) ? [text.trimStart().slice(2)] : []
-  );

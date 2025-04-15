@@ -1,12 +1,10 @@
 import { diffToChanges } from "./diffToChanges.ts";
 import type { Page } from "@cosense/types/rest";
 import type { ChangeToPush } from "@cosense/types/websocket";
-import {
-  getHelpfeels,
-  getPageMetadataFromLines,
-} from "./getPageMetadataFromLines.ts";
+import { getPageMetadataFromLines } from "./getPageMetadataFromLines.ts";
 import { isSameArray } from "./isSameArray.ts";
 import { isString } from "@core/unknownutil/is/string";
+import { getHelpfeels } from "./getHelpfeels.ts";
 
 export function* makeChanges(
   before: Page,
