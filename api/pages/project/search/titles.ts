@@ -14,7 +14,11 @@ import {
   type TypedError,
 } from "../../../../error.ts";
 
-/** Options for {@linkcode get} */
+/**
+ * Options for {@linkcode get}
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ */
 export interface GetLinksOptions<R extends Response | undefined>
   extends BaseOptions<R> {
   /** ID indicating the next list of links */
@@ -22,6 +26,8 @@ export interface GetLinksOptions<R extends Response | undefined>
 }
 
 /** Create a request to `GET /api/pages/:project/search/titles`
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project to get the links from
  * @param options - Additional configuration options
@@ -42,6 +48,8 @@ export const makeGetRequest = <R extends Response | undefined>(
 };
 
 /** Retrieve link data from a specified Scrapbox project
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * This function fetches link data from a project, supporting pagination through
  * the {@linkcode GetLinksOptions.followingId} parameter. It returns both the link data and the next
@@ -76,6 +84,8 @@ export const get = <R extends Response | undefined = Response>(
   >;
 
 /** Retrieve all link data from a specified project one by one
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project name to list pages from
  * @param options Additional configuration options for the request

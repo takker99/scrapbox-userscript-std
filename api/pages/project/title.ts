@@ -9,7 +9,11 @@ import { type BaseOptions, setDefaults } from "../../../util.ts";
 import { encodeTitleURI } from "../../../title.ts";
 import { cookie } from "../../../rest/auth.ts";
 
-/** Options for {@linkcode getPage} */
+/**
+ * Options for {@linkcode getPage}
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ */
 export interface GetPageOption<R extends Response | undefined>
   extends BaseOptions<R> {
   /** use `followRename` */
@@ -20,6 +24,8 @@ export interface GetPageOption<R extends Response | undefined>
 }
 
 /** Constructs a request for the `/api/pages/:project/:title` endpoint
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project name containing the desired page
  * @param title The page title to retrieve (case insensitive)
@@ -45,6 +51,8 @@ export const makeGetRequest = <R extends Response | undefined>(
 };
 
 /** Retrieves JSON data for a specified page
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project name containing the desired page
  * @param title The page title to retrieve (case insensitive)

@@ -10,6 +10,8 @@ import { get } from "../../../users/me.ts";
 
 /** Constructs a request for the `/api/pages/:project/replace/links` endpoint
  *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ *
  * @param project - The project name where all links will be replaced
  * @param from - The original link text to be replaced
  * @param to - The new link text to replace with
@@ -39,6 +41,8 @@ export const makePostRequest = <R extends Response | undefined>(
 };
 
 /** Retrieves JSON data for a specified page
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project - The project name where all links will be replaced
  * @param from - The original link text to be replaced

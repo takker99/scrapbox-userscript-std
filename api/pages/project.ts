@@ -21,7 +21,10 @@ import { pooledMap } from "@std/async/pool";
 import { range } from "@core/iterutil/range";
 import { flatten } from "@core/iterutil/async/flatten";
 
-/** Options for {@linkcode get} */
+/** Options for {@linkcode get}
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ */
 export interface ListPagesOption<R extends Response | undefined>
   extends BaseOptions<R> {
   /** the sort of page list to return
@@ -58,6 +61,8 @@ export interface ListPagesOption<R extends Response | undefined>
 
 /** Constructs a request for the `/api/pages/:project` endpoint
  *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ *
  * @param project The project name to list pages from
  * @param options - Additional configuration options (sorting, pagination, etc.)
  * @returns A {@linkcode Request} object for fetching pages data
@@ -85,6 +90,8 @@ export const makeGetRequest = <R extends Response | undefined>(
 };
 
 /** Lists pages from a specified project
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project name to list pages from
  * @param options Configuration options for pagination and sorting
@@ -117,7 +124,11 @@ export const get = <R extends Response | undefined = Response>(
     }, R>
   >;
 
-/** Options for {@linkcode list} */
+/**
+ * Options for {@linkcode list}
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ */
 export interface ListPagesStreamOption<R extends Response | undefined>
   extends ListPagesOption<R> {
   /** The number of requests to make concurrently
@@ -129,6 +140,8 @@ export interface ListPagesStreamOption<R extends Response | undefined>
 
 /**
  * Lists pages from a given `project` with pagination
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param project The project name to list pages from
  * @param options Configuration options for pagination and sorting

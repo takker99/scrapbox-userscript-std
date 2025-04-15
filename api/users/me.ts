@@ -8,6 +8,8 @@ import { cookie } from "../../rest/auth.ts";
  * This endpoint retrieves the current user's profile information,
  * which can be either a {@linkcode MemberUser} or {@linkcode GuestUser} profile.
  *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
+ *
  * @param init - Options including `connect.sid` (session ID) and other configuration
  * @returns A {@linkcode Request} object for fetching user profile data
  */
@@ -22,6 +24,8 @@ export const makeGetRequest = <R extends Response | undefined>(
 };
 
 /** get the user profile
+ *
+ * @experimental **UNSTABLE**: New API, yet to be vetted.
  *
  * @param init - Options including `connect.sid` (session ID) and other configuration
  * @returns A {@linkcode Response} object containing the user profile data
