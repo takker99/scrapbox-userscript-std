@@ -1,8 +1,6 @@
 // deno-lint-ignore-file no-irregular-whitespace
-/** Convert a string to titleLc format
- *
- * -
- * - Converts uppercase to lowercase
+/**
+ * Convert a string to titleLc format
  *
  * Primarily used for comparing links for equality
  *
