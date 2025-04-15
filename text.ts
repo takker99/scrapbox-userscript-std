@@ -1,6 +1,16 @@
+// deno-lint-ignore-file no-irregular-whitespace
 import { isString } from "@core/unknownutil/is/string";
 
 /** Count the number of leading whitespace characters (indentation level)
+ *
+ * ```ts
+ * import { assertEquals } from "@std/assert/equals";
+ *
+ * assertEquals(getIndentCount("sample text "), 0);
+ * assertEquals(getIndentCount("  sample text "), 2);
+ * assertEquals(getIndentCount("　　 sample text"), 3);
+ * assertEquals(getIndentCount("\t \t　　sample text"), 5);
+ * ```
  *
  * @param text - The input {@linkcode string} to analyze
  * @returns The {@linkcode number} of leading whitespace characters
