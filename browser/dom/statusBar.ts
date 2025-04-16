@@ -1,6 +1,6 @@
 import { statusBar } from "./dom.ts";
 
-export interface UseStatusBarResult {
+export interface UseStatusBarResult extends Disposable {
   /** Display information in the acquired status bar section
    *
    * @param items - Array of items to display (text, icons, or groups)
@@ -31,6 +31,7 @@ export const useStatusBar = (): UseStatusBarResult => {
       if (child) status.append(child);
     },
     dispose: () => status.remove(),
+    [Symbol.dispose]: () => status.remove(),
   };
 };
 
