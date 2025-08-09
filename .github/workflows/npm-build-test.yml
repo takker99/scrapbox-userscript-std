@@ -3,6 +3,7 @@ name: npm-build-test
 env:
   DENO_VERSION: 2.x
   NODE_VERSION: 20.x
+  DENO_TLS_CA_STORE: system
 
 on:
   pull_request:

@@ -2,6 +2,7 @@ name: ci
 
 env:
   DENO_VERSION: 2.x
+  DENO_TLS_CA_STORE: system
 
 on: [push, pull_request]
 
