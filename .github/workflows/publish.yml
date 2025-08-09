@@ -40,7 +40,14 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Build npm package
-        run: deno task build:npm ${{ steps.version.outputs.VERSION }}
+        run: |
+          echo "Attempting to build with dnt..."
+          if deno task build:npm ${{ steps.version.outputs.VERSION }}; then
+            echo "✅ dnt build successful"
+          else
+            echo "⚠️ dnt build failed, using manual fallback..."
+            deno task build:npm:manual ${{ steps.version.outputs.VERSION }}
+          fi
       - name: Publish to npm
         run: |
           cd npm

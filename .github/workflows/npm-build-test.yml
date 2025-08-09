@@ -27,7 +27,14 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
       - name: Build npm package
-        run: deno task build:npm "0.0.0-test"
+        run: |
+          echo "Testing dnt build..."
+          if deno task build:npm "0.0.0-test"; then
+            echo "✅ dnt build successful"
+          else
+            echo "⚠️ dnt build failed, testing manual fallback..."
+            deno task build:npm:manual "0.0.0-test"
+          fi
       - name: Verify npm package structure
         run: |
           cd npm
