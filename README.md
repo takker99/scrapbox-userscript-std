@@ -1,6 +1,7 @@
 # scrapbox-userscript-std
 
 [![JSR](https://jsr.io/badges/@cosense/std)](https://jsr.io/@cosense/std)
+[![npm](https://img.shields.io/npm/v/@cosense/std)](https://www.npmjs.com/package/@cosense/std)
 [![test](https://github.com/takker99/scrapbox-userscript-std/workflows/ci/badge.svg)](https://github.com/takker99/scrapbox-userscript-std/actions?query=workflow%3Aci)
 
 UNOFFICIAL standard module for Scrapbox UserScript
@@ -13,6 +14,10 @@ Scrapbox's features, including REST API operations, browser interactions, and
 common utilities.
 
 ### Installation
+
+This library supports both JSR (JavaScript Registry) and npm installation methods.
+
+#### Option 1: JSR (Recommended for Deno projects)
 
 1. Bundler Configuration This library is distributed through JSR (JavaScript
    Registry) and requires a bundler configuration. Follow these steps:
@@ -33,6 +38,26 @@ import { parseAbsoluteLink } from "jsr:@cosense/std";
 import { getLinks } from "jsr:@cosense/std/rest";
 import { press } from "jsr:@cosense/std/browser/dom";
 import { getLines } from "jsr:@cosense/std/browser/dom";
+```
+
+#### Option 2: npm (For Node.js projects)
+
+1. Install via npm:
+
+```bash
+npm install @cosense/std
+```
+
+2. Import the library:
+
+```typescript
+// ESM syntax (recommended)
+import { getPage } from "@cosense/std/rest";
+import { parseAbsoluteLink } from "@cosense/std";
+
+// CommonJS syntax
+const { getPage } = require("@cosense/std/rest");
+const { parseAbsoluteLink } = require("@cosense/std");
 ```
 
 2. Module Organization The library is organized into the following main modules:
@@ -58,7 +83,10 @@ import { getLines } from "jsr:@cosense/std/browser/dom";
 
 ```typescript
 // Get page content and metadata
+// JSR import
 import { getPage } from "jsr:@cosense/std/rest";
+// npm import
+// import { getPage } from "@cosense/std/rest";
 
 const result = await getPage("projectName", "pageName");
 if (result.ok) {
@@ -73,7 +101,10 @@ if (result.ok) {
 
 ```typescript
 // Interact with the current page's content
+// JSR import
 import { getLines, press } from "jsr:@cosense/std/browser/dom";
+// npm import
+// import { getLines, press } from "@cosense/std/browser/dom";
 
 // Get all lines from the current page
 const lines = getLines();
@@ -88,8 +119,12 @@ await press("Tab"); // Indent the line
 
 ```typescript
 // Parse external links (YouTube, Spotify, etc.)
+// JSR import
 import { parseAbsoluteLink } from "jsr:@cosense/std";
 import type { LinkNode } from "@progfay/scrapbox-parser";
+// npm import
+// import { parseAbsoluteLink } from "@cosense/std";
+// import type { LinkNode } from "@progfay/scrapbox-parser";
 
 // Create a link node with absolute path type
 const link = {

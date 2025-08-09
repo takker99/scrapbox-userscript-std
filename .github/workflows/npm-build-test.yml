@@ -1,0 +1,39 @@
+name: npm-build-test
+
+env:
+  DENO_VERSION: 2.x
+  NODE_VERSION: 20.x
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/build_npm.ts'
+      - 'package.json'
+      - 'deno.jsonc'
+      - '.github/workflows/publish.yml'
+      - '.github/workflows/npm-build-test.yml'
+  workflow_dispatch:
+
+jobs:
+  test-npm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+      - name: Build npm package
+        run: deno task build:npm "0.0.0-test"
+      - name: Verify npm package structure
+        run: |
+          cd npm
+          echo "Package structure:"
+          find . -type f -name "*.js" -o -name "*.d.ts" -o -name "package.json" | head -20
+          echo "Package.json content:"
+          cat package.json | head -30
+          echo "Testing package installation..."
+          npm pack --dry-run
