@@ -6,7 +6,7 @@ import type {
 import type { ResponseOfEndpoint } from "../../../../targeted_response.ts";
 import { type ExtendedOptions, setDefaults } from "../../../../util.ts";
 import { cookie } from "../../../../rest/auth.ts";
-import { get } from "../../../users/me.ts";
+import { getUser } from "../../../users/me.ts";
 
 /** Constructs a request for the `/api/pages/:project/replace/links` endpoint
  *
@@ -18,7 +18,7 @@ import { get } from "../../../users/me.ts";
  * @param init - Additional configuration options
  * @returns A {@linkcode Request} object for replacing links in `project`
  */
-export const makePostRequest = <R extends Response | undefined>(
+export const makeReplaceLinksRequest = <R extends Response | undefined>(
   project: string,
   from: string,
   to: string,
@@ -55,7 +55,7 @@ export const makePostRequest = <R extends Response | undefined>(
  *            - {@linkcode NotLoggedInError}: Authentication required
  *            - {@linkcode NotMemberError}: User lacks access
  */
-export const post = async <R extends Response | undefined = Response>(
+export const replaceLinks = async <R extends Response | undefined = Response>(
   project: string,
   from: string,
   to: string,
@@ -71,13 +71,13 @@ export const post = async <R extends Response | undefined = Response>(
   let { csrf, fetch, ...init2 } = setDefaults(init ?? {});
 
   if (!csrf) {
-    const res = await get(init2);
+    const res = await getUser(init2);
     if (!res.ok) return res;
     csrf = (await res.json()).csrfToken;
   }
 
   return fetch(
-    makePostRequest(project, from, to, { csrf, ...init2 }),
+    makeReplaceLinksRequest(project, from, to, { csrf, ...init2 }),
   ) as Promise<
     ResponseOfEndpoint<{
       200: string;

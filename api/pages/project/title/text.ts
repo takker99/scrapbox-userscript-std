@@ -9,7 +9,7 @@ import { encodeTitleURI } from "../../../../title.ts";
 import { cookie } from "../../../../rest/auth.ts";
 
 /**
- * Options for {@linkcode get}
+ * Options for {@linkcode getText}
  *
  * @experimental **UNSTABLE**: New API, yet to be vetted.
  */
@@ -28,7 +28,7 @@ export interface GetTextOption<R extends Response | undefined>
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching page data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeGetTextRequest = <R extends Response | undefined>(
   project: string,
   title: string,
   options?: GetTextOption<R>,
@@ -52,7 +52,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  * @param options Additional configuration options for the request
  * @returns A {@linkcode Response} object containing the page text
  */
-export const get = <R extends Response | undefined = Response>(
+export const getText = <R extends Response | undefined = Response>(
   project: string,
   title: string,
   options?: GetTextOption<R>,
@@ -65,7 +65,7 @@ export const get = <R extends Response | undefined = Response>(
   }, R>
 > =>
   setDefaults(options ?? {}).fetch(
-    makeGetRequest(project, title, options),
+    makeGetTextRequest(project, title, options),
   ) as Promise<
     ResponseOfEndpoint<{
       200: string;

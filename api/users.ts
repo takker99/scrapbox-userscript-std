@@ -1,1 +1,1 @@
-export * as me from "./users/me.ts";
+export * from "./users/me.ts";

@@ -32,7 +32,7 @@ export interface GetPageOption<R extends Response | undefined>
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching page data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeGetPageRequest = <R extends Response | undefined>(
   project: string,
   title: string,
   options?: GetPageOption<R>,
@@ -64,7 +64,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  *            - {@linkcode NotLoggedInError}: Authentication required
  *            - {@linkcode NotMemberError}: User lacks access
  */
-export const get = <R extends Response | undefined = Response>(
+export const getPage = <R extends Response | undefined = Response>(
   project: string,
   title: string,
   options?: GetPageOption<R>,
@@ -77,7 +77,7 @@ export const get = <R extends Response | undefined = Response>(
   }, R>
 > =>
   setDefaults(options ?? {}).fetch(
-    makeGetRequest(project, title, options),
+    makeGetPageRequest(project, title, options),
   ) as Promise<
     ResponseOfEndpoint<{
       200: Page;
@@ -87,5 +87,5 @@ export const get = <R extends Response | undefined = Response>(
     }, R>
   >;
 
-export * as text from "./title/text.ts";
-export * as icon from "./title/icon.ts";
+export * from "./title/text.ts";
+export * from "./title/icon.ts";

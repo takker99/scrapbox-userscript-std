@@ -17,7 +17,7 @@ import { cookie } from "../../../../rest/auth.ts";
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching page data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeSearchForPagesRequest = <R extends Response | undefined>(
   project: string,
   query: string,
   options?: BaseOptions<R>,
@@ -41,7 +41,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  * @param options Additional configuration options for the request
  * @returns A {@linkcode Response} object containing the search results
  */
-export const get = <R extends Response | undefined = Response>(
+export const searchForPages = <R extends Response | undefined = Response>(
   project: string,
   query: string,
   options?: BaseOptions<R>,
@@ -55,7 +55,7 @@ export const get = <R extends Response | undefined = Response>(
   }, R>
 > =>
   setDefaults(options ?? {}).fetch(
-    makeGetRequest(project, query, options),
+    makeSearchForPagesRequest(project, query, options),
   ) as Promise<
     ResponseOfEndpoint<{
       200: SearchResult;
