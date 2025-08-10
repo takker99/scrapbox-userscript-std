@@ -1,1 +1,1 @@
-export * as project from "./pages/project.ts";
+export * from "./pages/project.ts";

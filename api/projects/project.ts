@@ -17,7 +17,7 @@ import { cookie } from "../../rest/auth.ts";
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching project data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeGetProjectRequest = <R extends Response | undefined>(
   project: string,
   options?: BaseOptions<R>,
 ): Request => {
@@ -41,7 +41,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  * @param options Additional configuration options for the request
  * @returns A {@linkcode Response} object containing the project data
  */
-export const get = <R extends Response | undefined = Response>(
+export const getProject = <R extends Response | undefined = Response>(
   project: string,
   options?: BaseOptions<R>,
 ): Promise<
@@ -53,7 +53,7 @@ export const get = <R extends Response | undefined = Response>(
   }, R>
 > =>
   setDefaults(options ?? {}).fetch(
-    makeGetRequest(project, options),
+    makeGetProjectRequest(project, options),
   ) as Promise<
     ResponseOfEndpoint<{
       200: MemberProject | NotMemberProject;
