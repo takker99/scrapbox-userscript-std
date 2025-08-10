@@ -34,6 +34,9 @@
     "./unstable-api/pages/projects/project": "./api/projects/project.ts",
     "./unstable-api/pages/project/title/text": "./api/pages/project/title/text.ts",
     "./unstable-api/pages/project/title/icon": "./api/pages/project/title/icon.ts",
+    "./unstable-api/pages/smart-context": "./api/smart-context.ts",
+    "./unstable-api/pages/smart-context/export-1hop-links": "./api/smart-context/export-1hop-links/project.ts",
+    "./unstable-api/pages/smart-context/export-2hop-links": "./api/smart-context/export-2hop-links/project.ts",
     "./unstable-api/users": "./api/users.ts",
     "./unstable-api/users/me": "./api/users/me.ts"
   },

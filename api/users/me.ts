@@ -13,7 +13,7 @@ import { cookie } from "../../rest/auth.ts";
  * @param init - Options including `connect.sid` (session ID) and other configuration
  * @returns A {@linkcode Request} object for fetching user profile data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeGetUserRequest = <R extends Response | undefined>(
   init?: BaseOptions<R>,
 ): Request => {
   const { sid, baseURL } = setDefaults(init ?? {});
@@ -30,11 +30,11 @@ export const makeGetRequest = <R extends Response | undefined>(
  * @param init - Options including `connect.sid` (session ID) and other configuration
  * @returns A {@linkcode Response} object containing the user profile data
  */
-export const get = <R extends Response | undefined = Response>(
+export const getUser = <R extends Response | undefined = Response>(
   init?: BaseOptions<R>,
 ): Promise<
   ResponseOfEndpoint<{ 200: MemberUser | GuestUser }, R>
 > =>
   setDefaults(init ?? {}).fetch(
-    makeGetRequest(init),
+    makeGetUserRequest(init),
   ) as Promise<ResponseOfEndpoint<{ 200: MemberUser | GuestUser }, R>>;

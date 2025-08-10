@@ -1,1 +1,1 @@
-export * as project from "./projects/project.ts";
+export * from "./projects/project.ts";

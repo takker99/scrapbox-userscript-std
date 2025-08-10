@@ -21,7 +21,7 @@ import { pooledMap } from "@std/async/pool";
 import { range } from "@core/iterutil/range";
 import { flatten } from "@core/iterutil/async/flatten";
 
-/** Options for {@linkcode get}
+/** Options for {@linkcode listPages}
  *
  * @experimental **UNSTABLE**: New API, yet to be vetted.
  */
@@ -102,7 +102,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  *            - {@linkcode NotLoggedInError}: Authentication required
  *            - {@linkcode NotMemberError}: User lacks access
  */
-export const get = <R extends Response | undefined = Response>(
+export const listPages = <R extends Response | undefined = Response>(
   project: string,
   options?: ListPagesOption<R>,
 ): Promise<
@@ -125,7 +125,7 @@ export const get = <R extends Response | undefined = Response>(
   >;
 
 /**
- * Options for {@linkcode list}
+ * Options for {@linkcode listPagesStream}
  *
  * @experimental **UNSTABLE**: New API, yet to be vetted.
  */
@@ -147,7 +147,7 @@ export interface ListPagesStreamOption<R extends Response | undefined>
  * @param options Configuration options for pagination and sorting
  * @throws {HTTPError | TypedError<"NotLoggedInError" | "NotMemberError" | "NotFoundError">} If any requests in the pagination sequence fail
  */
-export async function* list(
+export async function* listPagesStream(
   project: string,
   options?: ListPagesStreamOption<Response>,
 ): AsyncGenerator<BasePage, void, unknown> {
@@ -156,7 +156,7 @@ export async function* list(
     skip: options?.skip ?? 0,
     limit: options?.limit ?? 100,
   };
-  const response = await ensureResponse(await get(project, props));
+  const response = await ensureResponse(await listPages(project, props));
   const list = await response.json();
   yield* list.pages;
 
@@ -170,7 +170,7 @@ export async function* list(
       range(0, times - 1),
       async (i) => {
         const response = await ensureResponse(
-          await get(project, { ...props, skip: skip + i * limit, limit }),
+          await listPages(project, { ...props, skip: skip + i * limit, limit }),
         );
         const list = await response.json();
         return list.pages;
@@ -203,6 +203,6 @@ const ensureResponse = async (
   }
 };
 
-export * as replace from "./project/replace.ts";
-export * as search from "./project/search.ts";
-export * as title from "./project/title.ts";
+export * from "./project/replace.ts";
+export * from "./project/search.ts";
+export * from "./project/title.ts";
