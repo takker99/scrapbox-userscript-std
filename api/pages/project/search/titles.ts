@@ -15,7 +15,7 @@ import {
 } from "../../../../error.ts";
 
 /**
- * Options for {@linkcode get}
+ * Options for {@linkcode getLinks}
  *
  * @experimental **UNSTABLE**: New API, yet to be vetted.
  */
@@ -33,7 +33,7 @@ export interface GetLinksOptions<R extends Response | undefined>
  * @param options - Additional configuration options
  * @returns A {@linkcode Request} object for fetching link data
  */
-export const makeGetRequest = <R extends Response | undefined>(
+export const makeGetLinksRequest = <R extends Response | undefined>(
   project: string,
   options?: GetLinksOptions<R>,
 ): Request => {
@@ -59,7 +59,7 @@ export const makeGetRequest = <R extends Response | undefined>(
  * @param options Additional configuration options for the request
  * @returns A {@linkcode Response} object containing the link data
  */
-export const get = <R extends Response | undefined = Response>(
+export const getLinks = <R extends Response | undefined = Response>(
   project: string,
   options?: GetLinksOptions<R>,
 ): Promise<
@@ -72,7 +72,7 @@ export const get = <R extends Response | undefined = Response>(
   }, R>
 > =>
   setDefaults(options ?? {}).fetch(
-    makeGetRequest(project, options),
+    makeGetLinksRequest(project, options),
   ) as Promise<
     ResponseOfEndpoint<{
       200: SearchedTitle[];
@@ -92,13 +92,13 @@ export const get = <R extends Response | undefined = Response>(
  * @returns An async generator that yields each link data
  * @throws {TypedError<"NotLoggedInError" | "NotMemberError" | "NotFoundError" | "InvalidFollowingIdError"> | HTTPError}
  */
-export async function* list(
+export async function* getLinksStream(
   project: string,
   options?: GetLinksOptions<Response>,
 ): AsyncGenerator<SearchedTitle, void, unknown> {
   let followingId = options?.followingId ?? "";
   do {
-    const response = await get(project, { ...options, followingId });
+    const response = await getLinks(project, { ...options, followingId });
     switch (response.status) {
       case 200:
         break;
