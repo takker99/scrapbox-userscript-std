@@ -6,7 +6,7 @@
 
 UNOFFICIAL standard module for Scrapbox UserScript
 
-> **Node.js & npm Notice (since vX.Y.Z)**
+> **Node.js & npm Notice (since 0.30.0)**
 >
 > Now also published on **[npm](https://www.npmjs.com/package/@cosense/std)**.
 >
