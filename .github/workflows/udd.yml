@@ -2,6 +2,7 @@ name: update
 
 env:
   DENO_VERSION: 2.x
+  DENO_TLS_CA_STORE: system
 
 on:
   schedule:
