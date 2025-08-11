@@ -3,15 +3,30 @@
   "specifiers": {
     "jsr:@core/iterutil@0.9": "0.9.0",
     "jsr:@core/unknownutil@4": "4.3.0",
-    "jsr:@cosense/types@0.10": "0.10.10",
-    "jsr:@cosense/types@~0.10.7": "0.10.10",
-    "jsr:@progfay/scrapbox-parser@9": "9.2.0",
-    "jsr:@std/async@^1.0.11": "1.0.14",
+    "jsr:@cosense/types@0.11": "0.11.0",
+    "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
+    "jsr:@deno/dnt@~0.42.3": "0.42.3",
+    "jsr:@progfay/scrapbox-parser@^10.0.1": "10.0.1",
+    "jsr:@std/assert@1": "1.0.13",
+    "jsr:@std/assert@^1.0.13": "1.0.13",
+    "jsr:@std/async@^1.0.14": "1.0.14",
     "jsr:@std/encoding@1": "1.0.10",
+    "jsr:@std/fmt@1": "1.0.8",
+    "jsr:@std/fs@1": "1.0.19",
+    "jsr:@std/fs@^1.0.19": "1.0.19",
+    "jsr:@std/http@^1.0.13": "1.0.20",
+    "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/internal@^1.0.6": "1.0.10",
+    "jsr:@std/internal@^1.0.9": "1.0.10",
     "jsr:@std/json@1": "1.0.2",
+    "jsr:@std/path@1": "1.1.1",
+    "jsr:@std/path@^1.1.1": "1.1.1",
     "jsr:@std/streams@^1.0.9": "1.0.10",
+    "jsr:@std/testing@^1.0.9": "1.0.15",
     "jsr:@takker/md5@0.1": "0.1.0",
-    "npm:option-t@51": "51.1.1",
+    "jsr:@ts-morph/bootstrap@0.27": "0.27.0",
+    "jsr:@ts-morph/common@0.27": "0.27.0",
+    "npm:option-t@53": "53.0.0",
     "npm:socket.io-client@^4.7.5": "4.8.1"
   },
   "jsr": {
@@ -21,11 +36,30 @@
     "@core/unknownutil@4.3.0": {
       "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
     },
-    "@cosense/types@0.10.10": {
-      "integrity": "16575916902f22a7d401edbd2305324cfcb378aa2bc39a4fef7ba81a1c84a0a1"
+    "@cosense/types@0.11.0": {
+      "integrity": "6e1d8768b1be162e635ec0c611092b49c528a623ef3e73c7cd95acab04ba2c10"
     },
-    "@progfay/scrapbox-parser@9.2.0": {
-      "integrity": "82ebb95e72dd0ea44547fd48e2bcb479fd2275fc26c4515598f742e5aaf6e0e5"
+    "@david/code-block-writer@13.0.3": {
+      "integrity": "f98c77d320f5957899a61bfb7a9bead7c6d83ad1515daee92dbacc861e13bb7f"
+    },
+    "@deno/dnt@0.42.3": {
+      "integrity": "62a917a0492f3c8af002dce90605bb0d41f7d29debc06aca40dba72ab65d8ae3",
+      "dependencies": [
+        "jsr:@david/code-block-writer",
+        "jsr:@std/fmt",
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1",
+        "jsr:@ts-morph/bootstrap"
+      ]
+    },
+    "@progfay/scrapbox-parser@10.0.1": {
+      "integrity": "5b3983ef2cebe5c6b3f0bfb9f5a8a0d1e992f3d2de44e560bfe0628a8344eef1"
+    },
+    "@std/assert@1.0.13": {
+      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.6"
+      ]
     },
     "@std/async@1.0.14": {
       "integrity": "62e954a418652c704d37563a3e54a37d4cf0268a9dcaeac1660cc652880b5326"
@@ -33,17 +67,61 @@
     "@std/encoding@1.0.10": {
       "integrity": "8783c6384a2d13abd5e9e87a7ae0520a30e9f56aeeaa3bdf910a3eaaf5c811a1"
     },
+    "@std/fmt@1.0.8": {
+      "integrity": "71e1fc498787e4434d213647a6e43e794af4fd393ef8f52062246e06f7e372b7"
+    },
+    "@std/fs@1.0.19": {
+      "integrity": "051968c2b1eae4d2ea9f79a08a3845740ef6af10356aff43d3e2ef11ed09fb06",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.9",
+        "jsr:@std/path@^1.1.1"
+      ]
+    },
+    "@std/http@1.0.20": {
+      "integrity": "b5cc33fc001bccce65ed4c51815668c9891c69ccd908295997e983d8f56070a1"
+    },
+    "@std/internal@1.0.10": {
+      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    },
     "@std/json@1.0.2": {
       "integrity": "d9e5497801c15fb679f55a2c01c7794ad7a5dfda4dd1bebab5e409cb5e0d34d4",
       "dependencies": [
         "jsr:@std/streams"
       ]
     },
+    "@std/path@1.1.1": {
+      "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.9"
+      ]
+    },
     "@std/streams@1.0.10": {
       "integrity": "75c0b1431873cd0d8b3d679015220204d36d3c7420d93b60acfc379eb0dc30af"
     },
+    "@std/testing@1.0.15": {
+      "integrity": "a490169f5ccb0f3ae9c94fbc69d2cd43603f2cffb41713a85f99bbb0e3087cbc",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.13",
+        "jsr:@std/fs@^1.0.19",
+        "jsr:@std/internal@^1.0.10",
+        "jsr:@std/path@^1.1.1"
+      ]
+    },
     "@takker/md5@0.1.0": {
       "integrity": "4c423d8247aadf7bcb1eb83c727bf28c05c21906e916517395d00aa157b6eae0"
+    },
+    "@ts-morph/bootstrap@0.27.0": {
+      "integrity": "b8d7bc8f7942ce853dde4161b28f9aa96769cef3d8eebafb379a81800b9e2448",
+      "dependencies": [
+        "jsr:@ts-morph/common"
+      ]
+    },
+    "@ts-morph/common@0.27.0": {
+      "integrity": "c7b73592d78ce8479b356fd4f3d6ec3c460d77753a8680ff196effea7a939052",
+      "dependencies": [
+        "jsr:@std/fs@1",
+        "jsr:@std/path@1"
+      ]
     }
   },
   "npm": {
@@ -72,8 +150,8 @@
     "ms@2.1.3": {
       "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
     },
-    "option-t@51.1.1": {
-      "integrity": "sha512-Ww13j9NVqnGpxsaSr1y0o35Xq1WcopAeJkAbk9DWlKRBgFKYLuJwEU1GzWUtkhBhRQY0st5kfdtT02JO6YqEEw=="
+    "option-t@53.0.0": {
+      "integrity": "sha512-qsyo1cFXfUN1MVnxTrpcy+V4tJYEBvEQmeiDkC6m5W/V2JiNfs4V/qXmDGZg4k9XRR1EWkv3jT8TXSZnhGPBLA=="
     },
     "socket.io-client@4.8.1": {
       "integrity": "sha512-hJVXfu3E28NmzGk8o1sHhN3om52tRvwYeidbj7xKy2eIIse5IoKX3USlS6Tqt3BHAtflLIkCQBkzVrEEfWUyYQ==",
@@ -102,18 +180,17 @@
     "dependencies": [
       "jsr:@core/iterutil@0.9",
       "jsr:@core/unknownutil@4",
-      "jsr:@cosense/types@0.10",
-      "jsr:@cosense/types@~0.10.7",
-      "jsr:@progfay/scrapbox-parser@9",
+      "jsr:@cosense/types@0.11",
+      "jsr:@deno/dnt@~0.42.3",
+      "jsr:@progfay/scrapbox-parser@^10.0.1",
       "jsr:@std/assert@1",
-      "jsr:@std/async@^1.0.11",
+      "jsr:@std/async@^1.0.14",
       "jsr:@std/encoding@1",
       "jsr:@std/http@^1.0.13",
       "jsr:@std/json@1",
-      "jsr:@std/testing@1",
       "jsr:@std/testing@^1.0.9",
       "jsr:@takker/md5@0.1",
-      "npm:option-t@51",
+      "npm:option-t@53",
       "npm:socket.io-client@^4.7.5"
     ]
   }

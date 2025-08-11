@@ -1,8 +1,19 @@
-#!/usr/bin/env -S deno run -A
-
-import { build, emptyDir } from "https://deno.land/x/dnt@0.40.0/mod.ts";
+import { build, emptyDir } from "@deno/dnt";
 
 await emptyDir("./npm");
+
+// Replace jsr packages with corresponding npm packages
+await Deno.copyFile("./deno.jsonc", "./deno_node.jsonc");
+await using stack = new AsyncDisposableStack();
+stack.defer(() => Deno.remove("./deno_node.jsonc").catch(() => {}));
+
+await Deno.writeTextFile(
+  "./deno_node.jsonc",
+  (await Deno.readTextFile("./deno.jsonc")).replace(
+    "jsr:@progfay/scrapbox-parser",
+    "npm:@progfay/scrapbox-parser",
+  ),
+);
 
 await build({
   entryPoints: [
@@ -12,7 +23,7 @@ await build({
       path: "./browser/mod.ts",
     },
     {
-      name: "./browser/dom", 
+      name: "./browser/dom",
       path: "./browser/dom/mod.ts",
     },
     {
@@ -101,14 +112,11 @@ await build({
     },
   ],
   outDir: "./npm",
-  shims: {
-    // see JS docs for overview and more options
-    deno: true,
-  },
+  shims: { deno: "dev" },
   package: {
     // package.json properties
     name: "@cosense/std",
-    version: Deno.args[0] ?? "0.0.0",
+    version: Deno.env.get("VERSION") ?? "0.0.0",
     description: "UNOFFICIAL standard module for Scrapbox UserScript",
     author: "takker99",
     license: "MIT",
@@ -124,29 +132,39 @@ await build({
       "scrapbox",
       "userscript",
       "typescript",
-      "deno"
+      "deno",
     ],
     engines: {
       node: ">=16.0.0",
     },
   },
-  // Don't use import map for npm build to avoid JSR dependency conflicts
-  // importMap: "./deno.jsonc",
-  
-  // Disable tests for npm build as they're Deno-specific
-  test: false,
-  // Don't run type checking during build to avoid JSR dependency issues
+  configFile: new URL("../deno_node.jsonc", import.meta.url).href,
+  // Don't run type checking during build to avoid Node.js compatibility issues
   typeCheck: false,
-  declaration: "inline",
-  scriptModule: "cjs",
+  declaration: "separate",
+  scriptModule: false,
   compilerOptions: {
-    lib: ["esnext", "dom", "dom.iterable"],
-    target: "ES2020",
+    lib: ["ESNext", "DOM", "DOM.Iterable"],
+    target: "ES2023",
+  },
+  postBuild: async () => {
+    await Deno.copyFile("LICENSE", "npm/LICENSE");
+    await Deno.copyFile("README.md", "npm/README.md");
+
+    // ignore snapshot testing & related test files on Node distribution
+    const emptyTestFiles = [
+      "npm/esm/browser/dom/extractCodeFiles.test.js",
+      "npm/esm/parser/anchor-fm.test.js",
+      "npm/esm/parser/spotify.test.js",
+      "npm/esm/parser/youtube.test.js",
+      "npm/esm/rest/getCodeBlocks.test.js",
+      "npm/esm/rest/pages.test.js",
+      "npm/esm/rest/project.test.js",
+      "npm/esm/websocket/_codeBlock.test.js",
+      "npm/esm/websocket/diffToChanges.test.js",
+    ];
+    await Promise.all(
+      emptyTestFiles.map((filePath) => Deno.writeTextFile(filePath, "")),
+    );
   },
 });
-
-// Copy additional files
-await Deno.copyFile("LICENSE", "npm/LICENSE");
-await Deno.copyFile("README.md", "npm/README.md");
-
-console.log("npm package built successfully!");

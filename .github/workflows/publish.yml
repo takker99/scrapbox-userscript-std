@@ -34,25 +34,20 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ env.DENO_VERSION }}
+          cache: true
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
       - name: Extract version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Build npm package
-        run: |
-          echo "Attempting to build with dnt..."
-          if deno task build:npm ${{ steps.version.outputs.VERSION }}; then
-            echo "✅ dnt build successful"
-          else
-            echo "⚠️ dnt build failed, using manual fallback..."
-            deno task build:npm:manual ${{ steps.version.outputs.VERSION }}
-          fi
+        run: deno task npm:build
+        env:
+          VERSION: ${{ steps.version.outputs.VERSION }}
       - name: Publish to npm
-        run: |
-          cd npm
-          npm publish
+        run: npm publish --provenance --access=public
+        working-directory: ./npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -15,7 +15,8 @@ common utilities.
 
 ### Installation
 
-This library supports both JSR (JavaScript Registry) and npm installation methods.
+This library supports both JSR (JavaScript Registry) and npm installation
+methods.
 
 #### Option 1: JSR (Recommended for Deno projects)
 
@@ -50,14 +51,12 @@ npm install @cosense/std
 
 2. Import the library:
 
+**Only ESM syntax is supported.**
+
 ```typescript
-// ESM syntax (recommended)
+// ESM syntax
 import { getPage } from "@cosense/std/rest";
 import { parseAbsoluteLink } from "@cosense/std";
-
-// CommonJS syntax
-const { getPage } = require("@cosense/std/rest");
-const { parseAbsoluteLink } = require("@cosense/std");
 ```
 
 2. Module Organization The library is organized into the following main modules:

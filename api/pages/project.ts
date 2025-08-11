@@ -1,9 +1,9 @@
 import type {
-  BasePage,
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
   PageList,
+  PageSummary,
 } from "@cosense/types/rest";
 import { type BaseOptions, setDefaults } from "../../util.ts";
 import { cookie } from "../../rest/auth.ts";
@@ -150,7 +150,7 @@ export interface ListPagesStreamOption<R extends Response | undefined>
 export async function* listPagesStream(
   project: string,
   options?: ListPagesStreamOption<Response>,
-): AsyncGenerator<BasePage, void, unknown> {
+): AsyncGenerator<PageSummary, void, unknown> {
   const props = {
     ...(options ?? {}),
     skip: options?.skip ?? 0,
