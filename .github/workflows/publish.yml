@@ -39,13 +39,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: "https://registry.npmjs.org"
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
       - name: Build npm package
         run: deno task npm:build
         env:
-          VERSION: ${{ steps.version.outputs.VERSION }}
+          VERSION: ${{ github.ref_name }}
       - name: Publish to npm
         run: npm publish --provenance --access=public
         working-directory: ./npm
