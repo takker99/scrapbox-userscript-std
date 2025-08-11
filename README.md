@@ -6,6 +6,22 @@
 
 UNOFFICIAL standard module for Scrapbox UserScript
 
+> **Node.js & npm Notice (since vX.Y.Z)**
+>
+> Now also published on **[npm](https://www.npmjs.com/package/@cosense/std)**.
+>
+> Node.js support is **experimental**: I mainly target Deno and browsers, so I
+> don't actively maintain Node.js compatibility. Some tests run, but there may
+> still be runtime or type gaps remaining. Please use it with that
+> understanding.
+>
+> That said, **issues / PRs to improve Node support are very welcome!**
+>
+> If you don't need a public npm package, you can consume the JSR version
+> directly—`npm` via a custom registry in `.npmrc`; `yarn` or `pnpm` need no
+> extra config. See the
+> [JSR docs](https://jsr.io/docs/using-packages#adding-a-package).
+
 ## Getting Started
 
 This library serves as an unofficial standard library for developing Scrapbox
