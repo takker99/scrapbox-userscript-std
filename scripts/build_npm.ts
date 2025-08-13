@@ -12,6 +12,9 @@ await Deno.writeTextFile(
   (await Deno.readTextFile("./deno.jsonc")).replace(
     "jsr:@progfay/scrapbox-parser",
     "npm:@progfay/scrapbox-parser",
+  ).replace(
+    "jsr:@cosense/types",
+    "npm:@cosense/types",
   ),
 );
 
@@ -141,8 +144,7 @@ await build({
   configFile: new URL("../deno_node.jsonc", import.meta.url).href,
   // Don't run type checking during build to avoid Node.js compatibility issues
   typeCheck: false,
-  declaration: "separate",
-  scriptModule: false,
+  declaration: "inline",
   compilerOptions: {
     lib: ["ESNext", "DOM", "DOM.Iterable"],
     target: "ES2023",
@@ -153,18 +155,25 @@ await build({
 
     // ignore snapshot testing & related test files on Node distribution
     const emptyTestFiles = [
-      "npm/esm/browser/dom/extractCodeFiles.test.js",
-      "npm/esm/parser/anchor-fm.test.js",
-      "npm/esm/parser/spotify.test.js",
-      "npm/esm/parser/youtube.test.js",
-      "npm/esm/rest/getCodeBlocks.test.js",
-      "npm/esm/rest/pages.test.js",
-      "npm/esm/rest/project.test.js",
-      "npm/esm/websocket/_codeBlock.test.js",
-      "npm/esm/websocket/diffToChanges.test.js",
+      "browser/dom/extractCodeFiles.test.js",
+      "parser/anchor-fm.test.js",
+      "parser/spotify.test.js",
+      "parser/youtube.test.js",
+      "rest/getCodeBlocks.test.js",
+      "rest/pages.test.js",
+      "rest/project.test.js",
+      "websocket/_codeBlock.test.js",
+      "websocket/diffToChanges.test.js",
     ];
     await Promise.all(
-      emptyTestFiles.map((filePath) => Deno.writeTextFile(filePath, "")),
+      emptyTestFiles.map((filePath) =>
+        Deno.writeTextFile(`npm/esm/${filePath}`, "")
+      ),
+    );
+    await Promise.all(
+      emptyTestFiles.map((filePath) =>
+        Deno.writeTextFile(`npm/script/${filePath}`, "")
+      ),
     );
   },
 });
