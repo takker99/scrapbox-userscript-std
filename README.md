@@ -67,7 +67,7 @@ npm install @cosense/std
 
 2. Import the library:
 
-**Only ESM syntax is supported.**
+You can use both ESM and CommonJS syntax:
 
 ```typescript
 // ESM syntax

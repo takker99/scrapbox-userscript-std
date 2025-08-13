@@ -1,4 +1,5 @@
 import { build, emptyDir } from "@deno/dnt";
+import { parse } from "@std/jsonc";
 
 await emptyDir("./npm");
 
@@ -12,104 +13,22 @@ await Deno.writeTextFile(
   (await Deno.readTextFile("./deno.jsonc")).replace(
     "jsr:@progfay/scrapbox-parser",
     "npm:@progfay/scrapbox-parser",
+  ).replace(
+    "jsr:@cosense/types",
+    "npm:@cosense/types",
   ),
 );
+
+const config = parse(await Deno.readTextFile("./deno.jsonc")) as {
+  exports: Record<string, string>;
+};
 
 await build({
   entryPoints: [
     "./mod.ts",
-    {
-      name: "./browser",
-      path: "./browser/mod.ts",
-    },
-    {
-      name: "./browser/dom",
-      path: "./browser/dom/mod.ts",
-    },
-    {
-      name: "./browser/websocket",
-      path: "./websocket/mod.ts",
-    },
-    {
-      name: "./parseAbsoluteLink",
-      path: "./parseAbsoluteLink.ts",
-    },
-    {
-      name: "./rest",
-      path: "./rest/mod.ts",
-    },
-    {
-      name: "./text",
-      path: "./text.ts",
-    },
-    {
-      name: "./title",
-      path: "./title.ts",
-    },
-    {
-      name: "./websocket",
-      path: "./websocket/mod.ts",
-    },
-    {
-      name: "./unstable-api",
-      path: "./api.ts",
-    },
-    {
-      name: "./unstable-api/pages",
-      path: "./api/pages.ts",
-    },
-    {
-      name: "./unstable-api/pages/project",
-      path: "./api/pages/project.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/replace",
-      path: "./api/pages/project/replace.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/replace/links",
-      path: "./api/pages/project/replace/links.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/search",
-      path: "./api/pages/project/search.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/search/query",
-      path: "./api/pages/project/search/query.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/search/titles",
-      path: "./api/pages/project/search/titles.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/title",
-      path: "./api/pages/project/title.ts",
-    },
-    {
-      name: "./unstable-api/pages/projects",
-      path: "./api/projects.ts",
-    },
-    {
-      name: "./unstable-api/pages/projects/project",
-      path: "./api/projects/project.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/title/text",
-      path: "./api/pages/project/title/text.ts",
-    },
-    {
-      name: "./unstable-api/pages/project/title/icon",
-      path: "./api/pages/project/title/icon.ts",
-    },
-    {
-      name: "./unstable-api/users",
-      path: "./api/users.ts",
-    },
-    {
-      name: "./unstable-api/users/me",
-      path: "./api/users/me.ts",
-    },
+    ...Object.entries(config.exports).flatMap(
+      ([name, path]) => name === "." ? [] : [{ name, path }],
+    ),
   ],
   outDir: "./npm",
   shims: { deno: "dev" },
@@ -141,8 +60,7 @@ await build({
   configFile: new URL("../deno_node.jsonc", import.meta.url).href,
   // Don't run type checking during build to avoid Node.js compatibility issues
   typeCheck: false,
-  declaration: "separate",
-  scriptModule: false,
+  declaration: "inline",
   compilerOptions: {
     lib: ["ESNext", "DOM", "DOM.Iterable"],
     target: "ES2023",
@@ -153,18 +71,25 @@ await build({
 
     // ignore snapshot testing & related test files on Node distribution
     const emptyTestFiles = [
-      "npm/esm/browser/dom/extractCodeFiles.test.js",
-      "npm/esm/parser/anchor-fm.test.js",
-      "npm/esm/parser/spotify.test.js",
-      "npm/esm/parser/youtube.test.js",
-      "npm/esm/rest/getCodeBlocks.test.js",
-      "npm/esm/rest/pages.test.js",
-      "npm/esm/rest/project.test.js",
-      "npm/esm/websocket/_codeBlock.test.js",
-      "npm/esm/websocket/diffToChanges.test.js",
+      "browser/dom/extractCodeFiles.test.js",
+      "parser/anchor-fm.test.js",
+      "parser/spotify.test.js",
+      "parser/youtube.test.js",
+      "rest/getCodeBlocks.test.js",
+      "rest/pages.test.js",
+      "rest/project.test.js",
+      "websocket/_codeBlock.test.js",
+      "websocket/diffToChanges.test.js",
     ];
     await Promise.all(
-      emptyTestFiles.map((filePath) => Deno.writeTextFile(filePath, "")),
+      emptyTestFiles.map((filePath) =>
+        Deno.writeTextFile(`npm/esm/${filePath}`, "")
+      ),
+    );
+    await Promise.all(
+      emptyTestFiles.map((filePath) =>
+        Deno.writeTextFile(`npm/script/${filePath}`, "")
+      ),
     );
   },
 });
