@@ -55,6 +55,7 @@
     "@std/encoding": "jsr:@std/encoding@1",
     "@std/http": "jsr:@std/http@^1.0.13",
     "@std/json": "jsr:@std/json@^1.0.0",
+    "@std/jsonc": "jsr:@std/jsonc@^1.0.2",
     "@std/testing": "jsr:@std/testing@^1.0.9",
     "@takker/md5": "jsr:@takker/md5@0.1",
     "@takker/onp": "./vendor/raw.githubusercontent.com/takker99/onp/0.0.1/mod.ts",
