@@ -28,7 +28,7 @@ import type { BaseOptions } from "../rest/options.ts";
  * This interface extends the basic {@linkcode Page} type with additional identifiers
  * needed for real-time collaboration and page modifications.
  */
-export interface PushMetadata extends Page {
+export interface PushMetadata extends Page<boolean> {
   /** Unique identifier of the project containing the page */
   projectId: string;
   /** Unique identifier of the current user */
