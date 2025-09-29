@@ -2,42 +2,39 @@
   "version": "5",
   "specifiers": {
     "jsr:@core/iterutil@0.9": "0.9.0",
-    "jsr:@core/unknownutil@4": "4.3.0",
-    "jsr:@cosense/types@~0.11.2": "0.11.2",
+    "jsr:@core/unknownutil@^4.3.0": "4.3.0",
+    "jsr:@cosense/types@~0.11.3": "0.11.3",
     "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
     "jsr:@deno/dnt@~0.42.3": "0.42.3",
-    "jsr:@progfay/scrapbox-parser@^10.0.1": "10.0.1",
-    "jsr:@std/assert@1": "1.0.13",
-    "jsr:@std/assert@^1.0.13": "1.0.13",
+    "jsr:@progfay/scrapbox-parser@^10.0.2": "10.0.2",
+    "jsr:@std/assert@^1.0.13": "1.0.14",
+    "jsr:@std/assert@^1.0.14": "1.0.14",
     "jsr:@std/async@^1.0.14": "1.0.14",
-    "jsr:@std/cli@^1.0.21": "1.0.21",
+    "jsr:@std/cli@^1.0.21": "1.0.22",
     "jsr:@std/data-structures@^1.0.9": "1.0.9",
-    "jsr:@std/encoding@1": "1.0.10",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/fmt@1": "1.0.8",
     "jsr:@std/fmt@^1.0.8": "1.0.8",
     "jsr:@std/fs@1": "1.0.19",
     "jsr:@std/fs@^1.0.19": "1.0.19",
     "jsr:@std/html@^1.0.4": "1.0.4",
-    "jsr:@std/http@^1.0.13": "1.0.20",
+    "jsr:@std/http@^1.0.20": "1.0.20",
     "jsr:@std/internal@^1.0.10": "1.0.10",
-    "jsr:@std/internal@^1.0.6": "1.0.10",
     "jsr:@std/internal@^1.0.9": "1.0.10",
-    "jsr:@std/json@1": "1.0.2",
     "jsr:@std/json@^1.0.2": "1.0.2",
     "jsr:@std/jsonc@^1.0.2": "1.0.2",
     "jsr:@std/media-types@^1.1.0": "1.1.0",
-    "jsr:@std/net@^1.0.4": "1.0.4",
-    "jsr:@std/path@1": "1.1.1",
-    "jsr:@std/path@^1.1.1": "1.1.1",
-    "jsr:@std/streams@^1.0.10": "1.0.10",
-    "jsr:@std/streams@^1.0.9": "1.0.10",
-    "jsr:@std/testing@^1.0.9": "1.0.15",
+    "jsr:@std/net@^1.0.4": "1.0.6",
+    "jsr:@std/path@1": "1.1.2",
+    "jsr:@std/path@^1.1.1": "1.1.2",
+    "jsr:@std/streams@^1.0.10": "1.0.11",
+    "jsr:@std/streams@^1.0.9": "1.0.11",
+    "jsr:@std/testing@^1.0.15": "1.0.15",
     "jsr:@takker/md5@0.1": "0.1.0",
     "jsr:@ts-morph/bootstrap@0.27": "0.27.0",
     "jsr:@ts-morph/common@0.27": "0.27.0",
     "npm:option-t@53": "53.0.0",
-    "npm:socket.io-client@^4.7.5": "4.8.1"
+    "npm:socket.io-client@^4.8.1": "4.8.1"
   },
   "jsr": {
     "@core/iterutil@0.9.0": {
@@ -46,8 +43,8 @@
     "@core/unknownutil@4.3.0": {
       "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
     },
-    "@cosense/types@0.11.2": {
-      "integrity": "2aefb44f9e39af2c233ea1f2af62934980e3632b02df1a462fa43b058893b756"
+    "@cosense/types@0.11.3": {
+      "integrity": "de9af0bcf40978cb9ef5a2120971f6d1fc26f19ce4132aa938445ff2f00f514c"
     },
     "@david/code-block-writer@13.0.3": {
       "integrity": "f98c77d320f5957899a61bfb7a9bead7c6d83ad1515daee92dbacc861e13bb7f"
@@ -62,20 +59,20 @@
         "jsr:@ts-morph/bootstrap"
       ]
     },
-    "@progfay/scrapbox-parser@10.0.1": {
-      "integrity": "5b3983ef2cebe5c6b3f0bfb9f5a8a0d1e992f3d2de44e560bfe0628a8344eef1"
+    "@progfay/scrapbox-parser@10.0.2": {
+      "integrity": "759db7c70c1f0bcc4e84853a3da59a6c248eaa87b54c927ea71382adbbfbf076"
     },
-    "@std/assert@1.0.13": {
-      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
+    "@std/assert@1.0.14": {
+      "integrity": "68d0d4a43b365abc927f45a9b85c639ea18a9fab96ad92281e493e4ed84abaa4",
       "dependencies": [
-        "jsr:@std/internal@^1.0.6"
+        "jsr:@std/internal@^1.0.10"
       ]
     },
     "@std/async@1.0.14": {
       "integrity": "62e954a418652c704d37563a3e54a37d4cf0268a9dcaeac1660cc652880b5326"
     },
-    "@std/cli@1.0.21": {
-      "integrity": "cd25b050bdf6282e321854e3822bee624f07aca7636a3a76d95f77a3a919ca2a"
+    "@std/cli@1.0.22": {
+      "integrity": "50d1e4f87887cb8a8afa29b88505ab5081188f5cad3985460c3b471fa49ff21a"
     },
     "@std/data-structures@1.0.9": {
       "integrity": "033d6e17e64bf1f84a614e647c1b015fa2576ae3312305821e1a4cb20674bb4d"
@@ -100,7 +97,7 @@
       "integrity": "b5cc33fc001bccce65ed4c51815668c9891c69ccd908295997e983d8f56070a1",
       "dependencies": [
         "jsr:@std/cli",
-        "jsr:@std/encoding@^1.0.10",
+        "jsr:@std/encoding",
         "jsr:@std/fmt@^1.0.8",
         "jsr:@std/fs@^1.0.19",
         "jsr:@std/html",
@@ -122,23 +119,23 @@
     "@std/jsonc@1.0.2": {
       "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7",
       "dependencies": [
-        "jsr:@std/json@^1.0.2"
+        "jsr:@std/json"
       ]
     },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
-    "@std/net@1.0.4": {
-      "integrity": "2f403b455ebbccf83d8a027d29c5a9e3a2452fea39bb2da7f2c04af09c8bc852"
+    "@std/net@1.0.6": {
+      "integrity": "110735f93e95bb9feb95790a8b1d1bf69ec0dc74f3f97a00a76ea5efea25500c"
     },
-    "@std/path@1.1.1": {
-      "integrity": "fe00026bd3a7e6a27f73709b83c607798be40e20c81dde655ce34052fd82ec76",
+    "@std/path@1.1.2": {
+      "integrity": "c0b13b97dfe06546d5e16bf3966b1cadf92e1cc83e56ba5476ad8b498d9e3038",
       "dependencies": [
-        "jsr:@std/internal@^1.0.9"
+        "jsr:@std/internal@^1.0.10"
       ]
     },
-    "@std/streams@1.0.10": {
-      "integrity": "75c0b1431873cd0d8b3d679015220204d36d3c7420d93b60acfc379eb0dc30af"
+    "@std/streams@1.0.11": {
+      "integrity": "db583d27e28d133f389f1eec318cffdf4998305e5134c1d4b1c56b361cee6018"
     },
     "@std/testing@1.0.15": {
       "integrity": "a490169f5ccb0f3ae9c94fbc69d2cd43603f2cffb41713a85f99bbb0e3087cbc",
@@ -222,20 +219,20 @@
   "workspace": {
     "dependencies": [
       "jsr:@core/iterutil@0.9",
-      "jsr:@core/unknownutil@4",
-      "jsr:@cosense/types@~0.11.2",
+      "jsr:@core/unknownutil@^4.3.0",
+      "jsr:@cosense/types@~0.11.3",
       "jsr:@deno/dnt@~0.42.3",
-      "jsr:@progfay/scrapbox-parser@^10.0.1",
-      "jsr:@std/assert@1",
+      "jsr:@progfay/scrapbox-parser@^10.0.2",
+      "jsr:@std/assert@^1.0.14",
       "jsr:@std/async@^1.0.14",
-      "jsr:@std/encoding@1",
-      "jsr:@std/http@^1.0.13",
-      "jsr:@std/json@1",
+      "jsr:@std/encoding@^1.0.10",
+      "jsr:@std/http@^1.0.20",
+      "jsr:@std/json@^1.0.2",
       "jsr:@std/jsonc@^1.0.2",
-      "jsr:@std/testing@^1.0.9",
+      "jsr:@std/testing@^1.0.15",
       "jsr:@takker/md5@0.1",
       "npm:option-t@53",
-      "npm:socket.io-client@^4.7.5"
+      "npm:socket.io-client@^4.8.1"
     ]
   }
 }

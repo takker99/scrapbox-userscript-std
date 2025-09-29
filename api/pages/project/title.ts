@@ -2,7 +2,8 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-  Page,
+  PageWithInfoboxDefinition,
+  PageWithoutInfoboxDefinition,
 } from "@cosense/types/rest";
 import type { ResponseOfEndpoint } from "../../../targeted_response.ts";
 import { type BaseOptions, setDefaults } from "../../../util.ts";
@@ -70,7 +71,7 @@ export const getPage = <R extends Response | undefined = Response>(
   options?: GetPageOption<R>,
 ): Promise<
   ResponseOfEndpoint<{
-    200: Page;
+    200: PageWithInfoboxDefinition | PageWithoutInfoboxDefinition;
     404: NotFoundError;
     401: NotLoggedInError;
     403: NotMemberError;
@@ -80,7 +81,7 @@ export const getPage = <R extends Response | undefined = Response>(
     makeGetPageRequest(project, title, options),
   ) as Promise<
     ResponseOfEndpoint<{
-      200: Page;
+      200: PageWithInfoboxDefinition | PageWithoutInfoboxDefinition;
       404: NotFoundError;
       401: NotLoggedInError;
       403: NotMemberError;

@@ -3,8 +3,9 @@ import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-  Page,
   PageList,
+  PageWithInfoboxDefinition,
+  PageWithoutInfoboxDefinition,
 } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
@@ -57,7 +58,10 @@ const getPage_fromResponse: GetPage["fromResponse"] = async (res) =>
   mapErrAsyncForResult(
     await mapAsyncForResult(
       responseIntoResult(res),
-      (res) => res.json() as Promise<Page>,
+      (res) =>
+        res.json() as Promise<
+          PageWithInfoboxDefinition | PageWithoutInfoboxDefinition
+        >,
     ),
     async (
       error,
@@ -105,13 +109,22 @@ export interface GetPage {
    *            - {@linkcode NotMemberError}: User lacks access
    *            - {@linkcode HTTPError}: Other HTTP errors
    */
-  fromResponse: (res: Response) => Promise<Result<Page, PageError>>;
+  fromResponse: (
+    res: Response,
+  ) => Promise<
+    Result<PageWithInfoboxDefinition | PageWithoutInfoboxDefinition, PageError>
+  >;
 
   (
     project: string,
     title: string,
     options?: GetPageOption,
-  ): Promise<Result<Page, PageError | FetchError>>;
+  ): Promise<
+    Result<
+      PageWithInfoboxDefinition | PageWithoutInfoboxDefinition,
+      PageError | FetchError
+    >
+  >;
 }
 
 export type PageError =
@@ -133,7 +146,11 @@ export const getPage: GetPage = /* @__PURE__ */ (() => {
     title,
     options,
   ) =>
-    andThenAsyncForResult<Response, Page, PageError | FetchError>(
+    andThenAsyncForResult<
+      Response,
+      PageWithInfoboxDefinition | PageWithoutInfoboxDefinition,
+      PageError | FetchError
+    >(
       await setDefaults(options ?? {}).fetch(
         getPage_toRequest(project, title, options),
       ),
