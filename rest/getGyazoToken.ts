@@ -1,10 +1,6 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
+import { isErr, type Result, unwrapOk } from "option-t/plain_result";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
+import { mapErrAsyncForResult } from "option-t/plain_result/map_err_async";
 import type { NotLoggedInError } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";

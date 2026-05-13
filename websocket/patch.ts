@@ -7,7 +7,7 @@ import type { Result } from "option-t/plain_result";
 import type { Socket } from "socket.io-client";
 import { pinNumber } from "./pin.ts";
 
-export interface PatchMetadata extends Page {
+export interface PatchMetadata extends Page<boolean> {
   /** Number of retry attempts for page modification
    *
    * Starts at `0` for the first attempt and increments with each retry.

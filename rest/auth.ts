@@ -1,4 +1,5 @@
-import { createOk, mapForResult, type Result } from "option-t/plain_result";
+import { createOk, type Result } from "option-t/plain_result";
+import { mapForResult } from "option-t/plain_result/map";
 import { getProfile } from "./profile.ts";
 import type { HTTPError } from "./responseIntoResult.ts";
 import type { AbortError, NetworkError } from "./robustFetch.ts";

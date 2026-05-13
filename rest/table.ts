@@ -6,13 +6,9 @@ import type {
 import { cookie } from "./auth.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import {
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
+import { isErr, type Result, unwrapOk } from "option-t/plain_result";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
+import { mapErrAsyncForResult } from "option-t/plain_result/map_err_async";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import type { FetchError } from "./mod.ts";
