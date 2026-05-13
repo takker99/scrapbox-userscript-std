@@ -11,13 +11,11 @@ import { cookie } from "./auth.ts";
 import { parseHTTPError } from "./parseHTTPError.ts";
 import { encodeTitleURI } from "../title.ts";
 import { type BaseOptions, setDefaults } from "./options.ts";
-import {
-  andThenAsyncForResult,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-} from "option-t/plain_result";
-import { unwrapOrForMaybe } from "option-t/maybe";
+import type { Result } from "option-t/plain_result";
+import { andThenAsyncForResult } from "option-t/plain_result/and_then_async";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
+import { mapErrAsyncForResult } from "option-t/plain_result/map_err_async";
+import { unwrapOrForMaybe } from "option-t/maybe/unwrap_or";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 import type { FetchError } from "./robustFetch.ts";
 

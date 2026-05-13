@@ -7,17 +7,12 @@ import {
 import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
 import { md5 } from "@takker/md5";
 import { encodeHex } from "@std/encoding/hex";
-import {
-  createOk,
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  mapForResult,
-  orElseAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
-import { toResultOkFromMaybe } from "option-t/maybe";
+import { createOk, isErr, type Result, unwrapOk } from "option-t/plain_result";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
+import { mapErrAsyncForResult } from "option-t/plain_result/map_err_async";
+import { mapForResult } from "option-t/plain_result/map";
+import { orElseAsyncForResult } from "option-t/plain_result/or_else_async";
+import { toResultOkFromMaybe } from "option-t/maybe/to_plain_result";
 import type { FetchError } from "./robustFetch.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
 

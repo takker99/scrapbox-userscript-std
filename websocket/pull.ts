@@ -2,15 +2,14 @@ import {
   createErr,
   createOk,
   isErr,
-  mapForResult,
   type Result,
   unwrapOk,
 } from "option-t/plain_result";
+import { mapForResult } from "option-t/plain_result/map";
 import type {
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-  Page,
 } from "@cosense/types/rest";
 import {
   getPage,
@@ -22,18 +21,7 @@ import { getProject } from "../rest/project.ts";
 import type { HTTPError } from "../rest/responseIntoResult.ts";
 import type { AbortError, NetworkError } from "../rest/robustFetch.ts";
 import type { BaseOptions } from "../rest/options.ts";
-
-/** Extended page metadata required for WebSocket operations
- *
- * This interface extends the basic {@linkcode Page} type with additional identifiers
- * needed for real-time collaboration and page modifications.
- */
-export interface PushMetadata extends Page<boolean> {
-  /** Unique identifier of the project containing the page */
-  projectId: string;
-  /** Unique identifier of the current user */
-  userId: string;
-}
+import type { PushMetadata } from "./push.ts";
 
 /** Comprehensive error type for page data retrieval operations
  *

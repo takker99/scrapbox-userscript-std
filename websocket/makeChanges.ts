@@ -7,7 +7,7 @@ import { isString } from "@core/unknownutil/is/string";
 import { getHelpfeels } from "./getHelpfeels.ts";
 
 export function* makeChanges(
-  before: Page,
+  before: Page<boolean>,
   after: (string | { text: string })[],
   userId: string,
 ): Generator<ChangeToPush, void, unknown> {

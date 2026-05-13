@@ -1,11 +1,6 @@
-import {
-  createOk,
-  isErr,
-  mapAsyncForResult,
-  mapErrAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
+import { createOk, isErr, type Result, unwrapOk } from "option-t/plain_result";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
+import { mapErrAsyncForResult } from "option-t/plain_result/map_err_async";
 import type {
   ErrorLike,
   NotFoundError,

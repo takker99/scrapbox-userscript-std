@@ -1,9 +1,5 @@
-import {
-  isErr,
-  mapAsyncForResult,
-  type Result,
-  unwrapOk,
-} from "option-t/plain_result";
+import { isErr, type Result, unwrapOk } from "option-t/plain_result";
+import { mapAsyncForResult } from "option-t/plain_result/map_async";
 import type { GuestUser, MemberUser } from "@cosense/types/rest";
 import { cookie } from "./auth.ts";
 import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
