@@ -3,8 +3,14 @@ export const snapshot = {};
 snapshot[`youtube links > is 1`] = `
 {
   params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
+    Symbol([[webidl.brand]]): Symbol("[[webidl.brand]]"),
+    Symbol(list): [
+      [
+        "v",
+        "LSvaOcaUQ3Y",
+      ],
+    ],
+    Symbol(url object): URL {
       hash: "",
       host: "www.youtube.com",
       hostname: "www.youtube.com",
@@ -17,12 +23,6 @@ snapshot[`youtube links > is 1`] = `
       search: "?v=LSvaOcaUQ3Y",
       username: "",
     },
-    [Symbol(list)]: [
-      [
-        "v",
-        "LSvaOcaUQ3Y",
-      ],
-    ],
   },
   pathType: "com",
   videoId: "LSvaOcaUQ3Y",
@@ -33,14 +33,14 @@ snapshot[`youtube links > is 2`] = `
 {
   listId: "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
   params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: null,
-    [Symbol(list)]: [
+    Symbol([[webidl.brand]]): Symbol("[[webidl.brand]]"),
+    Symbol(list): [
       [
         "list",
         "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
       ],
     ],
+    Symbol(url object): null,
   },
   pathType: "list",
 }
@@ -49,8 +49,18 @@ snapshot[`youtube links > is 2`] = `
 snapshot[`youtube links > is 3`] = `
 {
   params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
+    Symbol([[webidl.brand]]): Symbol("[[webidl.brand]]"),
+    Symbol(list): [
+      [
+        "v",
+        "57rdbK4vmKE",
+      ],
+      [
+        "list",
+        "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
+      ],
+    ],
+    Symbol(url object): URL {
       hash: "",
       host: "www.youtube.com",
       hostname: "www.youtube.com",
@@ -63,16 +73,6 @@ snapshot[`youtube links > is 3`] = `
       search: "?v=57rdbK4vmKE&list=PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
       username: "",
     },
-    [Symbol(list)]: [
-      [
-        "v",
-        "57rdbK4vmKE",
-      ],
-      [
-        "list",
-        "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-      ],
-    ],
   },
   pathType: "com",
   videoId: "57rdbK4vmKE",
@@ -82,8 +82,14 @@ snapshot[`youtube links > is 3`] = `
 snapshot[`youtube links > is 4`] = `
 {
   params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
+    Symbol([[webidl.brand]]): Symbol("[[webidl.brand]]"),
+    Symbol(list): [
+      [
+        "v",
+        "nj1cre2e6t0",
+      ],
+    ],
+    Symbol(url object): URL {
       hash: "",
       host: "music.youtube.com",
       hostname: "music.youtube.com",
@@ -96,12 +102,6 @@ snapshot[`youtube links > is 4`] = `
       search: "?v=nj1cre2e6t0",
       username: "",
     },
-    [Symbol(list)]: [
-      [
-        "v",
-        "nj1cre2e6t0",
-      ],
-    ],
   },
   pathType: "com",
   videoId: "nj1cre2e6t0",
@@ -111,9 +111,9 @@ snapshot[`youtube links > is 4`] = `
 snapshot[`youtube links > is 5`] = `
 {
   params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: null,
-    [Symbol(list)]: [],
+    Symbol([[webidl.brand]]): Symbol("[[webidl.brand]]"),
+    Symbol(list): [],
+    Symbol(url object): null,
   },
   pathType: "dotbe",
   videoId: "nj1cre2e6t0",
