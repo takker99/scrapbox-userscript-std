@@ -3,23 +3,10 @@ import type {
   NotLoggedInError,
   NotMemberError,
   PageList,
-  PageSummary,
 } from "@cosense/types/rest";
 import { type BaseOptions, setDefaults } from "../../util.ts";
 import { cookie } from "../../rest/auth.ts";
-import type {
-  ResponseOfEndpoint,
-  TargetedResponse,
-} from "../../targeted_response.ts";
-import {
-  type HTTPError,
-  makeError,
-  makeHTTPError,
-  type TypedError,
-} from "../../error.ts";
-import { pooledMap } from "@std/async/pool";
-import { range } from "@core/iterutil/range";
-import { flatten } from "@core/iterutil/async/flatten";
+import type { ResponseOfEndpoint } from "../../targeted_response.ts";
 
 /** Options for {@linkcode listPages}
  *
@@ -124,84 +111,10 @@ export const listPages = <R extends Response | undefined = Response>(
     }, R>
   >;
 
-/**
- * Options for {@linkcode listPagesStream}
- *
- * @experimental **UNSTABLE**: New API, yet to be vetted.
- */
-export interface ListPagesStreamOption<R extends Response | undefined>
-  extends ListPagesOption<R> {
-  /** The number of requests to make concurrently
-   *
-   * @default {3}
-   */
-  poolLimit?: number;
-}
-
-/**
- * Lists pages from a given `project` with pagination
- *
- * @experimental **UNSTABLE**: New API, yet to be vetted.
- *
- * @param project The project name to list pages from
- * @param options Configuration options for pagination and sorting
- * @throws {HTTPError | TypedError<"NotLoggedInError" | "NotMemberError" | "NotFoundError">} If any requests in the pagination sequence fail
- */
-export async function* listPagesStream(
-  project: string,
-  options?: ListPagesStreamOption<Response>,
-): AsyncGenerator<PageSummary, void, unknown> {
-  const props = {
-    ...(options ?? {}),
-    skip: options?.skip ?? 0,
-    limit: options?.limit ?? 100,
-  };
-  const response = await ensureResponse(await listPages(project, props));
-  const list = await response.json();
-  yield* list.pages;
-
-  const limit = list.limit;
-  const skip = list.skip + limit;
-  const times = Math.ceil((list.count - skip) / limit);
-
-  yield* flatten(
-    pooledMap(
-      options?.poolLimit ?? 3,
-      range(0, times - 1),
-      async (i) => {
-        const response = await ensureResponse(
-          await listPages(project, { ...props, skip: skip + i * limit, limit }),
-        );
-        const list = await response.json();
-        return list.pages;
-      },
-    ),
-  );
-}
-
-const ensureResponse = async (
-  response: ResponseOfEndpoint<{
-    200: PageList;
-    404: NotFoundError;
-    401: NotLoggedInError;
-    403: NotMemberError;
-  }, Response>,
-): Promise<TargetedResponse<200, PageList>> => {
-  switch (response.status) {
-    case 200:
-      return response;
-    case 401:
-    case 403:
-    case 404: {
-      const error = await response.json();
-      throw makeError(error.name, error.message) satisfies TypedError<
-        "NotLoggedInError" | "NotMemberError" | "NotFoundError"
-      >;
-    }
-    default:
-      throw makeHTTPError(response) satisfies HTTPError;
-  }
-};
+/** @deprecated Use {@link import("../../unstable-procedure/list-pages-stream.ts").listPagesStream} instead */
+export { listPagesStream } from "../../unstable-procedure/list-pages-stream.ts";
+/** @deprecated Use {@link import("../../unstable-procedure/list-pages-stream.ts").listPagesStream} instead */
+export type { ListPagesStreamOption } from "../../unstable-procedure/list-pages-stream.ts";
 
 export * from "./project/replace.ts";
 export * from "./project/search.ts";

@@ -1,9 +1,9 @@
-import { cookie, getCSRFToken } from "./auth.ts";
+import { cookie, getCSRFToken } from "../rest/auth.ts";
 import {
   type BaseOptions,
   type ExtendedOptions,
   setDefaults,
-} from "./options.ts";
+} from "../rest/options.ts";
 import type { ErrorLike, NotFoundError } from "@cosense/types/rest";
 import { md5 } from "@takker/md5";
 import { encodeHex } from "@std/encoding/hex";
@@ -18,8 +18,8 @@ import {
   unwrapOk,
 } from "option-t/plain_result";
 import { toResultOkFromMaybe } from "option-t/maybe";
-import type { FetchError } from "./robustFetch.ts";
-import { type HTTPError, responseIntoResult } from "./responseIntoResult.ts";
+import type { FetchError } from "../rest/robustFetch.ts";
+import { type HTTPError, responseIntoResult } from "../rest/responseIntoResult.ts";
 
 /** Metadata for the uploaded file */
 export interface GCSFile {

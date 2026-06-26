@@ -19,7 +19,6 @@ export * from "./auth.ts";
 export type { BaseOptions, ExtendedOptions } from "./options.ts";
 export * from "./getCodeBlocks.ts";
 export * from "./getCodeBlock.ts";
-export * from "./uploadToGCS.ts";
 export * from "./getCachedAt.ts";
 
 export type { HTTPError } from "./responseIntoResult.ts";
