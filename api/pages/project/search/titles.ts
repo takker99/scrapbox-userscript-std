@@ -7,12 +7,6 @@ import type {
 import type { ResponseOfEndpoint } from "../../../../targeted_response.ts";
 import { type BaseOptions, setDefaults } from "../../../../util.ts";
 import { cookie } from "../../../../rest/auth.ts";
-import {
-  type HTTPError,
-  makeError,
-  makeHTTPError,
-  type TypedError,
-} from "../../../../error.ts";
 
 /**
  * Options for {@linkcode getLinks}
@@ -83,45 +77,5 @@ export const getLinks = <R extends Response | undefined = Response>(
     }, R>
   >;
 
-/** Retrieve all link data from a specified project one by one
- *
- * @experimental **UNSTABLE**: New API, yet to be vetted.
- *
- * @param project The project name to list pages from
- * @param options Additional configuration options for the request
- * @returns An async generator that yields each link data
- * @throws {TypedError<"NotLoggedInError" | "NotMemberError" | "NotFoundError" | "InvalidFollowingIdError"> | HTTPError}
- */
-export async function* getLinksStream(
-  project: string,
-  options?: GetLinksOptions<Response>,
-): AsyncGenerator<SearchedTitle, void, unknown> {
-  let followingId = options?.followingId ?? "";
-  do {
-    const response = await getLinks(project, { ...options, followingId });
-    switch (response.status) {
-      case 200:
-        break;
-      case 401:
-      case 403:
-      case 404: {
-        const error = await response.json();
-        throw makeError(error.name, error.message) satisfies TypedError<
-          "NotLoggedInError" | "NotMemberError" | "NotFoundError"
-        >;
-      }
-      case 422:
-        throw makeError(
-          "InvalidFollowingIdError",
-          (await response.json()).message,
-        ) satisfies TypedError<
-          "InvalidFollowingIdError"
-        >;
-      default:
-        throw makeHTTPError(response) satisfies HTTPError;
-    }
-    const titles = await response.json();
-    yield* titles;
-    followingId = response.headers.get("X-following-id") ?? "";
-  } while (followingId);
-}
+/** @deprecated Use {@link import("../../../../unstable-procedure/get-links-stream.ts").getLinksStream} instead */
+export { getLinksStream } from "../../../../unstable-procedure/get-links-stream.ts";

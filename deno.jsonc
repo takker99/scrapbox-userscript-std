@@ -22,6 +22,7 @@
     "./text": "./text.ts",
     "./title": "./title.ts",
     "./unstable-api": "./api.ts",
+    "./unstable-procedure": "./unstable-procedure/mod.ts",
     "./unstable-api/pages": "./api/pages.ts",
     "./unstable-api/commits": "./api/commits.ts",
     "./unstable-api/commits/project": "./api/commits/project.ts",
