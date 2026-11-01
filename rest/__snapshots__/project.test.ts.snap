@@ -1,15 +1,5 @@
 export const snapshot = {};
 
-snapshot[`getProject 1`] = `
-Request {
-  bodyUsed: false,
-  headers: Headers {},
-  method: "GET",
-  redirect: "follow",
-  url: "https://scrapbox.io/api/projects/takker",
-}
-`;
-
 snapshot[`listProjects 1`] = `
 Request {
   bodyUsed: false,
@@ -17,5 +7,15 @@ Request {
   method: "GET",
   redirect: "follow",
   url: "https://scrapbox.io/api/projects?ids=dummy-id1&ids=dummy-id2",
+}
+`;
+
+snapshot[`getProject 1`] = `
+Request {
+  bodyUsed: false,
+  headers: Headers {},
+  method: "GET",
+  redirect: "follow",
+  url: "https://scrapbox.io/api/projects/takker",
 }
 `;

@@ -45,8 +45,10 @@ const toResult = async (
   Result<
     Response,
     | TypedError<
-      "NotLoggedInError" | "NotMemberError" | "NotFoundError" |
-        "InvalidFollowingIdError"
+      | "NotLoggedInError"
+      | "NotMemberError"
+      | "NotFoundError"
+      | "InvalidFollowingIdError"
     >
     | HTTPError
   >
@@ -95,8 +97,10 @@ export async function* getLinksStream(
     SearchedTitle,
     | HTTPError
     | TypedError<
-      "NotLoggedInError" | "NotMemberError" | "NotFoundError" |
-        "InvalidFollowingIdError"
+      | "NotLoggedInError"
+      | "NotMemberError"
+      | "NotFoundError"
+      | "InvalidFollowingIdError"
     >
   >,
   void,

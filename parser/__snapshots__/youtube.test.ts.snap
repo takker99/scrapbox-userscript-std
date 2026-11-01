@@ -2,28 +2,7 @@ export const snapshot = {};
 
 snapshot[`youtube links > is 1`] = `
 {
-  params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
-      hash: "",
-      host: "www.youtube.com",
-      hostname: "www.youtube.com",
-      href: "https://www.youtube.com/watch?v=LSvaOcaUQ3Y",
-      origin: "https://www.youtube.com",
-      password: "",
-      pathname: "/watch",
-      port: "",
-      protocol: "https:",
-      search: "?v=LSvaOcaUQ3Y",
-      username: "",
-    },
-    [Symbol(list)]: [
-      [
-        "v",
-        "LSvaOcaUQ3Y",
-      ],
-    ],
-  },
+  params: URLSearchParams { "v" => "LSvaOcaUQ3Y" },
   pathType: "com",
   videoId: "LSvaOcaUQ3Y",
 }
@@ -32,48 +11,14 @@ snapshot[`youtube links > is 1`] = `
 snapshot[`youtube links > is 2`] = `
 {
   listId: "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-  params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: null,
-    [Symbol(list)]: [
-      [
-        "list",
-        "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-      ],
-    ],
-  },
+  params: URLSearchParams { "list" => "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs" },
   pathType: "list",
 }
 `;
 
 snapshot[`youtube links > is 3`] = `
 {
-  params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
-      hash: "",
-      host: "www.youtube.com",
-      hostname: "www.youtube.com",
-      href: "https://www.youtube.com/watch?v=57rdbK4vmKE&list=PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-      origin: "https://www.youtube.com",
-      password: "",
-      pathname: "/watch",
-      port: "",
-      protocol: "https:",
-      search: "?v=57rdbK4vmKE&list=PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-      username: "",
-    },
-    [Symbol(list)]: [
-      [
-        "v",
-        "57rdbK4vmKE",
-      ],
-      [
-        "list",
-        "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs",
-      ],
-    ],
-  },
+  params: URLSearchParams { "v" => "57rdbK4vmKE", "list" => "PLmoRDY8IgE2Okxy4WWdP95RHXOTGzJfQs" },
   pathType: "com",
   videoId: "57rdbK4vmKE",
 }
@@ -81,28 +26,7 @@ snapshot[`youtube links > is 3`] = `
 
 snapshot[`youtube links > is 4`] = `
 {
-  params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: URL {
-      hash: "",
-      host: "music.youtube.com",
-      hostname: "music.youtube.com",
-      href: "https://music.youtube.com/watch?v=nj1cre2e6t0",
-      origin: "https://music.youtube.com",
-      password: "",
-      pathname: "/watch",
-      port: "",
-      protocol: "https:",
-      search: "?v=nj1cre2e6t0",
-      username: "",
-    },
-    [Symbol(list)]: [
-      [
-        "v",
-        "nj1cre2e6t0",
-      ],
-    ],
-  },
+  params: URLSearchParams { "v" => "nj1cre2e6t0" },
   pathType: "com",
   videoId: "nj1cre2e6t0",
 }
@@ -110,11 +34,7 @@ snapshot[`youtube links > is 4`] = `
 
 snapshot[`youtube links > is 5`] = `
 {
-  params: URLSearchParams {
-    [Symbol("[[webidl.brand]]")]: Symbol("[[webidl.brand]]"),
-    [Symbol("url object")]: null,
-    [Symbol(list)]: [],
-  },
+  params: URLSearchParams {},
   pathType: "dotbe",
   videoId: "nj1cre2e6t0",
 }
