@@ -1,10 +1,39 @@
 import { io, type Socket } from "socket.io-client";
 import { createErr, createOk, type Result } from "option-t/plain_result";
-import type { EmitEventMap, ListenEventMap } from "@cosense/types/websocket";
+import type { ListenEventMap } from "@cosense/types/websocket";
+import type {
+  JoinRoomRequest,
+  JoinRoomResponse,
+  MoveCursorData,
+  PageCommit,
+  PageCommitResponse,
+} from "@cosense/types/websocket";
+
+/** Emit events supported by Scrapbox's socket.io server (new protocol) */
+interface ScrapboxEmitEventMap {
+  commit: (
+    data: PageCommit,
+    callback: (
+      res:
+        | { data: PageCommitResponse }
+        | { error: { name: string; message?: string } },
+    ) => void,
+  ) => void;
+  "room:join": (
+    data: JoinRoomRequest,
+    callback: (
+      res:
+        | { data: JoinRoomResponse }
+        | { error: { name: string; message?: string } },
+    ) => void,
+  ) => void;
+  "page-leave": (req: { projectId: string; pageId: string }) => void;
+  cursor: (req: Omit<MoveCursorData, "socketId">) => void;
+}
 import { cookie } from "../rest/auth.ts";
 
 /** A pre-configured {@linkcode Socket} type for Scrapbox */
-export type ScrapboxSocket = Socket<ListenEventMap, EmitEventMap>;
+export type ScrapboxSocket = Socket<ListenEventMap, ScrapboxEmitEventMap>;
 
 /** connect to websocket
  *
