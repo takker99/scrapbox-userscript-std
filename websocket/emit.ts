@@ -68,12 +68,9 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     return Promise.resolve(createOk<void>(undefined));
   }
 
-  // This event is processed using the socket.io-request protocol
-  // (see: https://github.com/shokai/socket.io-request)
-  // We implement a similar request-response pattern here:
-  // 1. Send event with payload
-  // 2. Wait for response with timeout
-  // 3. Handle success/error responses
+  // Cosense now uses socket.io's native acknowledgement mechanism instead of
+  // the "socket.io-request" wrapper protocol. The event name itself is
+  // "commit" or "room:join", and the payload is sent directly.
   const { resolve, promise, reject } = Promise.withResolvers<
     Result<
       WrapperdEmitEvents[EventName]["res"],
@@ -116,11 +113,10 @@ export const emit = <EventName extends keyof WrapperdEmitEvents>(
     );
   }, timeout);
 
-  const payload = event === "commit"
-    ? { method: "commit" as const, data: data as PageCommit }
-    : { method: "room:join" as const, data: data as JoinRoomRequest };
+  const eventName = event === "commit" ? "commit" : "room:join";
 
-  socket.emit("socket.io-request", payload, (res) => {
+  // deno-lint-ignore no-explicit-any
+  (socket as any).emit(eventName, data, (res: any) => {
     dispose();
     if ("error" in res) {
       resolve(
