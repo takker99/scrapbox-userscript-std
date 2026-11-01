@@ -19,6 +19,7 @@ export const connect = (socket?: ScrapboxSocket, sid?: string): Promise<
   socket ??= io("https://scrapbox.io", {
     reconnectionDelay: 5000,
     transports: ["websocket"],
+    auth: { protocolVersion: 2 },
     ...(sid
       ? {
         rejectUnauthorized: false,
