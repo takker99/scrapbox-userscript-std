@@ -4,13 +4,15 @@
       "esnext",
       "dom",
       "dom.iterable",
-      "deno.ns"
+      "deno.ns",
+      "node"
     ]
   },
   "exclude": [
     "coverage/",
     "docs/",
-    "npm/"
+    "npm/",
+    ".deno/"
   ],
   "exports": {
     ".": "./mod.ts",
