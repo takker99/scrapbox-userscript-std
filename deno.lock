@@ -3,7 +3,7 @@
   "specifiers": {
     "jsr:@core/iterutil@0.9": "0.9.0",
     "jsr:@core/unknownutil@^4.3.0": "4.3.0",
-    "jsr:@cosense/types@~0.11.3": "0.11.3",
+    "jsr:@cosense/types@~0.11.8": "0.11.8",
     "jsr:@david/code-block-writer@^13.0.3": "13.0.3",
     "jsr:@deno/dnt@~0.42.3": "0.42.3",
     "jsr:@progfay/scrapbox-parser@^10.0.2": "10.0.2",
@@ -43,8 +43,8 @@
     "@core/unknownutil@4.3.0": {
       "integrity": "538a3687ffa81028e91d148818047df219663d0da671d906cecd165581ae55cc"
     },
-    "@cosense/types@0.11.3": {
-      "integrity": "de9af0bcf40978cb9ef5a2120971f6d1fc26f19ce4132aa938445ff2f00f514c"
+    "@cosense/types@0.11.8": {
+      "integrity": "a33382fa0feba7b741e36b6e0a8aade88ff4d5077259049275aa9d0aa74fb479"
     },
     "@david/code-block-writer@13.0.3": {
       "integrity": "f98c77d320f5957899a61bfb7a9bead7c6d83ad1515daee92dbacc861e13bb7f"
@@ -220,7 +220,7 @@
     "dependencies": [
       "jsr:@core/iterutil@0.9",
       "jsr:@core/unknownutil@^4.3.0",
-      "jsr:@cosense/types@~0.11.3",
+      "jsr:@cosense/types@~0.11.8",
       "jsr:@deno/dnt@~0.42.3",
       "jsr:@progfay/scrapbox-parser@^10.0.2",
       "jsr:@std/assert@^1.0.14",

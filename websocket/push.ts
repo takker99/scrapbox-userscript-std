@@ -6,13 +6,12 @@ import type {
 import { connect, disconnect } from "./socket.ts";
 import type { Socket } from "socket.io-client";
 import { emit } from "./emit.ts";
-import { pull } from "./pull.ts";
+import { pull, type PushMetadata } from "./pull.ts";
 import type {
   ErrorLike,
   NotFoundError,
   NotLoggedInError,
   NotMemberError,
-  Page,
 } from "@cosense/types/rest";
 import { delay } from "@std/async/delay";
 import {
@@ -63,18 +62,6 @@ export interface RetryError {
   message: string;
   /** Number of attempts made before giving up */
   attempts: number;
-}
-
-/** Extended page metadata required for WebSocket operations
- *
- * This interface extends the basic Page type with additional identifiers
- * needed for real-time collaboration and page modifications.
- */
-export interface PushMetadata extends Page {
-  /** Unique identifier of the project containing the page */
-  projectId: string;
-  /** Unique identifier of the current user */
-  userId: string;
 }
 
 /** Error for unexpected conditions during push operations

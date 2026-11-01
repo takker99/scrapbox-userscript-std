@@ -19,7 +19,10 @@ import {
 } from "option-t/plain_result";
 import { toResultOkFromMaybe } from "option-t/maybe";
 import type { FetchError } from "../rest/robustFetch.ts";
-import { type HTTPError, responseIntoResult } from "../rest/responseIntoResult.ts";
+import {
+  type HTTPError,
+  responseIntoResult,
+} from "../rest/responseIntoResult.ts";
 
 /** Metadata for the uploaded file */
 export interface GCSFile {

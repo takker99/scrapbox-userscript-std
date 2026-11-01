@@ -57,8 +57,8 @@ const toResult = async (
 ): Promise<
   Result<
     PageList,
-    TypedError<"NotFoundError" | "NotLoggedInError" | "NotMemberError"> |
-      HTTPError
+    | TypedError<"NotFoundError" | "NotLoggedInError" | "NotMemberError">
+    | HTTPError
   >
 > => {
   switch (response.status) {
@@ -95,7 +95,8 @@ export async function* listPagesStream(
 ): AsyncGenerator<
   Result<
     PageSummary,
-    HTTPError | TypedError<
+    | HTTPError
+    | TypedError<
       "NotFoundError" | "NotLoggedInError" | "NotMemberError"
     >
   >,
@@ -130,7 +131,8 @@ export async function* listPagesStream(
       ): Promise<
         Result<
           PageSummary,
-          HTTPError | TypedError<
+          | HTTPError
+          | TypedError<
             "NotFoundError" | "NotLoggedInError" | "NotMemberError"
           >
         >[]
