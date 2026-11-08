@@ -15,3 +15,5 @@ export * from "./takeInternalLines.ts";
 export * from "./pushPageTransition.ts";
 export * from "./extractCodeFiles.ts";
 export * from "./textInputEventListener.ts";
+export * from "./cursorChangeListener.ts";
+export * from "./selectionChangeListener.ts";

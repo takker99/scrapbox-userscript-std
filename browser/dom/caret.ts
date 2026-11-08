@@ -1,18 +1,20 @@
-import { textInput } from "./dom.ts";
+import type { Scrapbox } from "@cosense/types/userscript";
+import { getCachedLines } from "./getCachedLines.ts";
+declare const scrapbox: Scrapbox;
 
 /** Position information within the editor
  *
+ * @deprecated Use `CursorPosition` from `@cosense/types/userscript` instead.
  * @see {@linkcode Range} for selection range information
  */
 export interface Position {
-  /** Line number (1-based) */ line: number;
-  /** Character offset within the line (0-based) */ char: number;
+  /** Line number */ line: number;
+  /** Character offset within the line */ char: number;
 }
 
 /** Represents a text selection range in the editor
  *
- * When no text is selected, {@linkcode start} and {@linkcode end} positions are the same (cursor position)
- *
+ * @deprecated Use `SelectionRange` from `@cosense/types/userscript` instead.
  * @see {@linkcode Position} for position type details
  */
 export interface Range {
@@ -20,47 +22,45 @@ export interface Range {
   /** Ending position of the selection */ end: Position;
 }
 
-/** Cursor information contained within the React Component that builds `#text-input` */
+/** Cursor and selection state of the editor
+ *
+ * @deprecated Use `scrapbox.Page.cursor` and `scrapbox.Page.selection` instead.
+ */
 export interface CaretInfo {
   /** Current cursor position */ position: Position;
   /** Currently selected text */ selectedText: string;
   /** Range of the current selection */ selectionRange: Range;
 }
 
-interface ReactFiber {
-  return: {
-    return: {
-      stateNode: {
-        props: CaretInfo;
-      };
-    };
-  };
-}
-
 /** Retrieves the current cursor position and text selection information
  *
- * @returns A {@linkcode CaretPosition} containing cursor position and text selection information
- * @throws {@linkcode Error} when:
- *         - `#text-input` element is not found
- *         - React Component's internal properties are not found
- * @see {@linkcode CaretInfo} for return type details
+ * @deprecated Use `scrapbox.Page.cursor` and `scrapbox.Page.selection` instead.
+ * @returns A {@linkcode CaretInfo} containing cursor position and text selection information
  */
-export const caret = (): CaretInfo => {
-  const textarea = textInput();
-  if (!textarea) {
-    throw Error(`#text-input is not found.`);
-  }
-
-  const reactKey = Object.keys(textarea)
-    .find((key) => key.startsWith("__reactFiber"));
-  if (!reactKey) {
-    throw Error(
-      'div.cursor must has the property whose name starts with "__reactFiber"',
-    );
-  }
-
-  // @ts-ignore Forcefully treating DOM element as an object to access React internals
-  return (textarea[
-    reactKey
-  ] as ReactFiber).return.return.stateNode.props;
-};
+export const caret = (): CaretInfo => ({
+  position: scrapbox.Page.cursor ?? { line: 0, char: 0 },
+  selectionRange: scrapbox.Page.selection ?? {
+    start: { line: 0, char: 0 },
+    end: { line: 0, char: 0 },
+  },
+  get selectedText(): string {
+    const selection = scrapbox.Page.selection;
+    if (!selection) return "";
+    const { start, end } = selection;
+    if (start.line === end.line && start.char === end.char) return "";
+    const lines = getCachedLines();
+    if (!lines) return "";
+    const [from, to] = start.line > end.line ||
+        (start.line === end.line && start.char > end.char)
+      ? [end, start]
+      : [start, end];
+    if (from.line === to.line) {
+      return lines[from.line]?.text.slice(from.char, to.char) ?? "";
+    }
+    return [
+      lines[from.line]?.text.slice(from.char) ?? "",
+      ...lines.slice(from.line + 1, to.line).map((line) => line.text),
+      lines[to.line]?.text.slice(0, to.char) ?? "",
+    ].join("\n");
+  },
+});

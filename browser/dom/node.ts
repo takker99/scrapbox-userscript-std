@@ -4,7 +4,6 @@ import { isString } from "@core/unknownutil/is/string";
 import { ensure } from "@core/unknownutil/ensure";
 import { isUndefined } from "@core/unknownutil/is/undefined";
 import { getCachedLines } from "./getCachedLines.ts";
-import { takeInternalLines } from "./takeInternalLines.ts";
 import type { BaseLine, Line } from "@cosense/types/userscript";
 import { lines } from "./dom.ts";
 import * as Text from "../../text.ts";
@@ -49,7 +48,7 @@ export const getLineNo = <T extends HTMLElement>(
   if (isNumber(value)) return value;
   // When value is a line ID or DOM element
   const id = getLineId(value);
-  return id ? takeInternalLines().findIndex((line) => line.id === id) : -1;
+  return id ? (getCachedLines() ?? []).findIndex((line) => line.id === id) : -1;
 };
 
 export const getLine = <T extends HTMLElement>(
@@ -70,10 +69,10 @@ export const getBaseLine = <T extends HTMLElement>(
   if (isUndefined(value)) return undefined;
 
   // When value is a line number
-  if (isNumber(value)) return takeInternalLines()[value];
+  if (isNumber(value)) return getCachedLines()?.[value];
   // When value is a line ID or DOM element
   const id = getLineId(value);
-  return id ? takeInternalLines().find((line) => line.id === id) : undefined;
+  return id ? getCachedLines()?.find((line) => line.id === id) : undefined;
 };
 
 export const getLineDOM = <T extends HTMLElement>(
@@ -90,7 +89,7 @@ export const getLineDOM = <T extends HTMLElement>(
 export const isLineDOM = (dom: unknown): dom is HTMLDivElement =>
   dom instanceof HTMLDivElement && dom.classList.contains("line");
 
-export const getLineCount = (): number => takeInternalLines().length;
+export const getLineCount = (): number => getCachedLines()?.length ?? 0;
 
 export const getLines = (): readonly Line[] => {
   const lines = ensure(getCachedLines(), isArray);
@@ -115,7 +114,7 @@ export const getText = <T extends HTMLElement>(
     value.classList.contains("line") ||
     value.getElementsByClassName("lines")?.[0]
   ) {
-    return takeInternalLines().map(({ text }) => text).join("\n");
+    return (getCachedLines() ?? []).map(({ text }) => text).join("\n");
   }
   // Get all character indices contained within the element and return the corresponding text
   const chars = [] as number[];

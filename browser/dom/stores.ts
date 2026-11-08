@@ -5,12 +5,7 @@ export type { Cursor, Selection };
 
 /** Retrieve Scrapbox's internal cursor and selection stores from the DOM
  *
- * This function accesses React's internal fiber tree to obtain references to
- * the Cursor and Selection store instances that Scrapbox uses to manage
- * text input state. These stores provide APIs for:
- * - {@linkcode Cursor}: Managing text cursor position and movement
- * - {@linkcode Selection}: Handling text selection ranges and operations
- *
+ * @deprecated Cosense does not attach `__reactFiber` to DOM elements, so this function always throws. Use `scrapbox.Page.cursor`, `scrapbox.Page.selection`, `addCursorChangeListener`, and `addSelectionChangeListener` instead.
  * @throws {@linkcode Error} If text input element or stores cannot be found
  * @returns Object containing {@linkcode CursorStore} and {@linkcode SelectionStore} instances
  */
